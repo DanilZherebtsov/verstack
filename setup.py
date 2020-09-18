@@ -10,7 +10,7 @@ setup(
   author_email = 'danil.com@me.com',
   url = 'https://github.com/DanilZherebtsov/verstack',
   download_url = 'https://github.com/DanilZherebtsov/verstack/archive/0.1.0.tar.gz',
-  keywords = ['impute', 'missing', 'values', 'stratify', 'nan'],
+  keywords = ['impute', 'missing', 'values', 'stratify', 'nan', 'continuous'],
   install_requires=[
           'pandas',
           'numpy',
