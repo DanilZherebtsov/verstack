@@ -15,7 +15,7 @@ class NaNImputer():
     Performs various operations on a dataset including:
         - data temporary transformation (factorization), in order to fit
             models on top.
-        - search and replace the incorrectly named missing values .
+        - search and replace the incorrectly named missing values.
             E.g. ('No data'/'Missing'/'None'). Configurable.
         - select important features for each column to speed up the
             model training. Configurable.
@@ -36,8 +36,18 @@ class NaNImputer():
         check the __init__ docstring for details.
 
     """
+    __version__ = '0.1.0'
 
-    def __init__(self, conservative = False, n_feats = 10, nan_cols = None, fix_string_nans = True, multiprocessing_load = 3, verbose = True, fill_nans_in_pure_text = True):
+    def __init__(self,
+                 conservative = False,
+                 n_feats = 10,
+                 nan_cols = None,
+                 fix_string_nans = True,
+                 multiprocessing_load = 3,
+                 verbose = True,
+                 fill_nans_in_pure_text = True,
+                 drop_empty_cols = True,
+                 drop_nan_cols_with_constant = True):
         """Initialize class instance.
 
         All arguments have default values and are initialized for the best performance.
@@ -46,34 +56,39 @@ class NaNImputer():
             conservative (bool, optional):
                 Model complexity level used to impute missing values.
                 If True: model will be set to less complex and much faster.
-                Defaults to False
+                Default = False
             n_feats (int, optional):
                 Number of corellated independent features to be used for
                 corresponding column (with NaN) model training and imputation.
-                Defaults to 10
+                Default = 10
             nan_cols (list, optional):
                 List of columns to impute missing values in.
                 If None - all columns with missing values will be used.
-                Defaults to None
+                Default = None
             fix_string_nans (bool, optional):
                 Find possible missing values in numeric columns that had been
                 (mistakenly) encoded as strings, E.g. 'Missing'/'NaN'/'No data'
                 and replace them with np.nan
-                Defaults to True
+                Default = True
             multiprocessing_load (int, optional):
                 Levels of parallel multiprocessing computing.
                 1 = single core
                 2 = half of all available cores
                 3 = all available cores
-                Defaults to 3
+                Default = 3
             verbose (bool, optional):
                 Print the imputation progress.
-                Defaults to True
+                Default = True
             fill_nans_in_pure_text (bool, optional):
-                Fill the missing values in text fields by string 'Missing_data'.
-                Applicable for text fields (not categoric).
-                Defaults to True
-
+                Fill the missing values in text fields by string 'Missing_data'
+                Applicable for text fields (not categoric)
+                Default = True
+            drop_empty_cols (bool, optional):
+                Drop columns with all NaNs
+                Default = True
+            drop_nan_cols_with_constant (bool, optional):
+                Drop columns containing NaNs and all other constant values
+                Default = True
         Returns:
             None.
 
@@ -88,7 +103,9 @@ class NaNImputer():
         self.multiprocessing_load = multiprocessing_load
         self.num_workers = self._estimate_workers()
         self.fill_nans_in_pure_text = fill_nans_in_pure_text
-
+        self.drop_empty_cols = drop_empty_cols
+        self.drop_nan_cols_with_constant = drop_nan_cols_with_constant
+        self.droped_cols = []
     # Validate init arguments
     # =========================================================
     # nan_cols
@@ -157,13 +174,30 @@ class NaNImputer():
         if type(mpl) == int and mpl not in [1,2,3] : raise Exception('multiprocessing_load can take values 1, 2 or 3')
         self._multiprocessing_load = mpl
     # -------------------------------------------------------
-    # multiprocessing_load
+    # fill_nans_in_pure_text
     fill_nans_in_pure_text = property(operator.attrgetter('_fill_nans_in_pure_text'))
 
     @fill_nans_in_pure_text.setter
     def fill_nans_in_pure_text(self, fnt):
         if type(fnt) != bool : raise Exception('fill_nans_in_pure_text must be bool (True/False)')
         self._fill_nans_in_pure_text = fnt
+    # -------------------------------------------------------
+    # drop_empty_cols
+    drop_empty_cols = property(operator.attrgetter('_drop_empty_cols'))
+
+    @drop_empty_cols.setter
+    def drop_empty_cols(self, dec):
+        if type(dec) != bool : raise Exception('drop_empty_cols must be bool (True/False)')
+        self._drop_empty_cols = dec
+    # -------------------------------------------------------
+    # drop_nan_cols_with_constant
+    drop_nan_cols_with_constant = property(operator.attrgetter('_drop_nan_cols_with_constant'))
+
+    @drop_nan_cols_with_constant.setter
+    def drop_nan_cols_with_constant(self, dnc):
+        if type(dnc) != bool : raise Exception('drop_nan_cols_with_constant must be bool (True/False)')
+        self._drop_nan_cols_with_constant = dnc
+
     # =======================================================
     def _print_data_dims(self, data):
         """Print initial information on the dataframe."""
@@ -586,22 +620,55 @@ class NaNImputer():
                 new_code_for_category = diff[0]
                 self.encoding_map[col]['Missing_data'] = new_code_for_category
 
-    def _skip_cols_with_constant(self):
-        """Do not impute columns with NaNs and a single constant value.
+    def _drop_cols_with_all_nans(self, data_prepared):
+        """Drop columns with all missing values.
 
         Remove such columns from self.nan_cols.
 
+        Args:
+            data_prepared (pandas.DataFrame):
+                Data to drop empty columns
+
         Returns:
-            None.
+            data_prepared (pandas.DataFrame):
+                Data without empty columns
 
         """
-        for col in self.nan_cols:
-            if self.metadata[col]['nunique'] == 1:
-                print(f'\nNoting to learn in column "{col}" with 1 constant value')
-                print(f'"{col}" will be returned with missing values')
-                print('-'*50)
+        for col in data_prepared:
+            if np.all(data_prepared[col].isnull()):
+                data_prepared.drop(col, axis = 1, inplace = True)
                 self.nan_cols.remove(col)
-                continue
+                self.droped_cols.append(col)
+                if self.verbose:
+                    print(f'Droped column {col} with all NaNs')
+                    print('-'*50)
+
+        return data_prepared
+
+    def _drop_nan_constant_cols(self, data_prepared):
+        """Drop columns with all missing values and all other constant vals.
+
+        Remove such columns from self.nan_cols.
+
+        Args:
+            data_prepared (pandas.DataFrame):
+                Data to drop columns witn NaNs and all other constant vals
+
+        Returns:
+            data_prepared (pandas.DataFrame):
+                Data without NaN cols and all other constant vals
+
+        """
+        for col in data_prepared:
+            if np.any(data_prepared[col].isnull()):
+                if data_prepared[col].nunique() == 1:
+                    data_prepared.drop(col, axis = 1, inplace = True)
+                    self.nan_cols.remove(col)
+                    self.droped_cols.append(col)
+                    if self.verbose:
+                        print(f'Droped column {col} with NaNs and all other constants')
+                        print('-'*50)
+        return data_prepared
 
     def impute(self, data):
         """Impute missing values in dataset.
@@ -628,7 +695,12 @@ class NaNImputer():
                 self._print_data_dims(data)
             data_prepared = self._prepare_data(data)
 
-            self._skip_cols_with_constant()
+            # deal with NaN cols with constant and empty_cols
+            if self.drop_nan_cols_with_constant:
+                data_prepared = self._drop_nan_constant_cols(data_prepared)
+#            self._skip_cols_with_constant()
+            if self.drop_empty_cols:
+                data_prepared = self._drop_cols_with_all_nans(data_prepared)
 
             # impute in multiprocessing mode
             if self.multiprocessing_load > 1:
@@ -654,10 +726,13 @@ class NaNImputer():
 
             # map to revresed encoding_map dict
             for col in list(self.encoding_map.keys()):
-                self._update_encoding_map_with_fill_nans_with_string_result(data_prepared, col)
-                data_prepared[col] = data_prepared[col].map({val:key for key, val in self.encoding_map[col].items()})
+                if col in data_prepared:
+                    self._update_encoding_map_with_fill_nans_with_string_result(data_prepared, col)
+                    data_prepared[col] = data_prepared[col].map({val:key for key, val in self.encoding_map[col].items()})
             stop = timeit.default_timer()
             if self.verbose:
+                if len(self.droped_cols) > 0:
+                    print(f'\nDroped {len(self.droped_cols)} columns with either all NaNs or with NaNs and all other constants')
                 print(f'\nNaNs imputation time: {np.round((stop-start)/60,2)} minutes')
                 print('-'*50)
             return data_prepared
