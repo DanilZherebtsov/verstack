@@ -9,6 +9,15 @@ exec(open('verstack/version.py').read())
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+# we conditionally add python-snappy based on the presence of an env var
+dependencies = ['pandas', 'numpy']
+
+rtd_build_env = os.environ.get('READTHEDOCS', False)
+if not rtd_build_env:
+    dependencies.append('xgboost')
+
+
+
 setup(
   name = 'verstack',
   packages = ['verstack'],
@@ -22,11 +31,7 @@ setup(
   url = 'https://github.com/DanilZherebtsov/verstack',
   download_url = 'https://github.com/DanilZherebtsov/verstack/archive/0.1.1.tar.gz',
   keywords = ['impute', 'missing', 'values', 'stratify', 'nan', 'continuous'],
-  install_requires=[
-          'pandas',
-          'numpy',
-          'xgboost'
-      ],
+  install_requires=dependencies,
   classifiers=[
   'Development Status :: 4 - Beta',
   'Intended Audience :: Developers',
