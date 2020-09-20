@@ -3,7 +3,7 @@ from distutils.core import setup
 import setuptools
 
 # parse __version__ from version.py
-exec(open('yourpackage/version.py').read())
+exec(open('verstack/version.py').read())
 
 # parse long_description from readme.md
 with open("README.md", "r") as fh:
@@ -20,7 +20,7 @@ setup(
   author = 'Danil Zherebtsov',
   author_email = 'danil.com@me.com',
   url = 'https://github.com/DanilZherebtsov/verstack',
-  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/0.1.0.tar.gz',
+  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/0.1.1.tar.gz',
   keywords = ['impute', 'missing', 'values', 'stratify', 'nan', 'continuous'],
   install_requires=[
           'pandas',
