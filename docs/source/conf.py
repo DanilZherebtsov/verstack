@@ -16,9 +16,8 @@ author = 'Danil Zherebtsov'
 github_doc_root = 'https://github.com/DanilZherebtsov/verstack'
 
 # Version information.
-import verstack
-version = verstack.__version__
-release = verstack.__version__
+version = '0.1.1'
+release = version
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones
