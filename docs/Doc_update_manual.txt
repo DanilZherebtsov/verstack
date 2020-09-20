@@ -1,0 +1,8 @@
+Documentation is hosted at ReadTheDocs
+
+- To amend the documentation go to: docs/source/index.rst
+- The configuration of webpage tamplate is stored in conf.py
+- After index.rst update open terminal:
+	- cd Documents/code/my_libraries/verstack.git/docs
+	- $ make html
+	- index.html will be composed and saved to docs/build

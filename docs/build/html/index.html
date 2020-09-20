@@ -1,0 +1,244 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>verstack Documentation &#8212; verstack 0.1.1 documentation</title>
+    <link rel="stylesheet" href="_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="#">verstack 0.1.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">verstack Documentation</a></li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar"><a href="
+    #" class="text-logo">verstack</a>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <h2>Contents</h2>
+    <div class="sidebar-localtoc">
+      <ul>
+<li><a class="reference internal" href="#">verstack Documentation</a><ul>
+<li><a class="reference internal" href="#nanimputer">NaNImputer</a><ul>
+<li><a class="reference internal" href="#initialize-nanimputer">Initialize NaNImputer</a></li>
+<li><a class="reference internal" href="#parameters">Parameters</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+<li><a class="reference internal" href="#logic">Logic</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#links">Links</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="#">Docs</a></li>
+              
+              <li>verstack Documentation</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="verstack-documentation">
+<h1>verstack Documentation<a class="headerlink" href="#verstack-documentation" title="Permalink to this headline">¶</a></h1>
+<p>veratack package contains the following tools:</p>
+<ul class="simple">
+<li><p><strong>NaNImputer</strong> impute all missing values in a pandas dataframe using advanced machine learning with 1 line of code</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Getting verstack</p>
+<p>$ <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">verstack</span></code></p>
+</div>
+<div class="section" id="nanimputer">
+<h2>NaNImputer<a class="headerlink" href="#nanimputer" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="initialize-nanimputer">
+<h3>Initialize NaNImputer<a class="headerlink" href="#initialize-nanimputer" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">NaNImputer</span>
+
+<span class="c1"># initialize with default parameters</span>
+<span class="n">imputer</span> <span class="o">=</span> <span class="n">NaNImputer</span><span class="p">()</span>
+
+<span class="c1"># initialize with selected parameters</span>
+<span class="n">imputer</span> <span class="o">=</span> <span class="n">NaNImputer</span><span class="p">(</span><span class="n">conservative</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                     <span class="n">n_feats</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+                     <span class="n">nan_cols</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">fix_string_nans</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                     <span class="n">multiprocessing_load</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+                     <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                     <span class="n">fill_nans_in_pure_text</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                     <span class="n">drop_empty_cols</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">drop_nan_cols_with_constant</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">conservative</span></code> [default=False]</p>
+<ul>
+<li><p>Model complexity level used to impute missing values. If <code class="docutils literal notranslate"><span class="pre">True</span></code>: model will be set to less complex and much faster.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">n_feats</span></code> [default=10]</p>
+<ul>
+<li><p>Number of corellated independent features to be used forcorresponding column (with NaN) model training and imputation.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nan_cols</span></code> [default=None]</p>
+<ul>
+<li><p>List of columns to impute missing values in. If None: all the columns with missing values will be used.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fix_string_nans</span></code> [default=True]</p>
+<ul>
+<li><p>Find possible missing values in numeric columns that had been (mistakenly) encoded as strings, E.g. ‘Missing’/’NaN’/’No data’ and replace them with np.nan for further imputation.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">multiprocessing_load</span></code> [default=3]</p>
+<ul>
+<li><dl class="simple">
+<dt>Levels of parallel multiprocessing compute</dt><dd><p>1 = single core
+2 = half of all available cores
+3 = all available cores</p>
+</dd>
+</dl>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">verbose</span></code> [default=True]</p>
+<ul>
+<li><p>Print the imputation progress.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fill_nans_in_pure_text</span></code> [default=True]</p>
+<ul>
+<li><p>Fill the missing values in text fields by string ‘Missing_data’.Applicable for text fields (not categoric).</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">drop_empty_cols</span></code> [default=True]</p>
+<ul>
+<li><p>Drop columns with all NaNs.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">drop_nan_cols_with_constant</span></code> [default=True]</p>
+<ul>
+<li><p>Drop columns containing NaNs and known values as a single constant.</p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
+<p>Using NaNImputer with all default parameters</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">imputer</span> <span class="o">=</span> <span class="n">NaNImputer</span><span class="p">()</span>
+<span class="n">df_imputed</span> <span class="o">=</span> <span class="n">imputer</span><span class="o">.</span><span class="n">impute</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Say you would like to impute missing values in a list of specific columns, use 20 most important features for each of these columns imputation and deploy a half of the available cpu cores</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">imputer</span> <span class="o">=</span> <span class="n">NaNImputer</span><span class="p">(</span><span class="n">nan_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;col1&#39;</span><span class="p">,</span> <span class="s1">&#39;col2&#39;</span><span class="p">],</span> <span class="n">n_feats</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">multiprocessing_load</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">df_imputed</span> <span class="o">=</span> <span class="n">imputer</span><span class="o">.</span><span class="n">impute</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="logic">
+<h3>Logic<a class="headerlink" href="#logic" title="Permalink to this headline">¶</a></h3>
+<p>With NaNImputer you can fill missing values in numeric, binary and categoric columns in your pandas dataframe using advanced XGBRegressor/XGBClassifier models with just 1 line of code. Regardless of the data types in your dataframe (string/bool/numeric):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>all of the columns will be checked for missing values</p></li>
+<li><p>transformed into numeric formats</p></li>
+<li><p>split into subsets with and without missing values</p></li>
+<li><p>applicalbe models will be selected and configured for each of the columns with NaNs</p></li>
+<li><p>models will be trained in multiprocessing mode utilizing all the available cores and threads of your cpu (this saves a lot of time)</p></li>
+<li><p>NaNs will be predicted and placed into corresponding indixes</p></li>
+<li><p>columns with all NaNs will be droped</p></li>
+<li><p>columns containing NaNs and known values as a single constant</p></li>
+<li><p>data will be reverse-transformed into original format</p></li>
+</ul>
+</div></blockquote>
+<p>The module is highly configurable with default argumets set for the highest performance and verbosity</p>
+<p>The only limitation is:</p>
+<ul class="simple">
+<li><p>NaNs in pure text columns are not imputed. By default they are filled with ‘Missing_data’ value. Configurable. If disabled - will return these columns with missing values untouched</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="links">
+<h2>Links<a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://github.com/DanilZherebtsov/verstack">Git</a></p>
+<p><a class="reference external" href="https://pypi.org/project/verstack/">pypi</a></p>
+<p><a class="reference external" href="https://www.linkedin.com/in/danil-zherebtsov/">author</a></p>
+</div>
+</div>
+
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="#">verstack 0.1.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">verstack Documentation</a></li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2020, Danil Zherebtsov. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>
