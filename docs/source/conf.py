@@ -6,13 +6,12 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
 import guzzle_sphinx_theme
+autodoc_mock_imports = ["xgboost"]
 # -- Project information -----------------------------------------------------
 
 project = 'verstack'
 copyright = '2020, Danil Zherebtsov'
 author = 'Danil Zherebtsov'
-
-autodoc_mock_imports = ["xgboost"]
 
 github_doc_root = 'https://github.com/DanilZherebtsov/verstack'
 
