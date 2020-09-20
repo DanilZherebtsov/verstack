@@ -1,5 +1,5 @@
 ##################
-verstack Documentation
+verstack 0.1.1 Documentation
 ##################
 veratack package contains the following tools:
 
