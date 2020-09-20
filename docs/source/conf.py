@@ -27,7 +27,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.mathjax',
     'sphinx.ext.intersphinx',
-    'breathe',
+    #'breathe',
     'recommonmark'
 ]
 
