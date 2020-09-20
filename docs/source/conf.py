@@ -2,11 +2,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, usse os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
 import os
-
+import sys
+sys.path.insert(0, os.path.abspath('.'))
+import guzzle_sphinx_theme
 # -- Project information -----------------------------------------------------
 
 project = 'verstack'
@@ -102,7 +101,7 @@ todo_include_todos = False
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-import guzzle_sphinx_theme
+
 html_theme_path = guzzle_sphinx_theme.html_theme_path()
 html_theme = 'guzzle_sphinx_theme'
 
