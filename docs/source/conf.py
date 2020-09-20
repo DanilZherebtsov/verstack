@@ -12,6 +12,8 @@ project = 'verstack'
 copyright = '2020, Danil Zherebtsov'
 author = 'Danil Zherebtsov'
 
+autodoc_mock_imports = ["xgboost"]
+
 github_doc_root = 'https://github.com/DanilZherebtsov/verstack'
 
 # Version information.
