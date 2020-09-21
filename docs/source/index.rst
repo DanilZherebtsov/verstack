@@ -1,6 +1,8 @@
 ##################
 verstack 0.1.1 Documentation
 ##################
+Machine learning tools to make a Data Scientist's work efficient
+
 veratack package contains the following tools:
 
 - **NaNImputer** impute all missing values in a pandas dataframe using advanced machine learning with 1 line of code
