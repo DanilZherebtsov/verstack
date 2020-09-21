@@ -59,9 +59,9 @@ Parameters
 * ``multiprocessing_load`` [default=3]
 
   - Levels of parallel multiprocessing compute
-      1 = single core
-      2 = half of all available cores
-      3 = all available cores
+    - 1 = single core
+    - 2 = half of all available cores
+    - 3 = all available cores
 
 * ``verbose`` [default=True]
 
