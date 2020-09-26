@@ -12,6 +12,7 @@ veratack package contains the following tools:
   Getting verstack
 
   $ ``pip install verstack``
+  $ ``pip install --upgrade verstack``
 
 
 ******************

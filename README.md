@@ -29,6 +29,7 @@ In the following paragraphs, I am going to describe how you can get and use vers
 To download verstack, either fork this github repo or simply use Pypi via pip
 ```sh
 $ pip install verstack
+$ pip install --upgrade verstack
 ```
 
 ### Using it
