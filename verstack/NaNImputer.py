@@ -47,7 +47,8 @@ class NaNImputer():
                  verbose = True,
                  fill_nans_in_pure_text = True,
                  drop_empty_cols = True,
-                 drop_nan_cols_with_constant = True):
+                 drop_nan_cols_with_constant = True,
+                 feature_selection = 'correlation'):
         """Initialize class instance.
 
         All arguments have default values and are initialized for the best performance.
@@ -89,6 +90,10 @@ class NaNImputer():
             drop_nan_cols_with_constant (bool, optional):
                 Drop columns containing NaNs and all other constant values
                 Default = True
+            feature_selection (str, optional):
+                Define algorithm to select most important feats for each
+                column imputation. Options: "correlation"/"feature_importance"
+                Default = "correlation"
         Returns:
             None.
 
@@ -105,7 +110,18 @@ class NaNImputer():
         self.fill_nans_in_pure_text = fill_nans_in_pure_text
         self.drop_empty_cols = drop_empty_cols
         self.drop_nan_cols_with_constant = drop_nan_cols_with_constant
+        self.feature_selection = feature_selection
         self.droped_cols = []
+
+    # print init parameters when calling the class instance
+    def __repr__(self):
+        return f'NaNImputer(conservative = {self.conservative}, n_feats = {self.n_feats},\
+            \n           fix_string_nans = {self.fix_string_nans}, verbose = {self.verbose},\
+                \n           multiprocessing_load = {self.multiprocessing_load}, fill_nans_in_pure_text = {self.fill_nans_in_pure_text},\
+                    \n           drop_empty_cols = {self.drop_empty_cols}, drop_nan_cols_with_constant = {self.drop_nan_cols_with_constant}\
+                        \n           feature_selection = {self.feature_selection})'
+
+
     # Validate init arguments
     # =========================================================
     # nan_cols
@@ -197,6 +213,15 @@ class NaNImputer():
     def drop_nan_cols_with_constant(self, dnc):
         if type(dnc) != bool : raise Exception('drop_nan_cols_with_constant must be bool (True/False)')
         self._drop_nan_cols_with_constant = dnc
+    # -------------------------------------------------------
+    # feature_selection
+    feature_selection = property(operator.attrgetter('_feature_selection'))
+
+    @feature_selection.setter
+    def feature_selection(self, fs):
+        if type(fs) != str : raise Exception('feature_selection must ba of type(str)')
+        if fs not in ['correlation', 'feature_importance'] : raise Exception('feature selection can be either "correlation" or "feature_importance"')
+        self._feature_selection = fs
 
     # =======================================================
     def _print_data_dims(self, data):
@@ -396,7 +421,10 @@ class NaNImputer():
 
         """
         if self.metadata['data_shape'][1] >= 30:
-            top_feats = self._get_important_feats(data_prepared, col)
+            if self.feature_selection == 'correlation':
+                top_feats = self._get_high_corr_feats(data_prepared, col)
+            else:
+                top_feats = self._get_important_feats(data_prepared, col)
             top_feats.append(col)
             subset = data_prepared[top_feats]
 #            print('Ncols reduced to 10')
@@ -436,6 +464,28 @@ class NaNImputer():
 
         return data_prepared
 
+    def _get_high_corr_feats(self, data_prepared, col):
+        """Get the n most important features for a given column based on
+        binary corellations with the target col.
+
+        Args:
+            data_prepared (pandas.DataFrame):
+                data prepared for modeling with all columns, including the target column
+            col (str):
+                target column name for which important features must be found
+        Returns:
+            top_feats (list):
+                list of strings with the top (self.n_feats) number of features
+
+        """
+        import math
+        corellations = data_prepared.drop(col, axis = 1).apply(lambda x: x.corr(data_prepared[col]))
+        for i in corellations.index:
+            corellations[i] = math.fabs(corellations[i])
+            corellations = corellations.sort_values(ascending = False)
+        feats = list(corellations[:10].index)
+        return feats
+
     def _get_important_feats(self, data_prepared, col):
         """Get the n most important features for a given column based on feature_importance.
 
@@ -447,8 +497,6 @@ class NaNImputer():
                 data prepared for modeling with all columns, including the target column
             col (str):
                 target column name for which important features must be found
-            n_feats (int):
-                number of important features to return
         Returns:
             top_feats (list):
                 list of strings with the top (self.n_feats) number of features

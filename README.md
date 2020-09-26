@@ -103,6 +103,10 @@ imputer = NaNImputer(verbose = False)
     drop_nan_cols_with_constant (bool, optional):
         Drop columns containing NaNs and all other constant values
         Default = True
+    feature_selection (str, optional):
+        Define algorithm to select most important feats for each
+        column imputation. Options: "correlation"/"feature_importance"
+        Default = "correlation"        
 
 Say you would like to impute missing values in a list of specific columns, use 20 most important features for each of these columns imputation and deploy a half of the available cpu cores, so these should be your settings:
 ```Python 

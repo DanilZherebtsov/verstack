@@ -1,5 +1,5 @@
 ##################
-verstack 0.1.1 Documentation
+verstack 0.2.0 Documentation
 ##################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -78,6 +78,10 @@ Parameters
 * ``drop_nan_cols_with_constant`` [default=True]
 
   - Drop columns containing NaNs and known values as a single constant.
+
+* ``feature_selection`` [default="correlation"]
+  - Define algorithm to select most important feats for each column imputation. Quick option: "correlation" is based on selecting n_feats with the highest binary correlation with each column for NaNs imputation. Less quick but more precise: "feature_importance" is based on extracting feature_importances from an xgboost model.
+
 
 Examples
 ================================================================
