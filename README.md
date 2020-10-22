@@ -128,12 +128,12 @@ Create stratified splits based on either continuous or categoric target variable
 
 Can accept only pandas.DataFrame/pandas.Series as data input.
 ```Python
-  verstack.stratified_continuous_split(*args, 
-                                       stratify, 
-                                       test_size = 0.3, 
-                                       train_size = 0.7, 
-                                       continuous = True, 
-                                       random_state = None)
+  verstack.stratified_continuous_split.scsplit(*args, 
+                                               stratify, 
+                                               test_size = 0.3, 
+                                               train_size = 0.7, 
+                                               continuous = True, 
+                                               random_state = None)
 ```
 
 ##### Parameters
@@ -155,7 +155,7 @@ Can accept only pandas.DataFrame/pandas.Series as data input.
 ##### Examples
   
 ```Python
-  from verstack import stratified_continuous_split as scsplit
+  from verstack.stratified_continuous_split import scsplit
   
   train, test = scsplit(data, stratify = data['continuous_column_name'])
   X_train, X_val, y_train, y_val = scsplit(X, y, stratify = y, 

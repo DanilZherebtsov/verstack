@@ -1,5 +1,5 @@
 ##################
-verstack 0.3.0 Documentation
+verstack 0.3.1 Documentation
 ##################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -137,12 +137,12 @@ Can accept only pandas.DataFrame/pandas.Series as data input.
 
 .. code-block:: python 
 
-  verstack.stratified_continuous_split(*args, 
-                                       stratify, 
-                                       test_size = 0.3, 
-                                       train_size = 0.7, 
-                                       continuous = True, 
-                                       random_state = None)
+  verstack.stratified_continuous_split.scsplit(*args, 
+                                               stratify, 
+                                               test_size = 0.3, 
+                                               train_size = 0.7, 
+                                               continuous = True, 
+                                               random_state = None)
 
 Parameters
 ===========================
@@ -176,7 +176,7 @@ Examples
 
 .. code-block:: python
 
-  from verstack import stratified_continuous_split as scsplit
+  from verstack.stratified_continuous_split import scsplit
   
   train, test = scsplit(data, stratify = data['continuous_column_name'])
   X_train, X_val, y_train, y_val = scsplit(X, y, stratify = y, 

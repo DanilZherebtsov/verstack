@@ -81,7 +81,7 @@ def combine_single_valued_bins(y_binned):
     return y_binned
 
 
-def stratified_continuous_split(*args, stratify, test_size = 0.3, train_size = 0.7, continuous = True, random_state = None):
+def scsplit(*args, stratify, test_size = 0.3, train_size = 0.7, continuous = True, random_state = None):
     """
     Create stratfied splits for based on categoric or continuous column.
 
@@ -93,9 +93,9 @@ def stratified_continuous_split(*args, stratify, test_size = 0.3, train_size = 0
             or X, y to split into X_train, X_val, y_train, y_val.
         stratify (pd.Series): column used for stratification. Can be either a
         column inside dataset:
-            train, test = stratified_continuous_split(data, stratify = data['col'],...)
+            train, test = scsplit(data, stratify = data['col'],...)
         or a separate pd.Series object:
-            X_train, X_val, y_train, y_val = stratified_continuous_split(X, y, stratify = y).
+            X_train, X_val, y_train, y_val = scsplit(X, y, stratify = y).
         test_size (float): test split size. Defaults to 0.3.
         train_size (float): train split size. Defaults to 0.7.
         continuous (bool): continuous or categoric target variabale. Defaults to True.
