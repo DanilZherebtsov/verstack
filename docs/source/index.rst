@@ -1,17 +1,20 @@
 ##################
-verstack 0.2.2 Documentation
+verstack 0.3.2 Documentation
 ##################
 Machine learning tools to make a Data Scientist's work efficient
 
 veratack package contains the following tools:
 
 - **NaNImputer** impute all missing values in a pandas dataframe using advanced machine learning with 1 line of code
+- **stratified_continuous_split** create train/test splits stratified on the continuous variable
+
 
 .. note:: 
 
   Getting verstack
 
   $ ``pip install verstack``
+
   $ ``pip install --upgrade verstack``
 
 
@@ -121,6 +124,64 @@ The module is highly configurable with default argumets set for the highest perf
 The only limitation is:
 
 - NaNs in pure text columns are not imputed. By default they are filled with 'Missing_data' value. Configurable. If disabled - will return these columns with missing values untouched
+
+******************
+stratified_continuous_split
+******************
+
+Create stratified splits based on either continuous or categoric target variable.
+  - For continuous target variable verstack uses binning and categoric split based on bins
+  - For categoric target enhanced sklearn.model_selection.train_test_split is used: in case there are not enough categories for the split, the minority classes will be combined with nearest neighbors.
+
+Can accept only pandas.DataFrame/pandas.Series as data input.
+
+.. code-block:: python 
+
+  verstack.stratified_continuous_split(*args, 
+                                       stratify, 
+                                       test_size = 0.3, 
+                                       train_size = 0.7, 
+                                       continuous = True, 
+                                       random_state = None)
+
+Parameters
+===========================
+* ``X,y,data`` 
+
+  - data input for the split in pandas.DataFrame/pandas.Series format.
+
+* ``stratify`` 
+
+  - target variable for the split in pandas/eries format.
+
+* ``test_size`` [default=0.3]
+
+  - test split ratio.
+
+* ``train_size`` [default=0.7]
+
+  - train split ratio.
+
+* ``continuous`` [default=True]
+
+  - stratification target definition. If True, verstack will perform the stratification on the continuous target variable, if False, sklearn.model_selection.train_test_split will be performed with verstack enhancements.
+
+* ``random_state`` [default=5]
+
+  - random state value.
+
+
+Examples
+================================================================
+
+.. code-block:: python
+
+  from verstack import stratified_continuous_split as scsplit
+  
+  train, test = scsplit(data, stratify = data['continuous_column_name'])
+  X_train, X_val, y_train, y_val = scsplit(X, y, stratify = y, 
+                                           test_size = 0.3, random_state = 5)
+
 
 ******************
 Links

@@ -15,6 +15,7 @@ dependencies = ['pandas', 'numpy']
 rtd_build_env = os.environ.get('READTHEDOCS', False)
 if not rtd_build_env:
     dependencies.append('xgboost')
+    dependencies.append('sklearn')
 
 setup(
   name = 'verstack',
@@ -27,7 +28,7 @@ setup(
   author = 'Danil Zherebtsov',
   author_email = 'danil.com@me.com',
   url = 'https://github.com/DanilZherebtsov/verstack',
-  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/0.2.1.tar.gz',
+  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/0.2.2.tar.gz',
   keywords = ['impute', 'missing', 'values', 'stratify', 'nan', 'continuous'],
   install_requires=dependencies,
   classifiers=[
