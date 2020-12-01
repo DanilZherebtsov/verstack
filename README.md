@@ -138,10 +138,8 @@ Can accept only pandas.DataFrame/pandas.Series as data input.
 
 ##### Parameters
 
-    X,y,data: (pd.DataFrame/pd.Series)
-        data input for the split in pandas.DataFrame/pandas.Series format.
-    stratify (pd.Series): 
-        target variable for the split in pandas/eries format.
+    X,y,data: (pd.DataFrame/np.ndarray)
+        Data input for the split in pandas.DataFrame/np.ndarray format.
     test_size (float, optional):
         test split ratio. Default = 0.3
     train_size (float, optional):
@@ -157,8 +155,7 @@ Can accept only pandas.DataFrame/pandas.Series as data input.
 ```Python
   from verstack.stratified_continuous_split import scsplit
   
-  train, test = scsplit(data, stratify = data['continuous_column_name'])
-  X_train, X_val, y_train, y_val = scsplit(X, y, stratify = y, 
+  X_train, X_val, y_train, y_val = scsplit(X, y, 
                                            test_size = 0.3, random_state = 5)
 ```
 
