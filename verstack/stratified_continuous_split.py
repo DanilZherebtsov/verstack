@@ -17,13 +17,13 @@ def estimate_nbins(y):
         nbins = int(len(y)/10)
     else:
         nbins = 100
-    
-    if isinstance(y, pd.DataFrame):
+        
+    if isinstance(y, pd.DataFrame) or isinstance(y, pd.Series):
         bins = np.linspace(min(np.squeeze(y.to_numpy())), max(np.squeeze(y.to_numpy())), nbins)
         
     elif isinstance(y, np.ndarray):
         bins = np.linspace(min(y), max(y), nbins)
-    
+        
     return bins
 
 def combine_single_valued_bins(y_binned):
@@ -84,15 +84,20 @@ def combine_single_valued_bins(y_binned):
     return y_binned
 
 
-def scsplit(X, y, test_size = 0.3, train_size = 0.7, continuous = True, random_state = None):
+def scsplit(*args, stratify=None, test_size = 0.3, train_size = 0.7, continuous = True, random_state = None):
     """
     Create stratfied splits for based on categoric or continuous column.
     For categoric target stratification raw sklearn is used, for continuous target
     stratification binning of the target variable is performed before split.
     Args:
-        X, y : pd.DataFrame, pd.Series, np.ndarray 
-            Two dataframes to split into X_train, X_val, y_train, y_val.
-            
+        *args : pd.DataFrame, pd.Series, or np.ndarray 
+            A sequence of indexables with same length / shape[0]. Specifically, 
+            either a dataframe to split into train, test or X, y to split into 
+            X_train, X_val, y_train, and y_val.
+        
+        stratify : pd.Series, default=None 
+            Column used for stratification. Can be either a column inside dataset:
+        
         test_size : float  
             Test split size. Defaults to 0.3.
             
@@ -121,41 +126,68 @@ def scsplit(X, y, test_size = 0.3, train_size = 0.7, continuous = True, random_s
     if random_state:
         np.random.seed(random_state)
 
+    if len(args) == 2:
+        X = args[0]
+        y = args[1]
+    else:
+        X = args[0].drop(stratify.name, axis = 1)
+        y = args[0][stratify.name]
+
     # non continuous stratified split (raw sklearn)
     if not continuous:
         y = np.array(y)
         y = combine_single_valued_bins(y)
-        X_train, X_val, y_train, y_val = split(X, y,
-                                               stratify = y,
-                                               test_size = test_size if test_size else None,
-                                               train_size = train_size if train_size else None)
-        return X_train, X_val, y_train, y_val
-
+        if len(args) == 2:
+            X_train, X_val, y_train, y_val = split(X, y,
+                                                   stratify = y,
+                                                   test_size = test_size if test_size else None,
+                                                   train_size = train_size if train_size else None)
+            return X_train, X_val, y_train, y_val
+        else:
+            temp = pd.concat([X, pd.DataFrame(y, columns = [stratify.name])], axis= 1)
+            train, val = split(temp,
+                                stratify = temp[stratify.name],
+                                test_size = test_size if test_size else None,
+                                train_size = train_size if train_size else None)
+            return train, val
     # ------------------------------------------------------------------------
     # assign continuous target values into bins
     bins = estimate_nbins(y)
-    y_binned = np.digitize(y, bins).squeeze() #RHYS: Added::   .squeeze()
+    y_binned = np.digitize(y, bins).squeeze()
     # correct bins if necessary
     y_binned = combine_single_valued_bins(y_binned)
 
-    # split
-    X_t, X_v, y_t, y_v = split(X, y,
-                               stratify = y_binned,
-                               test_size = test_size if test_size else None,
-                               train_size = train_size if train_size else None)
+    # X and y Pandas dataframe split:
+    if len(args) == 2 and (isinstance(X, pd.DataFrame) or isinstance(X, pd.Series)):
+        X_t, X_v, y_t, y_v = split(X, y_binned,
+                                   stratify = y_binned,
+                                   test_size = test_size if test_size else None,
+                                   train_size = train_size if train_size else None)
 
-    if isinstance(y, pd.DataFrame):
         X_train = X.iloc[X_t.index]
         y_train = y.iloc[X_t.index]
         X_val = X.iloc[X_v.index]
         y_val = y.iloc[X_v.index]
-        
-    elif isinstance(y, np.ndarray):
-        X_train = X_t
-        y_train = y_t
-        X_val = X_v
-        y_val = y_v
-        
 
-    return X_train, X_val, y_train, y_val
-
+        return X_train, X_val, y_train, y_val
+    
+    
+    # Numpy array split:
+    elif len(args) == 2 and (isinstance(X, np.ndarray) or isinstance(y, np.ndarray)):
+        X_train, X_val, y_train, y_val = split(X, y,
+                                           stratify = y_binned,
+                                           test_size = test_size if test_size else None,
+                                           train_size = train_size if train_size else None) 
+        
+        return X_train, X_val, y_train, y_val
+        
+    # Single Pandas dataframe split:
+    else:
+        temp = pd.concat([X, pd.DataFrame(y_binned, columns = [stratify.name])], axis= 1)
+        tr, te = split(temp,
+                       stratify = temp[stratify.name],
+                       test_size = test_size if test_size else None,
+                       train_size = train_size if train_size else None)
+        train = args[0].iloc[tr.index]
+        test = args[0].iloc[te.index]
+        return train, test
