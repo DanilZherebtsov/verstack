@@ -29,7 +29,7 @@ setup(
   author_email = 'danil.com@me.com',
   url = 'https://github.com/DanilZherebtsov/verstack',
   download_url = 'https://github.com/DanilZherebtsov/verstack/archive/0.4.0.tar.gz',
-  keywords = ['impute', 'missing', 'values', 'stratify', 'nan', 'continuous'],
+  keywords = ['impute', 'missing', 'values', 'stratify', 'nan', 'continuous', 'multiprocessing', 'concurrent', 'timer'],
   install_requires=dependencies,
   classifiers=[
   'Development Status :: 4 - Beta',
