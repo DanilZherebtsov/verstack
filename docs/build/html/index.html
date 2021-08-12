@@ -4,7 +4,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   
   <!-- Licensed under the Apache 2.0 License -->
   <link rel="stylesheet" type="text/css" href="_static/fonts/open-sans/stylesheet.css" />
@@ -14,15 +15,14 @@
   <link rel="stylesheet" type="text/css" href="_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>verstack 0.3.2 Documentation &#8212; verstack 0.1.1 documentation</title>
-    <link rel="stylesheet" href="_static/guzzle.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <title>verstack 0.4.1 Documentation &#8212; verstack 0.1.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/guzzle.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
   
@@ -36,7 +36,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="nav-item nav-item-0"><a href="#">verstack 0.1.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">verstack 0.3.2 Documentation</a></li> 
+        <li class="nav-item nav-item-this"><a href="">verstack 0.4.1 Documentation</a></li> 
       </ul>
     </div>
     <div class="container-wrapper">
@@ -52,17 +52,30 @@
     <h2>Contents</h2>
     <div class="sidebar-localtoc">
       <ul>
-<li><a class="reference internal" href="#">verstack 0.3.2 Documentation</a><ul>
+<li><a class="reference internal" href="#">verstack 0.4.1 Documentation</a><ul>
 <li><a class="reference internal" href="#nanimputer">NaNImputer</a><ul>
 <li><a class="reference internal" href="#initialize-nanimputer">Initialize NaNImputer</a></li>
 <li><a class="reference internal" href="#parameters">Parameters</a></li>
+<li><a class="reference internal" href="#methods">Methods</a></li>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 <li><a class="reference internal" href="#logic">Logic</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#stratified-continuous-split">stratified_continuous_split</a><ul>
+<li><a class="reference internal" href="#multicore">Multicore</a><ul>
+<li><a class="reference internal" href="#initialize-multicore">Initialize Multicore</a></li>
 <li><a class="reference internal" href="#id1">Parameters</a></li>
-<li><a class="reference internal" href="#id2">Examples</a></li>
+<li><a class="reference internal" href="#id2">Methods</a></li>
+<li><a class="reference internal" href="#id3">Examples</a></li>
+<li><a class="reference internal" href="#id4">Logic</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#stratified-continuous-split">stratified_continuous_split</a><ul>
+<li><a class="reference internal" href="#id5">Parameters</a></li>
+<li><a class="reference internal" href="#id6">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#timer">timer</a><ul>
+<li><a class="reference internal" href="#id7">Examples</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#links">Links</a></li>
@@ -82,19 +95,21 @@
             <ol class="breadcrumb">
               <li><a href="#">Docs</a></li>
               
-              <li>verstack 0.3.2 Documentation</li>
+              <li>verstack 0.4.1 Documentation</li>
             </ol>
           </div>
           
           <div class="document clearer body">
             
-  <div class="section" id="verstack-0-3-2-documentation">
-<h1>verstack 0.3.2 Documentation<a class="headerlink" href="#verstack-0-3-2-documentation" title="Permalink to this headline">¶</a></h1>
+  <section id="verstack-0-4-1-documentation">
+<h1>verstack 0.4.1 Documentation<a class="headerlink" href="#verstack-0-4-1-documentation" title="Permalink to this headline">¶</a></h1>
 <p>Machine learning tools to make a Data Scientist’s work efficient</p>
 <p>veratack package contains the following tools:</p>
 <ul class="simple">
 <li><p><strong>NaNImputer</strong> impute all missing values in a pandas dataframe using advanced machine learning with 1 line of code</p></li>
+<li><p><strong>Multicore</strong> execute any function in concurrency using all the available cpu cores</p></li>
 <li><p><strong>stratified_continuous_split</strong> create train/test splits stratified on the continuous variable</p></li>
+<li><p><strong>timer</strong> convenient timer decorator to quickly measure and display time of any function execution</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -102,9 +117,10 @@
 <p>$ <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">verstack</span></code></p>
 <p>$ <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">verstack</span></code></p>
 </div>
-<div class="section" id="nanimputer">
+<section id="nanimputer">
 <h2>NaNImputer<a class="headerlink" href="#nanimputer" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="initialize-nanimputer">
+<p>Impute all missing values in a pandas dataframe by xgboost models in multiprocessing mode using a single line of code.</p>
+<section id="initialize-nanimputer">
 <h3>Initialize NaNImputer<a class="headerlink" href="#initialize-nanimputer" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">NaNImputer</span>
 
@@ -119,11 +135,12 @@
                      <span class="n">multiprocessing_load</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
                      <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                      <span class="n">fill_nans_in_pure_text</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-                     <span class="n">drop_empty_cols</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">drop_nan_cols_with_constant</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+                     <span class="n">drop_empty_cols</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                     <span class="n">drop_nan_cols_with_constant</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="parameters">
+</section>
+<section id="parameters">
 <h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">conservative</span></code> [default=False]</p>
@@ -177,8 +194,18 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">feature_selection</span></code> [default=”correlation”]
 - Define algorithm to select most important feats for each column imputation. Quick option: “correlation” is based on selecting n_feats with the highest binary correlation with each column for NaNs imputation. Less quick but more precise: “feature_importance” is based on extracting feature_importances from an xgboost model.</p></li>
 </ul>
-</div>
-<div class="section" id="examples">
+</section>
+<section id="methods">
+<h3>Methods<a class="headerlink" href="#methods" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">impute(data)</span></code></p>
+<ul>
+<li><p>Execute NaNs imputation columnwise in a pd.DataFrame</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="examples">
 <h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
 <p>Using NaNImputer with all default parameters</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">imputer</span> <span class="o">=</span> <span class="n">NaNImputer</span><span class="p">()</span>
@@ -190,8 +217,8 @@
 <span class="n">df_imputed</span> <span class="o">=</span> <span class="n">imputer</span><span class="o">.</span><span class="n">impute</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="logic">
+</section>
+<section id="logic">
 <h3>Logic<a class="headerlink" href="#logic" title="Permalink to this headline">¶</a></h3>
 <p>With NaNImputer you can fill missing values in numeric, binary and categoric columns in your pandas dataframe using advanced XGBRegressor/XGBClassifier models with just 1 line of code. Regardless of the data types in your dataframe (string/bool/numeric):</p>
 <blockquote>
@@ -212,9 +239,71 @@
 <ul class="simple">
 <li><p>NaNs in pure text columns are not imputed. By default they are filled with ‘Missing_data’ value. Configurable. If disabled - will return these columns with missing values untouched</p></li>
 </ul>
+</section>
+</section>
+<section id="multicore">
+<h2>Multicore<a class="headerlink" href="#multicore" title="Permalink to this headline">¶</a></h2>
+<p>Execute any function in concurrency using all the available cpu cores</p>
+<section id="initialize-multicore">
+<h3>Initialize Multicore<a class="headerlink" href="#initialize-multicore" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">Multicore</span>
+
+<span class="c1"># initialize with default parameters</span>
+<span class="n">multicore</span> <span class="o">=</span> <span class="n">Multicore</span><span class="p">()</span>
+
+<span class="c1"># initialize with selected parameters</span>
+<span class="n">multicore</span> <span class="o">=</span> <span class="n">Multicore</span><span class="p">(</span><span class="n">workers</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
+                      <span class="n">multiple_iterables</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
 </div>
+</section>
+<section id="id1">
+<h3>Parameters<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">workers</span></code> int or bool [default=False]</p>
+<ul class="simple">
+<li><p>Number of workers if passed by user. If <code class="docutils literal notranslate"><span class="pre">False</span></code>: all available cpu cores will be used.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">multiple_iterables</span></code> bool [default=False]</p>
+<ul class="simple">
+<li><p>If function needs to iterate over multiple iterables, set to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+</ul>
+<p>Multiple iterables must be passed as a list (see examples below).</p>
+</li>
+</ul>
+</section>
+<section id="id2">
+<h3>Methods<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">execute(func,</span> <span class="pre">iterable)</span></code></p>
+<ul>
+<li><p>Execute passed function and iterable(s) in concurrency.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id3">
+<h3>Examples<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>Using Multicore with all default parameters</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">multicore</span> <span class="o">=</span> <span class="n">Multicore</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">multicore</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">iterable_list</span><span class="p">)</span>
+</pre></div>
 </div>
-<div class="section" id="stratified-continuous-split">
+<p>If you want to use a limited number of cpu cores and need to iterate over two objects:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">multicore</span> <span class="o">=</span> <span class="n">Multicore</span><span class="p">(</span><span class="n">workers</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">multiple_iterables</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">multicore</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="p">[</span><span class="n">iterable_dataframe</span><span class="p">,</span> <span class="n">iterable_list</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h3>Logic<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>Multicore module is built on top of concurrent.futures package. Passed iterables are divided into chunks according to the number of workers and passed into separate processes.</p>
+<p>Results are extracted from finished processes and combined into a single/multiple output as per the defined function output requirements.</p>
+<p>Multiple outputs are returned as a nested list.</p>
+</section>
+</section>
+<section id="stratified-continuous-split">
 <h2>stratified_continuous_split<a class="headerlink" href="#stratified-continuous-split" title="Permalink to this headline">¶</a></h2>
 <dl class="simple">
 <dt>Create stratified splits based on either continuous or categoric target variable.</dt><dd><ul class="simple">
@@ -224,16 +313,16 @@
 </dd>
 </dl>
 <p>Can accept only pandas.DataFrame/pandas.Series as data input.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">verstack</span><span class="o">.</span><span class="n">stratified_continuous_split</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span>
-                                     <span class="n">stratify</span><span class="p">,</span>
-                                     <span class="n">test_size</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span>
-                                     <span class="n">train_size</span> <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span>
-                                     <span class="n">continuous</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-                                     <span class="n">random_state</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">verstack</span><span class="o">.</span><span class="n">stratified_continuous_split</span><span class="o">.</span><span class="n">scsplit</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span>
+                                             <span class="n">stratify</span><span class="p">,</span>
+                                             <span class="n">test_size</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span>
+                                             <span class="n">train_size</span> <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span>
+                                             <span class="n">continuous</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                                             <span class="n">random_state</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="section" id="id1">
-<h3>Parameters<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<section id="id5">
+<h3>Parameters<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">X,y,data</span></code></p>
 <ul>
@@ -266,25 +355,48 @@
 </ul>
 </li>
 </ul>
-</div>
-<div class="section" id="id2">
-<h3>Examples<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">stratified_continuous_split</span> <span class="k">as</span> <span class="n">scsplit</span>
+</section>
+<section id="id6">
+<h3>Examples<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack.stratified_continuous_split</span> <span class="kn">import</span> <span class="n">scsplit</span>
 
 <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">scsplit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">stratify</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;continuous_column_name&#39;</span><span class="p">])</span>
 <span class="n">X_train</span><span class="p">,</span> <span class="n">X_val</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="n">scsplit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">stratify</span> <span class="o">=</span> <span class="n">y</span><span class="p">,</span>
                                          <span class="n">test_size</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">random_state</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
+</section>
+</section>
+<section id="timer">
+<h2>timer<a class="headerlink" href="#timer" title="Permalink to this headline">¶</a></h2>
+<p>Timer decorator to measure any function execution time and create elapsed time output: hours/minues/seconds will be calculated and returned conveniently.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">verstack</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">timer</span>
+</pre></div>
 </div>
+<section id="id7">
+<h3>Examples<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<p>timer is a decorator function: it must placed above the function (that needs to be timed) definition</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack.tools</span> <span class="kn">import</span> <span class="n">timer</span>
+
+<span class="nd">@timer</span>
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Result is: </span><span class="si">{</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">func</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="o">&gt;&gt;&gt;</span><span class="n">Result</span> <span class="ow">is</span><span class="p">:</span> <span class="mi">5</span>
+<span class="o">&gt;&gt;&gt;</span><span class="n">Time</span> <span class="n">elapsed</span> <span class="k">for</span> <span class="n">func</span> <span class="n">execution</span><span class="p">:</span> <span class="mf">0.0002</span> <span class="n">seconds</span>
+</pre></div>
 </div>
-<div class="section" id="links">
+</section>
+</section>
+<section id="links">
 <h2>Links<a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="https://github.com/DanilZherebtsov/verstack">Git</a></p>
 <p><a class="reference external" href="https://pypi.org/project/verstack/">pypi</a></p>
 <p><a class="reference external" href="https://www.linkedin.com/in/danil-zherebtsov/">author</a></p>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -299,7 +411,7 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="nav-item nav-item-0"><a href="#">verstack 0.1.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">verstack 0.3.2 Documentation</a></li> 
+        <li class="nav-item nav-item-this"><a href="">verstack 0.4.1 Documentation</a></li> 
       </ul>
     </div>
 <script type="text/javascript">

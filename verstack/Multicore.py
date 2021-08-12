@@ -17,7 +17,7 @@ class Multicore():
         Parameters
         ----------
         workers : int/bool, optional
-            Number of workers if passed by. The default is False.
+            Number of workers if passed by user. The default is False. If default (False) - all available cpu cores will be used.
         multiple_iterables : bool, optional
             If func needs to iterate over multiple iterables, set to True. The default is False.
 

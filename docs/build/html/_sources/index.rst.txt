@@ -1,12 +1,14 @@
 ##################
-verstack 0.3.2 Documentation
+verstack 0.4.1 Documentation
 ##################
 Machine learning tools to make a Data Scientist's work efficient
 
 veratack package contains the following tools:
 
 - **NaNImputer** impute all missing values in a pandas dataframe using advanced machine learning with 1 line of code
+- **Multicore** execute any function in concurrency using all the available cpu cores
 - **stratified_continuous_split** create train/test splits stratified on the continuous variable
+- **timer** convenient timer decorator to quickly measure and display time of any function execution
 
 
 .. note:: 
@@ -21,6 +23,8 @@ veratack package contains the following tools:
 ******************
 NaNImputer
 ******************
+
+Impute all missing values in a pandas dataframe by xgboost models in multiprocessing mode using a single line of code.
 
 Initialize NaNImputer
 ===========================
@@ -39,7 +43,8 @@ Initialize NaNImputer
                        multiprocessing_load = 3, 
                        verbose = True, 
                        fill_nans_in_pure_text = True, 
-                       drop_empty_cols = True, drop_nan_cols_with_constant = True)
+                       drop_empty_cols = True, 
+                       drop_nan_cols_with_constant = True)
 
 Parameters
 ===========================
@@ -86,6 +91,11 @@ Parameters
 * ``feature_selection`` [default="correlation"]
   - Define algorithm to select most important feats for each column imputation. Quick option: "correlation" is based on selecting n_feats with the highest binary correlation with each column for NaNs imputation. Less quick but more precise: "feature_importance" is based on extracting feature_importances from an xgboost model.
 
+Methods
+===========================
+* ``impute(data)``
+
+  - Execute NaNs imputation columnwise in a pd.DataFrame
 
 Examples
 ================================================================
@@ -126,6 +136,69 @@ The only limitation is:
 - NaNs in pure text columns are not imputed. By default they are filled with 'Missing_data' value. Configurable. If disabled - will return these columns with missing values untouched
 
 ******************
+Multicore
+******************
+
+Execute any function in concurrency using all the available cpu cores
+
+Initialize Multicore
+===========================
+.. code-block:: python
+
+  from verstack import Multicore
+  
+  # initialize with default parameters
+  multicore = Multicore()
+  
+  # initialize with selected parameters
+  multicore = Multicore(workers = 6,
+                        multiple_iterables = True)
+
+Parameters
+===========================
+* ``workers`` int or bool [default=False]
+
+  - Number of workers if passed by user. If ``False``: all available cpu cores will be used.
+
+* ``multiple_iterables`` bool [default=False]
+
+  - If function needs to iterate over multiple iterables, set to ``True``.
+  Multiple iterables must be passed as a list (see examples below).
+
+Methods
+===========================
+* ``execute(func, iterable)``
+
+  - Execute passed function and iterable(s) in concurrency.
+
+
+Examples
+================================================================
+
+Using Multicore with all default parameters
+
+.. code-block:: python
+
+  multicore = Multicore()
+  result = multicore.execute(function, iterable_list)
+
+If you want to use a limited number of cpu cores and need to iterate over two objects:
+
+.. code-block:: python
+
+  multicore = Multicore(workers = 2, multiple_iterables = True)
+  result = multicore.execute(function, [iterable_dataframe, iterable_list])
+
+Logic
+================================================================
+
+Multicore module is built on top of concurrent.futures package. Passed iterables are divided into chunks according to the number of workers and passed into separate processes.
+
+Results are extracted from finished processes and combined into a single/multiple output as per the defined function output requirements.
+
+Multiple outputs are returned as a nested list.
+
+******************
 stratified_continuous_split
 ******************
 
@@ -137,12 +210,12 @@ Can accept only pandas.DataFrame/pandas.Series as data input.
 
 .. code-block:: python 
 
-  verstack.stratified_continuous_split(*args, 
-                                       stratify, 
-                                       test_size = 0.3, 
-                                       train_size = 0.7, 
-                                       continuous = True, 
-                                       random_state = None)
+  verstack.stratified_continuous_split.scsplit(*args, 
+                                               stratify, 
+                                               test_size = 0.3, 
+                                               train_size = 0.7, 
+                                               continuous = True, 
+                                               random_state = None)
 
 Parameters
 ===========================
@@ -176,11 +249,41 @@ Examples
 
 .. code-block:: python
 
-  from verstack import stratified_continuous_split as scsplit
+  from verstack.stratified_continuous_split import scsplit
   
   train, test = scsplit(data, stratify = data['continuous_column_name'])
   X_train, X_val, y_train, y_val = scsplit(X, y, stratify = y, 
                                            test_size = 0.3, random_state = 5)
+
+******************
+timer
+******************
+
+Timer decorator to measure any function execution time and create elapsed time output: hours/minues/seconds will be calculated and returned conveniently.
+
+.. code-block:: python 
+
+  verstack.tools.timer
+
+
+Examples
+================================================================
+
+timer is a decorator function: it must placed above the function (that needs to be timed) definition
+
+.. code-block:: python
+
+  from verstack.tools import timer
+
+  @timer
+  def func(a,b):
+      print(f'Result is: {a + b}')
+
+  func(2,3)
+
+  >>>Result is: 5
+  >>>Time elapsed for func execution: 0.0002 seconds
+
 
 
 ******************
