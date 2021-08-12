@@ -1,0 +1,32 @@
+Every time you want to update your package:
+	0. If adding new Class, (to make it callable after import) to __init__.py add: from verstack.NewClassName import NewClassName
+
+	1. increment the version index in the version.py (setup.py version increment will be done later in step 6)
+
+	2. upload a new version to github
+
+	3. create a new release:
+		First, go to github.com and navigate to your repository. Next, click on the tab “releases” and then on “Create/Draft a new release”.
+
+	4. specify a new release tag
+		define a Tag version (it is best to use the same number as you used in your setup.py/version.py version-field
+
+	5. Add a release title and a description (not that important), then click on “publish release”
+
+	6. copy-paste the link to Source into the setup.py 
+		Now you see a new release and under Assets, there is a link to Source Code (tar.gz). Right-click on this link and chose Copy Link Address. 
+		Paste this link-address into the download_url field in the setup.py file.
+
+	7. in terminal
+		- navigate to the package folder
+			cd Documents/code/my_libraties/verstack.git 
+		- create a source distribution
+			python setup.py sdist
+		- upload package to pypi (if no twine package: pip install twine)
+			twine upload dist/*  (will prompt username to pypy and password)
+
+	8. update index.rst file in the docs folder and build a new release on readthedocks.org
+
+
+Upgrade package using pip:
+pip install --upgrade verstack

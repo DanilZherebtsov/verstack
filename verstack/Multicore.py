@@ -1,3 +1,4 @@
+import os
 class Multicore():
     """
     Parallelize any function execution program.
@@ -5,10 +6,8 @@ class Multicore():
     Use any function and iterable(s) to perform computation using all of the available cpu cores.
 
     """    
-    
-    
-
     __version__ = '0.1.0'
+
     def __init__(self,
                  workers = False,
                  multiple_iterables = False):
