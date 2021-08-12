@@ -1,4 +1,11 @@
 import os
+import gc
+import numpy as np
+import pandas as pd
+import concurrent.futures
+from verstack.tools import timer
+import operator
+
 class Multicore():
     """
     Parallelize any function execution program.
@@ -7,7 +14,7 @@ class Multicore():
 
     """    
     __version__ = '0.1.0'
-
+    
     def __init__(self,
                  workers = False,
                  multiple_iterables = False):
@@ -17,7 +24,7 @@ class Multicore():
         Parameters
         ----------
         workers : int/bool, optional
-            Number of workers if passed by user. The default is False. If default (False) - all available cpu cores will be used.
+            Number of workers if passed by. The default is False.
         multiple_iterables : bool, optional
             If func needs to iterate over multiple iterables, set to True. The default is False.
 
@@ -27,8 +34,39 @@ class Multicore():
 
         """
         
-        self.workers = self._assign_workers(workers)
+        self.workers = workers#self._assign_workers(workers)
         self.multiple_iterables = multiple_iterables           
+
+    # print init parameters when calling the class instance
+    def __repr__(self):
+        return f'Multicore(workers = {self.workers},\
+            \n          multiple_iterables = {self.multiple_iterables}'
+
+    # Validate init arguments
+    # =========================================================
+    # workers
+    workers = property(operator.attrgetter('_workers'))
+
+    @workers.setter
+    def workers(self, w):
+        if w == False:
+            self._workers = w
+        elif type(w) == int:
+            if w <= os.cpu_count():
+                self._workers = w
+            else:
+                raise Exception(f'Workers number: {w} is greater than available cores: {os.cpu_count()}')
+        else:
+            raise Exception('Workers value must be either False or a number of desired cpu cores for the job')
+    # -------------------------------------------------------
+    # multiple_iterables
+    multiple_iterables = property(operator.attrgetter('_multiple_iterables'))
+
+    @multiple_iterables.setter
+    def multiple_iterables(self, mi):
+        if type(mi) != bool : raise Exception('multiple_iterables must be bool (True/False)')
+        self._multiple_iterables = mi
+    # =========================================================
 
     def _assign_workers(self, workers):
         """
@@ -45,7 +83,6 @@ class Multicore():
             Number of workers passed by user or number of available cpu cores.
 
         """
-        import os
         if workers:
             workers = workers
         else:
@@ -55,7 +92,6 @@ class Multicore():
                 workers = 1
         return workers
 
-    from verstack.tools import timer
     @timer
     def execute(self, func, iterable, *args):
         """
@@ -90,11 +126,6 @@ class Multicore():
             Function output result. If multiple outputs are expected, nested list is returned.
     
         """
-        import os
-        import gc
-        import numpy as np
-        import pandas as pd
-        import concurrent.futures
         
         print(f'\nInitializing {self.workers} workers for {func.__name__} execution')
     
