@@ -13,7 +13,7 @@ class Multicore():
     Use any function and iterable(s) to perform computation using all of the available cpu cores.
 
     """    
-    __version__ = '0.1.0'
+    __version__ = '0.1.1'
     
     def __init__(self,
                  workers = False,
@@ -34,7 +34,7 @@ class Multicore():
 
         """
         
-        self.workers = workers#self._assign_workers(workers)
+        self.workers = workers
         self.multiple_iterables = multiple_iterables           
 
     # print init parameters when calling the class instance
@@ -50,7 +50,7 @@ class Multicore():
     @workers.setter
     def workers(self, w):
         if w == False:
-            self._workers = w
+            self._workers = self._assign_workers(w)
         elif type(w) == int:
             if w <= os.cpu_count():
                 self._workers = w
