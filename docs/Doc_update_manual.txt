@@ -1,6 +1,7 @@
 Documentation is hosted at ReadTheDocs
 
-- To amend the documentation go to: docs/source/index.rst
+There are two different sets of documentation:
+1. To amend the documentation for readthedocs.io go to: docs/source/index.rst
 - The configuration of webpage tamplate is stored in conf.py
 - After index.rst update (don't forget to increment version to index.rst)
 	- for web docs update:
@@ -9,6 +10,7 @@ Documentation is hosted at ReadTheDocs
 		- cd Documents/code/my_libraries/verstack.git/docs
 		- $ make html
 		- index.html will be composed and saved to docs/build
-
+2. To amend the documentation for github & pypi to to verstack.git/README.md 
+- it will get pulled up to pipy and github automatically with new release
 
 

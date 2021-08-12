@@ -175,7 +175,7 @@ Methods
 Examples
 ================================================================
 
-Using Multicore with all default parameters
+Use Multicore with all default parameters
 
 .. code-block:: python
 
