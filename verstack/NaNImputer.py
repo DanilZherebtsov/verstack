@@ -448,21 +448,20 @@ class NaNImputer():
                 data transformed to all numeric
 
         """
-        data_prepared = data.copy()
         if self.fix_string_nans:
-            data_prepared = self._correct_string_nans(data_prepared)
-        self._get_metadata(data_prepared)
+            data = self._correct_string_nans(data)
+        self._get_metadata(data)
         if not self.nan_cols:
-            self.nan_cols = data_prepared.columns[data_prepared.isnull().any()].tolist()
+            self.nan_cols = data.columns[data.isnull().any()].tolist()
 
         self.encoding_map = {}
-        for col in data_prepared.select_dtypes(include = 'O'):
-            cat_codes = data_prepared[col].dropna().unique().tolist()
+        for col in data.select_dtypes(include = 'O'):
+            cat_codes = data[col].dropna().unique().tolist()
             num_codes = [ix[0] for ix in enumerate(cat_codes)]
             self.encoding_map[col] = dict(zip(cat_codes, num_codes))
-            data_prepared[col] = data_prepared[col].map(self.encoding_map[col])
+            data[col] = data[col].map(self.encoding_map[col])
 
-        return data_prepared
+        return data
 
     def _get_high_corr_feats(self, data_prepared, col):
         """Get the n most important features for a given column based on
@@ -726,7 +725,7 @@ class NaNImputer():
                 Data to impute missing values in
 
         Returns:
-            data_prepared (pandas.DataFrame):
+            data (pandas.DataFrame):
                 Data with imputed missing values
             or
             data (pandas.DataFrame):
@@ -741,25 +740,25 @@ class NaNImputer():
         else:
             if self.verbose:
                 self._print_data_dims(data)
-            data_prepared = self._prepare_data(data)
+            data = self._prepare_data(data)
 
             # deal with NaN cols with constant and empty_cols
             if self.drop_nan_cols_with_constant:
-                data_prepared = self._drop_nan_constant_cols(data_prepared)
+                data = self._drop_nan_constant_cols(data)
 #            self._skip_cols_with_constant()
             if self.drop_empty_cols:
-                data_prepared = self._drop_cols_with_all_nans(data_prepared)
+                data = self._drop_cols_with_all_nans(data)
 
             # impute in multiprocessing mode
             if self.multiprocessing_load > 1:
                 print(f'\nDeploy multiprocessing with {self.num_workers} parallel proceses\n')
                 with concurrent.futures.ProcessPoolExecutor(max_workers = self.num_workers) as executor:
-                    results = [executor.submit(self._fill_or_impute, data_prepared, col) for col in self.nan_cols]
+                    results = [executor.submit(self._fill_or_impute, data, col) for col in self.nan_cols]
                 # extract imputed cols from multiprocessing results
                 for f in concurrent.futures.as_completed(results):
                     try:
                         imputed_col = f.result()
-                        data_prepared[imputed_col.name] = imputed_col
+                        data[imputed_col.name] = imputed_col
                     except:
                         continue
 
@@ -768,19 +767,19 @@ class NaNImputer():
                 print('\nImpute sequentially on a single core\n')
                 for col in self.nan_cols:
                     try:
-                        data_prepared[col] = self._fill_or_impute(data_prepared, col)
+                        data[col] = self._fill_or_impute(data, col)
                     except:
                         continue
 
             # map to revresed encoding_map dict
             for col in list(self.encoding_map.keys()):
-                if col in data_prepared:
-                    self._update_encoding_map_with_fill_nans_with_string_result(data_prepared, col)
-                    data_prepared[col] = data_prepared[col].map({val:key for key, val in self.encoding_map[col].items()})
+                if col in data:
+                    self._update_encoding_map_with_fill_nans_with_string_result(data, col)
+                    data[col] = data[col].map({val:key for key, val in self.encoding_map[col].items()})
             stop = timeit.default_timer()
             if self.verbose:
                 if len(self.droped_cols) > 0:
                     print(f'\nDroped {len(self.droped_cols)} columns with either all NaNs or with NaNs and all other constants')
                 print(f'\nNaNs imputation time: {np.round((stop-start)/60,2)} minutes')
                 print('-'*50)
-            return data_prepared
+            return data
