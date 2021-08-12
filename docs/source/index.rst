@@ -1,5 +1,5 @@
 ##################
-verstack 0.4.3 Documentation
+verstack 0.4.4 Documentation
 ##################
 Machine learning tools to make a Data Scientist's work efficient
 
