@@ -36,6 +36,7 @@ class Multicore():
         
         self.workers = workers
         self.multiple_iterables = multiple_iterables           
+        print(self.__repr__())
 
     # print init parameters when calling the class instance
     def __repr__(self):

@@ -155,11 +155,13 @@ def scsplit(*args, stratify, test_size = 0.3, train_size = 0.7, continuous = Tru
                                    test_size = test_size if test_size else None,
                                    train_size = train_size if train_size else None)
 
-        X_train = X.iloc[X_t.index]
-        y_train = y.iloc[X_t.index]
-        X_val = X.iloc[X_v.index]
-        y_val = y.iloc[X_v.index]
-
+        try:
+            X_train = X.iloc[X_t.index]
+            y_train = y.iloc[X_t.index]
+            X_val = X.iloc[X_v.index]
+            y_val = y.iloc[X_v.index]
+        except IndexError as e:
+            raise Exception(f'{e}\nReset index of dataframe/Series before applying scsplit')
         return X_train, X_val, y_train, y_val
     else:
         temp = pd.concat([X, pd.DataFrame(y_binned, columns = [stratify.name])], axis= 1)

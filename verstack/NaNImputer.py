@@ -112,6 +112,7 @@ class NaNImputer():
         self.drop_nan_cols_with_constant = drop_nan_cols_with_constant
         self.feature_selection = feature_selection
         self.droped_cols = []
+        print(self.__repr__())
 
     # print init parameters when calling the class instance
     def __repr__(self):
