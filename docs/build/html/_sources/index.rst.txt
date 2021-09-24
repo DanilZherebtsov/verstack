@@ -1,5 +1,5 @@
 ##################
-verstack 0.4.1 Documentation
+verstack 0.5.0 Documentation
 ##################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -7,6 +7,7 @@ veratack package contains the following tools:
 
 - **NaNImputer** impute all missing values in a pandas dataframe using advanced machine learning with 1 line of code
 - **Multicore** execute any function in concurrency using all the available cpu cores
+- **ThreshTuner** tune threshold for binary classification predictions
 - **stratified_continuous_split** create train/test splits stratified on the continuous variable
 - **timer** convenient timer decorator to quickly measure and display time of any function execution
 
@@ -25,6 +26,27 @@ NaNImputer
 ******************
 
 Impute all missing values in a pandas dataframe by xgboost models in multiprocessing mode using a single line of code.
+
+Logic
+================================================================
+
+With NaNImputer you can fill missing values in numeric, binary and categoric columns in your pandas dataframe using advanced XGBRegressor/XGBClassifier models with just 1 line of code. Regardless of the data types in your dataframe (string/bool/numeric): 
+
+ - all of the columns will be checked for missing values
+ - transformed into numeric formats
+ - split into subsets with and without missing values
+ - applicalbe models will be selected and configured for each of the columns with NaNs
+ - models will be trained in multiprocessing mode utilizing all the available cores and threads of your cpu (this saves a lot of time)
+ - NaNs will be predicted and placed into corresponding indixes
+ - columns with all NaNs will be droped
+ - columns containing NaNs and known values as a single constant
+ - data will be reverse-transformed into original format
+
+The module is highly configurable with default argumets set for the highest performance and verbosity
+
+The only limitation is:
+
+- NaNs in pure text columns are not imputed. By default they are filled with 'Missing_data' value. Configurable. If disabled - will return these columns with missing values untouched
 
 Initialize NaNImputer
 ===========================
@@ -97,6 +119,12 @@ Methods
 
   - Execute NaNs imputation columnwise in a pd.DataFrame
 
+    Parameters
+
+    - ``data`` pd.DataFrame
+
+      dataframe with missing values in a single/multiple columns
+
 Examples
 ================================================================
 
@@ -114,32 +142,20 @@ Say you would like to impute missing values in a list of specific columns, use 2
   imputer = NaNImputer(nan_cols = ['col1', 'col2'], n_feats = 20, multiprocessing_load = 2)
   df_imputed = imputer.impute(df)
 
-Logic
-================================================================
-
-With NaNImputer you can fill missing values in numeric, binary and categoric columns in your pandas dataframe using advanced XGBRegressor/XGBClassifier models with just 1 line of code. Regardless of the data types in your dataframe (string/bool/numeric): 
-
- - all of the columns will be checked for missing values
- - transformed into numeric formats
- - split into subsets with and without missing values
- - applicalbe models will be selected and configured for each of the columns with NaNs
- - models will be trained in multiprocessing mode utilizing all the available cores and threads of your cpu (this saves a lot of time)
- - NaNs will be predicted and placed into corresponding indixes
- - columns with all NaNs will be droped
- - columns containing NaNs and known values as a single constant
- - data will be reverse-transformed into original format
-
-The module is highly configurable with default argumets set for the highest performance and verbosity
-
-The only limitation is:
-
-- NaNs in pure text columns are not imputed. By default they are filled with 'Missing_data' value. Configurable. If disabled - will return these columns with missing values untouched
-
 ******************
 Multicore
 ******************
 
-Execute any function in concurrency using all the available cpu cores
+Execute any function in concurrency using all the available cpu cores.
+
+Logic
+================================================================
+
+  Multicore module is built on top of concurrent.futures package. Passed iterables are divided into chunks according to the number of workers and passed into separate processes.
+
+  Results are extracted from finished processes and combined into a single/multiple output as per the defined function output requirements.
+
+  Multiple outputs are returned as a nested list.
 
 Initialize Multicore
 ===========================
@@ -171,11 +187,22 @@ Methods
 
   - Execute passed function and iterable(s) in concurrency.
 
+    Parameters
+
+    - ``func`` function
+
+      function to execute in parallel
+
+
+    - ``iterable`` list/pd.Series/pd.DataFrame/dictionary
+
+      data to iterate over
+
 
 Examples
 ================================================================
 
-Using Multicore with all default parameters
+Use Multicore with all default parameters
 
 .. code-block:: python
 
@@ -189,14 +216,128 @@ If you want to use a limited number of cpu cores and need to iterate over two ob
   multicore = Multicore(workers = 2, multiple_iterables = True)
   result = multicore.execute(function, [iterable_dataframe, iterable_list])
 
+******************
+ThreshTuner
+******************
+
+Find the best threshold to split your predictions in a binary classification task. Most applicable for imbalance target cases. 
+In addition to thresholds & loss_func scores, the predicted_ratio (predicted fraction of 1) will be calculated and saved for every threshold. This will help the identify the appropriate threshold not only based on the score, but also based on the resulting distribution of 0 and 1 in the predictions.
+
 Logic
 ================================================================
 
-Multicore module is built on top of concurrent.futures package. Passed iterables are divided into chunks according to the number of workers and passed into separate processes.
+  Default behavior (only pass the labels and predictions): 
+   - Calculate the labels balance (fraction_of_1 in labels)
+   - Define the min_threshold as fraction_of_1 * 0.8
+   - Define the max_threshold as fraction_of_1 * 1.2 but not greater than 1
+   - Define the n_thresholds = 200
+   - Create 200 threshold options uniformly distributed between min_threshold & max_threshold
+   - Deploy the balanced_accuracy_score as loss_func
+   - Peform loss function calculation and save results in class instance placeholders
 
-Results are extracted from finished processes and combined into a single/multiple output as per the defined function output requirements.
+  Customization options
+   - Change the n_thresholds to the desired value
+   - Change the min_threshold & max_threshold to the desired values
+   - Pass the loss_func of choice, e.g. sklearn.metrics.f1_score
+  This will result in user defined granulation of thresholds to test
 
-Multiple outputs are returned as a nested list.
+Initialize ThreshTuner
+===========================
+.. code-block:: python
+
+  from verstack import ThreshTuner
+  
+  # initialize with default parameters
+  thresh = ThreshTuner()
+  
+  # initialize with selected parameters
+  thresh = ThreshTuner(n_thresholds = 500,
+                       min_threshold = 0.3,
+                       max_threshold = 0.7)
+
+Parameters
+===========================
+* ``n_thresholds`` int [default=200]
+
+  - Number of thresholds to test. If not set by user: 200 thresholds will be tested.
+
+* ``min_threshold`` float or int [default=None]
+
+  - Minimum threshold value. If not set by user: will be infered from labels balance based on fraction_of_1
+
+* ``max_threshold`` float or int [default=None]
+
+  - Maximum threshold value. If not set by user: will be infered from labels balance based on fraction_of_1
+
+Methods
+===========================
+* ``fit(labels, pred, loss_func)``
+
+  - Calculate loss_func results for labels & preds for the defined/default thresholds. Print the threshold(s) with the best loss_func scores
+
+    Parameters
+
+    - ``labels`` array/list/series [default=balanced_accuracy_score]
+
+      y_true labels represented as 0 or 1
+
+
+    - ``pred`` array/list/series
+
+      predicted probabilities of 1
+
+
+    - ``loss_func`` function
+
+      loss function for scoring the predictions, e.g. sklearn.metrics.f1_score
+
+
+
+* ``result()``
+
+  - Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for for all the the defined/default thresholds
+
+* ``best_score()``
+
+  - Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for the best loss_func_score
+
+* ``best_predict_ratio()``
+
+  - Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for the (predicted) fraction_of_1 which is closest to the (actual) labels_fraction_of_1 
+
+Examples
+================================================================
+
+Use ThreshTuner with all default parameters
+
+.. code-block:: python
+
+  thresh = ThreshTuner()
+  thres.fit(labels, pred)
+
+Customized ThreshTuner application
+
+.. code-block:: python
+
+  from sklearn.metrics import f1_score
+  
+  thresh = ThreshTuner(n_thresholds = 500, min_threshold = 0.2, max_threshold = 0.6)
+  thresh.fit(labels, pred, f1_score)
+
+Access the results after .fit()
+
+.. code-block:: python
+
+  thresh = ThreshTuner()
+  thres.fit(labels, pred)
+  
+  # return pd.DataFrame with all the results
+  thresh.result
+  # return pd.DataFrame with the best loss_func score
+  thresh.best_score
+  thresh.best_score['threshold']
+  # return pd.DataFrame with the best predicted fraction_of_1
+  thresh.best_predict_ratio()
 
 ******************
 stratified_continuous_split

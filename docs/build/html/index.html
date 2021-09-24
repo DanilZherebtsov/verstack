@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>verstack 0.4.1 Documentation &#8212; verstack 0.1.1 documentation</title>
+    <title>verstack 0.5.0 Documentation &#8212; verstack 0.1.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/guzzle.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -36,7 +36,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="nav-item nav-item-0"><a href="#">verstack 0.1.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">verstack 0.4.1 Documentation</a></li> 
+        <li class="nav-item nav-item-this"><a href="">verstack 0.5.0 Documentation</a></li> 
       </ul>
     </div>
     <div class="container-wrapper">
@@ -52,30 +52,38 @@
     <h2>Contents</h2>
     <div class="sidebar-localtoc">
       <ul>
-<li><a class="reference internal" href="#">verstack 0.4.1 Documentation</a><ul>
+<li><a class="reference internal" href="#">verstack 0.5.0 Documentation</a><ul>
 <li><a class="reference internal" href="#nanimputer">NaNImputer</a><ul>
+<li><a class="reference internal" href="#logic">Logic</a></li>
 <li><a class="reference internal" href="#initialize-nanimputer">Initialize NaNImputer</a></li>
 <li><a class="reference internal" href="#parameters">Parameters</a></li>
 <li><a class="reference internal" href="#methods">Methods</a></li>
 <li><a class="reference internal" href="#examples">Examples</a></li>
-<li><a class="reference internal" href="#logic">Logic</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#multicore">Multicore</a><ul>
+<li><a class="reference internal" href="#id1">Logic</a></li>
 <li><a class="reference internal" href="#initialize-multicore">Initialize Multicore</a></li>
-<li><a class="reference internal" href="#id1">Parameters</a></li>
-<li><a class="reference internal" href="#id2">Methods</a></li>
-<li><a class="reference internal" href="#id3">Examples</a></li>
-<li><a class="reference internal" href="#id4">Logic</a></li>
+<li><a class="reference internal" href="#id2">Parameters</a></li>
+<li><a class="reference internal" href="#id3">Methods</a></li>
+<li><a class="reference internal" href="#id4">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#threshtuner">ThreshTuner</a><ul>
+<li><a class="reference internal" href="#id5">Logic</a></li>
+<li><a class="reference internal" href="#initialize-threshtuner">Initialize ThreshTuner</a></li>
+<li><a class="reference internal" href="#id6">Parameters</a></li>
+<li><a class="reference internal" href="#id7">Methods</a></li>
+<li><a class="reference internal" href="#id8">Examples</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#stratified-continuous-split">stratified_continuous_split</a><ul>
-<li><a class="reference internal" href="#id5">Parameters</a></li>
-<li><a class="reference internal" href="#id6">Examples</a></li>
+<li><a class="reference internal" href="#id9">Parameters</a></li>
+<li><a class="reference internal" href="#id10">Examples</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#timer">timer</a><ul>
-<li><a class="reference internal" href="#id7">Examples</a></li>
+<li><a class="reference internal" href="#id11">Examples</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#links">Links</a></li>
@@ -95,19 +103,20 @@
             <ol class="breadcrumb">
               <li><a href="#">Docs</a></li>
               
-              <li>verstack 0.4.1 Documentation</li>
+              <li>verstack 0.5.0 Documentation</li>
             </ol>
           </div>
           
           <div class="document clearer body">
             
-  <section id="verstack-0-4-1-documentation">
-<h1>verstack 0.4.1 Documentation<a class="headerlink" href="#verstack-0-4-1-documentation" title="Permalink to this headline">¶</a></h1>
+  <section id="verstack-0-5-0-documentation">
+<h1>verstack 0.5.0 Documentation<a class="headerlink" href="#verstack-0-5-0-documentation" title="Permalink to this headline">¶</a></h1>
 <p>Machine learning tools to make a Data Scientist’s work efficient</p>
 <p>veratack package contains the following tools:</p>
 <ul class="simple">
 <li><p><strong>NaNImputer</strong> impute all missing values in a pandas dataframe using advanced machine learning with 1 line of code</p></li>
 <li><p><strong>Multicore</strong> execute any function in concurrency using all the available cpu cores</p></li>
+<li><p><strong>ThreshTuner</strong> tune threshold for binary classification predictions</p></li>
 <li><p><strong>stratified_continuous_split</strong> create train/test splits stratified on the continuous variable</p></li>
 <li><p><strong>timer</strong> convenient timer decorator to quickly measure and display time of any function execution</p></li>
 </ul>
@@ -120,6 +129,28 @@
 <section id="nanimputer">
 <h2>NaNImputer<a class="headerlink" href="#nanimputer" title="Permalink to this headline">¶</a></h2>
 <p>Impute all missing values in a pandas dataframe by xgboost models in multiprocessing mode using a single line of code.</p>
+<section id="logic">
+<h3>Logic<a class="headerlink" href="#logic" title="Permalink to this headline">¶</a></h3>
+<p>With NaNImputer you can fill missing values in numeric, binary and categoric columns in your pandas dataframe using advanced XGBRegressor/XGBClassifier models with just 1 line of code. Regardless of the data types in your dataframe (string/bool/numeric):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>all of the columns will be checked for missing values</p></li>
+<li><p>transformed into numeric formats</p></li>
+<li><p>split into subsets with and without missing values</p></li>
+<li><p>applicalbe models will be selected and configured for each of the columns with NaNs</p></li>
+<li><p>models will be trained in multiprocessing mode utilizing all the available cores and threads of your cpu (this saves a lot of time)</p></li>
+<li><p>NaNs will be predicted and placed into corresponding indixes</p></li>
+<li><p>columns with all NaNs will be droped</p></li>
+<li><p>columns containing NaNs and known values as a single constant</p></li>
+<li><p>data will be reverse-transformed into original format</p></li>
+</ul>
+</div></blockquote>
+<p>The module is highly configurable with default argumets set for the highest performance and verbosity</p>
+<p>The only limitation is:</p>
+<ul class="simple">
+<li><p>NaNs in pure text columns are not imputed. By default they are filled with ‘Missing_data’ value. Configurable. If disabled - will return these columns with missing values untouched</p></li>
+</ul>
+</section>
 <section id="initialize-nanimputer">
 <h3>Initialize NaNImputer<a class="headerlink" href="#initialize-nanimputer" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">NaNImputer</span>
@@ -197,10 +228,17 @@
 </section>
 <section id="methods">
 <h3>Methods<a class="headerlink" href="#methods" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
+<ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">impute(data)</span></code></p>
 <ul>
-<li><p>Execute NaNs imputation columnwise in a pd.DataFrame</p></li>
+<li><p>Execute NaNs imputation columnwise in a pd.DataFrame</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code> pd.DataFrame</p>
+<p>dataframe with missing values in a single/multiple columns</p>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -218,32 +256,18 @@
 </pre></div>
 </div>
 </section>
-<section id="logic">
-<h3>Logic<a class="headerlink" href="#logic" title="Permalink to this headline">¶</a></h3>
-<p>With NaNImputer you can fill missing values in numeric, binary and categoric columns in your pandas dataframe using advanced XGBRegressor/XGBClassifier models with just 1 line of code. Regardless of the data types in your dataframe (string/bool/numeric):</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>all of the columns will be checked for missing values</p></li>
-<li><p>transformed into numeric formats</p></li>
-<li><p>split into subsets with and without missing values</p></li>
-<li><p>applicalbe models will be selected and configured for each of the columns with NaNs</p></li>
-<li><p>models will be trained in multiprocessing mode utilizing all the available cores and threads of your cpu (this saves a lot of time)</p></li>
-<li><p>NaNs will be predicted and placed into corresponding indixes</p></li>
-<li><p>columns with all NaNs will be droped</p></li>
-<li><p>columns containing NaNs and known values as a single constant</p></li>
-<li><p>data will be reverse-transformed into original format</p></li>
-</ul>
-</div></blockquote>
-<p>The module is highly configurable with default argumets set for the highest performance and verbosity</p>
-<p>The only limitation is:</p>
-<ul class="simple">
-<li><p>NaNs in pure text columns are not imputed. By default they are filled with ‘Missing_data’ value. Configurable. If disabled - will return these columns with missing values untouched</p></li>
-</ul>
-</section>
 </section>
 <section id="multicore">
 <h2>Multicore<a class="headerlink" href="#multicore" title="Permalink to this headline">¶</a></h2>
-<p>Execute any function in concurrency using all the available cpu cores</p>
+<p>Execute any function in concurrency using all the available cpu cores.</p>
+<section id="id1">
+<h3>Logic<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>Multicore module is built on top of concurrent.futures package. Passed iterables are divided into chunks according to the number of workers and passed into separate processes.</p>
+<p>Results are extracted from finished processes and combined into a single/multiple output as per the defined function output requirements.</p>
+<p>Multiple outputs are returned as a nested list.</p>
+</div></blockquote>
+</section>
 <section id="initialize-multicore">
 <h3>Initialize Multicore<a class="headerlink" href="#initialize-multicore" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">Multicore</span>
@@ -257,8 +281,8 @@
 </pre></div>
 </div>
 </section>
-<section id="id1">
-<h3>Parameters<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<section id="id2">
+<h3>Parameters<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">workers</span></code> int or bool [default=False]</p>
 <ul class="simple">
@@ -273,19 +297,29 @@
 </li>
 </ul>
 </section>
-<section id="id2">
-<h3>Methods<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
+<section id="id3">
+<h3>Methods<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">execute(func,</span> <span class="pre">iterable)</span></code></p>
 <ul>
-<li><p>Execute passed function and iterable(s) in concurrency.</p></li>
+<li><p>Execute passed function and iterable(s) in concurrency.</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">func</span></code> function</p>
+<p>function to execute in parallel</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iterable</span></code> list/pd.Series/pd.DataFrame/dictionary</p>
+<p>data to iterate over</p>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 </section>
-<section id="id3">
-<h3>Examples<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
-<p>Using Multicore with all default parameters</p>
+<section id="id4">
+<h3>Examples<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>Use Multicore with all default parameters</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">multicore</span> <span class="o">=</span> <span class="n">Multicore</span><span class="p">()</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">multicore</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">iterable_list</span><span class="p">)</span>
 </pre></div>
@@ -296,11 +330,134 @@
 </pre></div>
 </div>
 </section>
-<section id="id4">
-<h3>Logic<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
-<p>Multicore module is built on top of concurrent.futures package. Passed iterables are divided into chunks according to the number of workers and passed into separate processes.</p>
-<p>Results are extracted from finished processes and combined into a single/multiple output as per the defined function output requirements.</p>
-<p>Multiple outputs are returned as a nested list.</p>
+</section>
+<section id="threshtuner">
+<h2>ThreshTuner<a class="headerlink" href="#threshtuner" title="Permalink to this headline">¶</a></h2>
+<p>Find the best threshold to split your predictions in a binary classification task. Most applicable for imbalance target cases.
+In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted fraction of 1) will be calculated and saved for every threshold. This will help the identify the appropriate threshold not only based on the score, but also based on the resulting distribution of 0 and 1 in the predictions.</p>
+<section id="id5">
+<h3>Logic<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><dl class="simple">
+<dt>Default behavior (only pass the labels and predictions):</dt><dd><ul class="simple">
+<li><p>Calculate the labels balance (fraction_of_1 in labels)</p></li>
+<li><p>Define the min_threshold as fraction_of_1 * 0.8</p></li>
+<li><p>Define the max_threshold as fraction_of_1 * 1.2 but not greater than 1</p></li>
+<li><p>Define the n_thresholds = 200</p></li>
+<li><p>Create 200 threshold options uniformly distributed between min_threshold &amp; max_threshold</p></li>
+<li><p>Deploy the balanced_accuracy_score as loss_func</p></li>
+<li><p>Peform loss function calculation and save results in class instance placeholders</p></li>
+</ul>
+</dd>
+<dt>Customization options</dt><dd><ul class="simple">
+<li><p>Change the n_thresholds to the desired value</p></li>
+<li><p>Change the min_threshold &amp; max_threshold to the desired values</p></li>
+<li><p>Pass the loss_func of choice, e.g. sklearn.metrics.f1_score</p></li>
+</ul>
+</dd>
+</dl>
+<p>This will result in user defined granulation of thresholds to test</p>
+</div></blockquote>
+</section>
+<section id="initialize-threshtuner">
+<h3>Initialize ThreshTuner<a class="headerlink" href="#initialize-threshtuner" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">ThreshTuner</span>
+
+<span class="c1"># initialize with default parameters</span>
+<span class="n">thresh</span> <span class="o">=</span> <span class="n">ThreshTuner</span><span class="p">()</span>
+
+<span class="c1"># initialize with selected parameters</span>
+<span class="n">thresh</span> <span class="o">=</span> <span class="n">ThreshTuner</span><span class="p">(</span><span class="n">n_thresholds</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+                     <span class="n">min_threshold</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span>
+                     <span class="n">max_threshold</span> <span class="o">=</span> <span class="mf">0.7</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h3>Parameters<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">n_thresholds</span></code> int [default=200]</p>
+<ul>
+<li><p>Number of thresholds to test. If not set by user: 200 thresholds will be tested.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_threshold</span></code> float or int [default=None]</p>
+<ul>
+<li><p>Minimum threshold value. If not set by user: will be infered from labels balance based on fraction_of_1</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_threshold</span></code> float or int [default=None]</p>
+<ul>
+<li><p>Maximum threshold value. If not set by user: will be infered from labels balance based on fraction_of_1</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id7">
+<h3>Methods<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">fit(labels,</span> <span class="pre">pred,</span> <span class="pre">loss_func)</span></code></p>
+<ul>
+<li><p>Calculate loss_func results for labels &amp; preds for the defined/default thresholds. Print the threshold(s) with the best loss_func scores</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">labels</span></code> array/list/series [default=balanced_accuracy_score]</p>
+<p>y_true labels represented as 0 or 1</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pred</span></code> array/list/series</p>
+<p>predicted probabilities of 1</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">loss_func</span></code> function</p>
+<p>loss function for scoring the predictions, e.g. sklearn.metrics.f1_score</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">result()</span></code></p>
+<ul class="simple">
+<li><p>Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for for all the the defined/default thresholds</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">best_score()</span></code></p>
+<ul class="simple">
+<li><p>Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for the best loss_func_score</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">best_predict_ratio()</span></code></p>
+<ul class="simple">
+<li><p>Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for the (predicted) fraction_of_1 which is closest to the (actual) labels_fraction_of_1</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id8">
+<h3>Examples<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<p>Use ThreshTuner with all default parameters</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">thresh</span> <span class="o">=</span> <span class="n">ThreshTuner</span><span class="p">()</span>
+<span class="n">thres</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">pred</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Customized ThreshTuner application</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">f1_score</span>
+
+<span class="n">thresh</span> <span class="o">=</span> <span class="n">ThreshTuner</span><span class="p">(</span><span class="n">n_thresholds</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span> <span class="n">min_threshold</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">max_threshold</span> <span class="o">=</span> <span class="mf">0.6</span><span class="p">)</span>
+<span class="n">thresh</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">f1_score</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Access the results after .fit()</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">thresh</span> <span class="o">=</span> <span class="n">ThreshTuner</span><span class="p">()</span>
+<span class="n">thres</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">pred</span><span class="p">)</span>
+
+<span class="c1"># return pd.DataFrame with all the results</span>
+<span class="n">thresh</span><span class="o">.</span><span class="n">result</span>
+<span class="c1"># return pd.DataFrame with the best loss_func score</span>
+<span class="n">thresh</span><span class="o">.</span><span class="n">best_score</span>
+<span class="n">thresh</span><span class="o">.</span><span class="n">best_score</span><span class="p">[</span><span class="s1">&#39;threshold&#39;</span><span class="p">]</span>
+<span class="c1"># return pd.DataFrame with the best predicted fraction_of_1</span>
+<span class="n">thresh</span><span class="o">.</span><span class="n">best_predict_ratio</span><span class="p">()</span>
+</pre></div>
+</div>
 </section>
 </section>
 <section id="stratified-continuous-split">
@@ -321,8 +478,8 @@
                                              <span class="n">random_state</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
 </pre></div>
 </div>
-<section id="id5">
-<h3>Parameters<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<section id="id9">
+<h3>Parameters<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">X,y,data</span></code></p>
 <ul>
@@ -356,8 +513,8 @@
 </li>
 </ul>
 </section>
-<section id="id6">
-<h3>Examples<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<section id="id10">
+<h3>Examples<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack.stratified_continuous_split</span> <span class="kn">import</span> <span class="n">scsplit</span>
 
 <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">scsplit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">stratify</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;continuous_column_name&#39;</span><span class="p">])</span>
@@ -373,8 +530,8 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">verstack</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">timer</span>
 </pre></div>
 </div>
-<section id="id7">
-<h3>Examples<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<section id="id11">
+<h3>Examples<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
 <p>timer is a decorator function: it must placed above the function (that needs to be timed) definition</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack.tools</span> <span class="kn">import</span> <span class="n">timer</span>
 
@@ -411,7 +568,7 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="nav-item nav-item-0"><a href="#">verstack 0.1.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">verstack 0.4.1 Documentation</a></li> 
+        <li class="nav-item nav-item-this"><a href="">verstack 0.5.0 Documentation</a></li> 
       </ul>
     </div>
 <script type="text/javascript">

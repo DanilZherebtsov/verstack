@@ -8,9 +8,11 @@ veratack package contains the following tools:
     *impute all missing values in a pandas dataframe using advanced machine learning with 1 line of code. Powered by XGBoost
 2. Multicore 
     *execute any function in concurrency using all the available cpu cores
-3. stratified_continuous_split 
+3.ThreshTuner
+    *tune threshold for binary classification predictions
+4. stratified_continuous_split 
     *create train/test splits stratified on the continuous variable
-4. timer 
+5. timer 
     *convenient timer decorator to quickly measure and display time of any function execution
 
 
@@ -194,6 +196,95 @@ Pass a function, multiple iterable objects and use a limited number of cpu cores
   worker = Multicore(workers = 2, multiple_iterables = True)
   result = worker.execute(function, [iterable_dataframe, iterable_list])
   # note that multiple iterable objects must be passes as a list to execute() method
+```
+
+# ThreshTuner
+Find the best threshold to split your predictions in a binary classification task. Most applicable for imbalance target cases. 
+In addition to thresholds & loss_func scores, the predicted_ratio (predicted fraction of 1) will be calculated and saved for every threshold. This will help the identify the appropriate threshold not only based on the score, but also based on the resulting distribution of 0 and 1 in the predictions.
+
+```Python
+from verstack import ThreshTuner
+```
+
+#### Initialize ThreshTuner
+First, let's create an thresh class instannce. We will not pass any argumets for this example and use all the defaults
+
+```Python
+thresh = ThreshTuner()
+```
+
+#### Find the best threshold using default parameters
+All you need to do is pass your labels and predictions as the only arguments to the fit method of your ThreshTuner object and the results will be stored in the class instance placeholders
+
+```Python
+thresh.fit(lables, pred)
+```
+By default 200 thresholds will be tested using the balanced_accuracy_score. The minimum and maximum thresholds will be inferred from the labels distribution (fraction_of_1)
+
+#### Configuring ThreshTuner
+
+```Python 
+# E.g.
+thresh = ThreshTuner(n_thresholds = 500)
+```
+##### Parameters
+
+    n_thresholds (int, optional):
+        Number of thresholds to test.
+        Default = 200
+    min_threshold (float/int, optional):
+        Minimum threshold value. If not set by user: will be infered from labels balance based on fraction_of_1
+        Default = None
+    max_threshold (float/int, optional):
+        Maximum threshold value. If not set by user: will be infered from labels balance based on fraction_of_1
+        Default = None
+
+##### Methods
+
+    fit(labels, pred, loss_func):
+        Calculate loss_func results for labels & preds for the defined/default thresholds. Print the threshold(s) with the best loss_func scores
+
+        Parameters
+        labels (array/list/series) [default=balanced_accuracy_score]
+          y_true labels represented as 0 or 1
+
+        pred (array/list/series)
+          predicted probabilities of 1
+
+        loss_func (function)
+          loss function for scoring the predictions, e.g. sklearn.metrics.f1_score
+
+    result():
+        Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for for all the the defined/default thresholds
+
+    best_score():
+        Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for the best loss_func_score
+
+    best_predict_ratio():
+        Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for the (predicted) fraction_of_1 which is closest to the (actual) labels_fraction_of_1
+
+To configure ThreshTuner use the following logic:
+```Python 
+from sklearn.metrics import f1_score
+
+thresh = ThreshTuner(n_thresholds = 500, min_threshold = 0.2, max_threshold = 0.6)
+thresh.fit(labels, pred, f1_score)
+```
+
+To access the results:
+```Python
+thresh = ThreshTuner()
+thresh.fit(labels, pred)
+
+# return pd.DataFrame with all the results
+thresh.result
+# return pd.DataFrame with the best loss_func score
+thresh.best_score()
+thresh.best_score()['threshold']
+# return pd.DataFrame with the best predicted fraction_of_1
+thresh.best_predict_ratio()
+# return the actual labels fraction_of_1
+thresh.labels_fractio_of_1
 ```
 
 # stratified_continuous_split

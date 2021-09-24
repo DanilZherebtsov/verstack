@@ -13,7 +13,7 @@ class Multicore():
     Use any function and iterable(s) to perform computation using all of the available cpu cores.
 
     """    
-    __version__ = '0.1.1'
+    __version__ = '0.1.2'
     
     def __init__(self,
                  workers = False,

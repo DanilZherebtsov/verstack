@@ -1,5 +1,8 @@
 Every time you want to update your package:
+
 	0. If adding new Class, (to make it callable after import) to __init__.py add: from verstack.NewClassName import NewClassName
+
+	Also for new classes it is a good practice to add a class version. Check out NaNImputer for an example
 
 	1. increment the version index in the version.py (setup.py version increment will be done later in step 6)
 
@@ -26,6 +29,8 @@ Every time you want to update your package:
 			twine upload dist/*  (will prompt username to pypy and password)
 
 	8. update index.rst file in the docs folder and build a new release on readthedocks.org
+
+	9. Update the README.md with instruction and push to github
 
 
 Upgrade package using pip:

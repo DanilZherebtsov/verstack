@@ -36,7 +36,7 @@ class NaNImputer():
         check the __init__ docstring for details.
 
     """
-    __version__ = '0.1.0'
+    __version__ = '0.1.1'
 
     def __init__(self,
                  conservative = False,
