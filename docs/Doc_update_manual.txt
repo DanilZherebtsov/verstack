@@ -10,7 +10,8 @@ There are two different sets of documentation:
 		- cd Documents/code/my_libraries/verstack.git/docs
 		- $ make html
 		- index.html will be composed and saved to docs/build
-2. To amend the documentation for github & pypi to to verstack.git/README.md 
+
+2. To amend the documentation for github & pypi to verstack.git/README.md 
 - it will get pulled up to pipy and github automatically with new release
 
 
