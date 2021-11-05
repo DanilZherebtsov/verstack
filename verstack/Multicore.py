@@ -185,6 +185,6 @@ class Multicore():
                     result.update(dictionary)
             else:
                 raise TypeError(f"Invalid return type for function '{func.__name__}'."
-			" Only list, dict, Numpy ndarray and Panda's Series are supported!")
+                        " Only list, dict, Numpy ndarray and Panda's Series are supported!")
             return result
 
