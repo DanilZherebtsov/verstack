@@ -179,6 +179,7 @@ Parameters
 * ``multiple_iterables`` bool [default=False]
 
   - If function needs to iterate over multiple iterables, set to ``True``.
+
   Multiple iterables must be passed as a list (see examples below).
 
 Methods
@@ -239,6 +240,7 @@ Logic
    - Change the n_thresholds to the desired value
    - Change the min_threshold & max_threshold to the desired values
    - Pass the loss_func of choice, e.g. sklearn.metrics.f1_score
+  
   This will result in user defined granulation of thresholds to test
 
 Initialize ThreshTuner
