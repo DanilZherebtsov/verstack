@@ -28,8 +28,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.intersphinx',
     #'breathe',
-    'recommonmark',
-    'docutils==0.17.1'
+    'recommonmark'
 ]
 
 graphviz_output_format = 'png'
