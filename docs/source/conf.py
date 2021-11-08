@@ -6,7 +6,6 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
 import guzzle_sphinx_theme
-!pip install dockutils==0.17.1
 autodoc_mock_imports = ["xgboost", "cmake"]
 # -- Project information -----------------------------------------------------
 
@@ -29,7 +28,8 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.intersphinx',
     #'breathe',
-    'recommonmark'
+    'recommonmark',
+    'docutils==0.17.1'
 ]
 
 graphviz_output_format = 'png'
