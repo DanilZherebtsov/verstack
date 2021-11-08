@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   
   <!-- Licensed under the Apache 2.0 License -->
@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>verstack 0.5.0 Documentation &#8212; verstack 0.1.1 documentation</title>
+    <title>verstack 0.5.2 Documentation &#8212; verstack 0.1.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/guzzle.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -36,7 +36,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="nav-item nav-item-0"><a href="#">verstack 0.1.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">verstack 0.5.0 Documentation</a></li> 
+        <li class="nav-item nav-item-this"><a href="">verstack 0.5.2 Documentation</a></li> 
       </ul>
     </div>
     <div class="container-wrapper">
@@ -52,7 +52,7 @@
     <h2>Contents</h2>
     <div class="sidebar-localtoc">
       <ul>
-<li><a class="reference internal" href="#">verstack 0.5.0 Documentation</a><ul>
+<li><a class="reference internal" href="#">verstack 0.5.2 Documentation</a><ul>
 <li><a class="reference internal" href="#nanimputer">NaNImputer</a><ul>
 <li><a class="reference internal" href="#logic">Logic</a></li>
 <li><a class="reference internal" href="#initialize-nanimputer">Initialize NaNImputer</a></li>
@@ -103,14 +103,14 @@
             <ol class="breadcrumb">
               <li><a href="#">Docs</a></li>
               
-              <li>verstack 0.5.0 Documentation</li>
+              <li>verstack 0.5.2 Documentation</li>
             </ol>
           </div>
           
           <div class="document clearer body">
             
-  <section id="verstack-0-5-0-documentation">
-<h1>verstack 0.5.0 Documentation<a class="headerlink" href="#verstack-0-5-0-documentation" title="Permalink to this headline">¶</a></h1>
+  <section id="verstack-0-5-2-documentation">
+<h1>verstack 0.5.2 Documentation<a class="headerlink" href="#verstack-0-5-2-documentation" title="Permalink to this headline">¶</a></h1>
 <p>Machine learning tools to make a Data Scientist’s work efficient</p>
 <p>veratack package contains the following tools:</p>
 <ul class="simple">
@@ -452,10 +452,12 @@ In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted
 <span class="c1"># return pd.DataFrame with all the results</span>
 <span class="n">thresh</span><span class="o">.</span><span class="n">result</span>
 <span class="c1"># return pd.DataFrame with the best loss_func score</span>
-<span class="n">thresh</span><span class="o">.</span><span class="n">best_score</span>
-<span class="n">thresh</span><span class="o">.</span><span class="n">best_score</span><span class="p">[</span><span class="s1">&#39;threshold&#39;</span><span class="p">]</span>
+<span class="n">thresh</span><span class="o">.</span><span class="n">best_score</span><span class="p">()</span>
+<span class="n">thresh</span><span class="o">.</span><span class="n">best_score</span><span class="p">()[</span><span class="s1">&#39;threshold&#39;</span><span class="p">]</span>
 <span class="c1"># return pd.DataFrame with the best predicted fraction_of_1</span>
 <span class="n">thresh</span><span class="o">.</span><span class="n">best_predict_ratio</span><span class="p">()</span>
+<span class="c1"># return the actual labels fraction_of_1</span>
+<span class="n">thresh</span><span class="o">.</span><span class="n">labels_fractio_of_1</span>
 </pre></div>
 </div>
 </section>
@@ -568,7 +570,7 @@ In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="nav-item nav-item-0"><a href="#">verstack 0.1.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">verstack 0.5.0 Documentation</a></li> 
+        <li class="nav-item nav-item-this"><a href="">verstack 0.5.2 Documentation</a></li> 
       </ul>
     </div>
 <script type="text/javascript">

@@ -1,6 +1,6 @@
-##################
-verstack 0.5.0 Documentation
-##################
+############################
+verstack 0.5.2 Documentation
+############################
 Machine learning tools to make a Data Scientist's work efficient
 
 veratack package contains the following tools:
@@ -179,6 +179,7 @@ Parameters
 * ``multiple_iterables`` bool [default=False]
 
   - If function needs to iterate over multiple iterables, set to ``True``.
+
   Multiple iterables must be passed as a list (see examples below).
 
 Methods
@@ -239,6 +240,7 @@ Logic
    - Change the n_thresholds to the desired value
    - Change the min_threshold & max_threshold to the desired values
    - Pass the loss_func of choice, e.g. sklearn.metrics.f1_score
+  
   This will result in user defined granulation of thresholds to test
 
 Initialize ThreshTuner
@@ -334,14 +336,16 @@ Access the results after .fit()
   # return pd.DataFrame with all the results
   thresh.result
   # return pd.DataFrame with the best loss_func score
-  thresh.best_score
-  thresh.best_score['threshold']
+  thresh.best_score()
+  thresh.best_score()['threshold']
   # return pd.DataFrame with the best predicted fraction_of_1
   thresh.best_predict_ratio()
+  # return the actual labels fraction_of_1
+  thresh.labels_fractio_of_1
 
-******************
+***************************
 stratified_continuous_split
-******************
+***************************
 
 Create stratified splits based on either continuous or categoric target variable.
   - For continuous target variable verstack uses binning and categoric split based on bins
