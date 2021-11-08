@@ -183,5 +183,8 @@ class Multicore():
                 result = {}
                 for dictionary in data_from_results:
                     result.update(dictionary)
+            else:
+                raise TypeError(f"Invalid return type for function '{func.__name__}'."
+                        " Only list, dict, Numpy ndarray and Panda's Series are supported!")
             return result
 
