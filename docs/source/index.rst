@@ -1,6 +1,6 @@
-##################
+############################
 verstack 0.5.2 Documentation
-##################
+############################
 Machine learning tools to make a Data Scientist's work efficient
 
 veratack package contains the following tools:
@@ -341,9 +341,9 @@ Access the results after .fit()
   # return the actual labels fraction_of_1
   thresh.labels_fractio_of_1
 
-******************
+***************************
 stratified_continuous_split
-******************
+***************************
 
 Create stratified splits based on either continuous or categoric target variable.
   - For continuous target variable verstack uses binning and categoric split based on bins
