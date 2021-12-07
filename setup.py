@@ -1,6 +1,4 @@
-
-from distutils.core import setup
-import setuptools
+from setuptools import setup, find_packages
 import os
 
 # parse __version__ from version.py
@@ -19,7 +17,7 @@ if not rtd_build_env:
 
 setup(
   name = 'verstack',
-  packages = ['verstack'],
+  packages = find_packages(),
   version = __version__,
   license='MIT',
   description = "Machine learning tools to make a Data Scientist's work more efficient",
@@ -28,7 +26,7 @@ setup(
   author = 'Danil Zherebtsov',
   author_email = 'danil.com@me.com',
   url = 'https://github.com/DanilZherebtsov/verstack',
-  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/refs/tags/1.0.1.tar.gz',
+  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/refs/tags/1.0.2.tar.gz',
   keywords = ['impute', 'missing', 'values', 'stratify', 'nan', 'continuous', 'multiprocessing', 'concurrent', 'timer'],
   install_requires=dependencies,
   classifiers=[
