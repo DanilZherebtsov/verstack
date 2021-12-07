@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>verstack 0.5.2 Documentation &#8212; verstack 0.1.1 documentation</title>
+    <title>verstack 1.0.0 Documentation &#8212; verstack 0.1.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/guzzle.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -36,7 +36,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="nav-item nav-item-0"><a href="#">verstack 0.1.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">verstack 0.5.2 Documentation</a></li> 
+        <li class="nav-item nav-item-this"><a href="">verstack 1.0.0 Documentation</a></li> 
       </ul>
     </div>
     <div class="container-wrapper">
@@ -52,10 +52,9 @@
     <h2>Contents</h2>
     <div class="sidebar-localtoc">
       <ul>
-<li><a class="reference internal" href="#">verstack 0.5.2 Documentation</a><ul>
+<li><a class="reference internal" href="#">verstack 1.0.0 Documentation</a><ul>
 <li><a class="reference internal" href="#nanimputer">NaNImputer</a><ul>
 <li><a class="reference internal" href="#logic">Logic</a></li>
-<li><a class="reference internal" href="#initialize-nanimputer">Initialize NaNImputer</a></li>
 <li><a class="reference internal" href="#parameters">Parameters</a></li>
 <li><a class="reference internal" href="#methods">Methods</a></li>
 <li><a class="reference internal" href="#examples">Examples</a></li>
@@ -63,7 +62,6 @@
 </li>
 <li><a class="reference internal" href="#multicore">Multicore</a><ul>
 <li><a class="reference internal" href="#id1">Logic</a></li>
-<li><a class="reference internal" href="#initialize-multicore">Initialize Multicore</a></li>
 <li><a class="reference internal" href="#id2">Parameters</a></li>
 <li><a class="reference internal" href="#id3">Methods</a></li>
 <li><a class="reference internal" href="#id4">Examples</a></li>
@@ -71,7 +69,6 @@
 </li>
 <li><a class="reference internal" href="#threshtuner">ThreshTuner</a><ul>
 <li><a class="reference internal" href="#id5">Logic</a></li>
-<li><a class="reference internal" href="#initialize-threshtuner">Initialize ThreshTuner</a></li>
 <li><a class="reference internal" href="#id6">Parameters</a></li>
 <li><a class="reference internal" href="#id7">Methods</a></li>
 <li><a class="reference internal" href="#id8">Examples</a></li>
@@ -82,8 +79,46 @@
 <li><a class="reference internal" href="#id10">Examples</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#categoric-encoders">categoric_encoders</a><ul>
+<li><a class="reference internal" href="#factorizer">Factorizer</a><ul>
+<li><a class="reference internal" href="#id11">Logic</a></li>
+<li><a class="reference internal" href="#id12">Parameters</a></li>
+<li><a class="reference internal" href="#id13">Methods</a></li>
+<li><a class="reference internal" href="#id14">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#onehotencoder">OneHotEncoder</a><ul>
+<li><a class="reference internal" href="#id15">Logic</a></li>
+<li><a class="reference internal" href="#id16">Parameters</a></li>
+<li><a class="reference internal" href="#id17">Methods</a></li>
+<li><a class="reference internal" href="#id18">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#frequencyencoder">FrequencyEncoder</a><ul>
+<li><a class="reference internal" href="#id19">Logic</a></li>
+<li><a class="reference internal" href="#id20">Parameters</a></li>
+<li><a class="reference internal" href="#id21">Methods</a></li>
+<li><a class="reference internal" href="#id22">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#meantargetencoder">MeanTargetEncoder</a><ul>
+<li><a class="reference internal" href="#id23">Logic</a></li>
+<li><a class="reference internal" href="#id24">Parameters</a></li>
+<li><a class="reference internal" href="#id25">Methods</a></li>
+<li><a class="reference internal" href="#id26">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#weightofevidenceencoder">WeightOfEvidenceEncoder</a><ul>
+<li><a class="reference internal" href="#id27">Logic</a></li>
+<li><a class="reference internal" href="#id29">Parameters</a></li>
+<li><a class="reference internal" href="#id31">Methods</a></li>
+<li><a class="reference internal" href="#id32">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a class="reference internal" href="#timer">timer</a><ul>
-<li><a class="reference internal" href="#id11">Examples</a></li>
+<li><a class="reference internal" href="#id33">Examples</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#links">Links</a></li>
@@ -103,14 +138,14 @@
             <ol class="breadcrumb">
               <li><a href="#">Docs</a></li>
               
-              <li>verstack 0.5.2 Documentation</li>
+              <li>verstack 1.0.0 Documentation</li>
             </ol>
           </div>
           
           <div class="document clearer body">
             
-  <section id="verstack-0-5-2-documentation">
-<h1>verstack 0.5.2 Documentation<a class="headerlink" href="#verstack-0-5-2-documentation" title="Permalink to this headline">¶</a></h1>
+  <section id="verstack-1-0-0-documentation">
+<h1>verstack 1.0.0 Documentation<a class="headerlink" href="#verstack-1-0-0-documentation" title="Permalink to this headline">¶</a></h1>
 <p>Machine learning tools to make a Data Scientist’s work efficient</p>
 <p>veratack package contains the following tools:</p>
 <ul class="simple">
@@ -118,8 +153,18 @@
 <li><p><strong>Multicore</strong> execute any function in concurrency using all the available cpu cores</p></li>
 <li><p><strong>ThreshTuner</strong> tune threshold for binary classification predictions</p></li>
 <li><p><strong>stratified_continuous_split</strong> create train/test splits stratified on the continuous variable</p></li>
+<li><p><strong>categoric_encoders</strong> encode categoric variable by numeric labels</p></li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>Factorizer</strong> encode categoric variable by numeric labels</p></li>
+<li><p><strong>OneHotEncoder</strong> represent categoric variable as a set of binary variables</p></li>
+<li><p><strong>FrequencyEncoder</strong> encode categoric variable by class frequencies</p></li>
+<li><p><strong>MeanTargetEncoder</strong> encode categoric variable by mean of the target variable</p></li>
+<li><p><strong>WeightOfEvidenceEncoder</strong> encode categoric variable as a weight of evidence of a binary target variable</p></li>
 <li><p><strong>timer</strong> convenient timer decorator to quickly measure and display time of any function execution</p></li>
 </ul>
+</div></blockquote>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Getting verstack</p>
@@ -150,9 +195,7 @@
 <ul class="simple">
 <li><p>NaNs in pure text columns are not imputed. By default they are filled with ‘Missing_data’ value. Configurable. If disabled - will return these columns with missing values untouched</p></li>
 </ul>
-</section>
-<section id="initialize-nanimputer">
-<h3>Initialize NaNImputer<a class="headerlink" href="#initialize-nanimputer" title="Permalink to this headline">¶</a></h3>
+<p><strong>Initialize NaNImputer</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">NaNImputer</span>
 
 <span class="c1"># initialize with default parameters</span>
@@ -267,9 +310,7 @@
 <p>Results are extracted from finished processes and combined into a single/multiple output as per the defined function output requirements.</p>
 <p>Multiple outputs are returned as a nested list.</p>
 </div></blockquote>
-</section>
-<section id="initialize-multicore">
-<h3>Initialize Multicore<a class="headerlink" href="#initialize-multicore" title="Permalink to this headline">¶</a></h3>
+<p><strong>Initialize Multicore</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">Multicore</span>
 
 <span class="c1"># initialize with default parameters</span>
@@ -358,9 +399,7 @@ In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted
 </dl>
 <p>This will result in user defined granulation of thresholds to test</p>
 </div></blockquote>
-</section>
-<section id="initialize-threshtuner">
-<h3>Initialize ThreshTuner<a class="headerlink" href="#initialize-threshtuner" title="Permalink to this headline">¶</a></h3>
+<p><strong>Initialize ThreshTuner</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">ThreshTuner</span>
 
 <span class="c1"># initialize with default parameters</span>
@@ -526,14 +565,571 @@ In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted
 </div>
 </section>
 </section>
+<section id="categoric-encoders">
+<h2>categoric_encoders<a class="headerlink" href="#categoric-encoders" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All the categoric encoders are conveniently integrated to work with pandas.DataFrame. Modules receive pd.DataFrame and kwargs as inputs and return pd.DataFrame with encoded column. All the necessary attributes for further transform/inverse_transform are saved in instance objects and can be seralized (e.g. pickle) for latter application.</p>
+</div>
+<section id="factorizer">
+<h3>Factorizer<a class="headerlink" href="#factorizer" title="Permalink to this headline">¶</a></h3>
+<p>Encode categoric column by numeric labels.</p>
+<section id="id11">
+<h4>Logic<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h4>
+<p>Assign numeric labels starting with 0 to all unique variable’s categories.</p>
+<p>Missing values can be encoded by an integer value (defaults to -1) / float / string or can be left untransformed.</p>
+<p>When transform () - unseen categories will be be represented as NaN.</p>
+<p><strong>Initialize Factorizer</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack.categoric_encoders</span> <span class="kn">import</span> <span class="n">Factorizer</span>
+
+<span class="c1"># initialize with default parameters</span>
+<span class="n">factorizer</span> <span class="o">=</span> <span class="n">Factorizer</span><span class="p">()</span>
+
+<span class="c1"># initialize with changing the NaN encoding value</span>
+<span class="n">factorizer</span> <span class="o">=</span> <span class="n">Factorizer</span><span class="p">(</span><span class="n">na_sentinel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="c1">#-999/0.33333/&#39;No data&#39;)</span>
+</pre></div>
+</div>
+<p><strong>Attributes</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code></p>
+<ul>
+<li><p>Defined (at init) missing values encoding value.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">colname</span></code></p>
+<ul>
+<li><p>Defined (at fit_transform()) column that had been transformed.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pattern</span></code></p>
+<ul>
+<li><p>Defined (at fit_transform()) encoding map.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id12">
+<h4>Parameters<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code> [default=-1]</p>
+<ul>
+<li><p>Missing values encoding value. Can take int/float/str/np.nan values.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id13">
+<h4>Methods<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">fit_transform(df,</span> <span class="pre">colname)</span></code></p>
+<ul>
+<li><p>Fit Factorizer to data and return transformed data.</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
+<p>df containing the colname to transform.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">colname</span></code> str</p>
+<p>Column name in df to be transformed.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">transform(df)</span></code></p>
+<ul>
+<li><p>Apply the fitted Factorizer to new data and return transformed data. Unseen categories will be represented by NaN.</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
+<p>Data containing the colname to transform.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inverse_transform(df)</span></code></p>
+<ul>
+<li><p>Inverse transform data that had been encoded by Factorizer. Data must contain colname that was passed at fit_transform().</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
+<p>Data containing the colname to transform.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id14">
+<h4>Examples<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h4>
+<p>Use with default na_sentinel:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">factorizer</span> <span class="o">=</span> <span class="n">Factorizer</span><span class="p">()</span>
+<span class="n">train_encoded</span> <span class="o">=</span> <span class="n">factorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">)</span> <span class="c1"># will encode NaN values by -1</span>
+<span class="n">test_encoded</span> <span class="o">=</span> <span class="n">factorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+
+<span class="n">train_reversed_to_original</span> <span class="o">=</span> <span class="n">factorizer</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">train_encoded</span><span class="p">)</span>
+<span class="n">test_reversed_to_original</span> <span class="o">=</span> <span class="n">factorizer</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">test_encoded</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Keep missing values untransformed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">factorizer</span> <span class="o">=</span> <span class="n">Factorizer</span><span class="p">(</span><span class="n">na_sentinel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+<span class="n">train_encoded</span> <span class="o">=</span> <span class="n">factorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="onehotencoder">
+<h3>OneHotEncoder<a class="headerlink" href="#onehotencoder" title="Permalink to this headline">¶</a></h3>
+<p>Encode categoric column by a set of binary columns.</p>
+<section id="id15">
+<h4>Logic<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h4>
+<p>Categoric ‘column’:[‘a’,’b’,’c’] will be represented by three binary columns ‘a’, ‘b’, ‘c’. Original categoric ‘column’ is droped.</p>
+<p>Missing values can be represented by a separate column or omited.</p>
+<p>When transform() - unseen categories will not be represented by new columns, missing categories will be represented by empty (all zeros) columns.</p>
+<p><strong>Initialize OneHotEncoder</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ohe</span> <span class="o">=</span> <span class="n">OneHotEncoder</span><span class="p">()</span>
+<span class="n">train_encoded</span> <span class="o">=</span> <span class="n">ohe</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">)</span> <span class="c1"># will create a separate column for NaN values (if any)</span>
+<span class="n">test_encoded</span> <span class="o">=</span> <span class="n">ohe</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+
+<span class="n">train_reversed_to_original</span> <span class="o">=</span> <span class="n">ohe</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">train_encoded</span><span class="p">)</span>
+<span class="n">test_reversed_to_original</span> <span class="o">=</span> <span class="n">ohe</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">test_encoded</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Attributes</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code></p>
+<ul>
+<li><p>Defined (at init) missing values encoding value.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">colname</span></code></p>
+<ul>
+<li><p>Defined (at fit_transform()) column that had been transformed.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">categories</span></code></p>
+<ul>
+<li><p>Defined (at fit_transform()) unique class categories which will be represented by binary columns.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id16">
+<h4>Parameters<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code> [default=True]</p>
+<ul>
+<li><p>If True: create separate class column for NaN values.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id17">
+<h4>Methods<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">fit_transform(df,</span> <span class="pre">colname,</span> <span class="pre">prefix)</span></code></p>
+<ul>
+<li><p>Fit OneHotEncoder to data and return transformed data.</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
+<p>df containing the colname to transform.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">colname</span></code> str</p>
+<p>Column name in df to be transformed.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prefix</span></code> str/int/float/bool/None, optional</p>
+<p>String to append DataFrame column names. The default is None.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">transform(df)</span></code></p>
+<ul>
+<li><p>Apply the fitted OneHotEncoder to new data and return transformed data. Unseen categories will not be represented by new columns, missing categories will be represented by empty (all zeros) columns.</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
+<p>Data containing the colname to transform.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inverse_transform(df)</span></code></p>
+<ul>
+<li><p>Inverse transform data that had been encoded by OneHotEncoder. Data must contain one-hot-encoded columns that was created at fit_transform().</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
+<p>Data containing the colname to transform.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id18">
+<h4>Examples<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ohe</span> <span class="o">=</span> <span class="n">OneHotEncoder</span><span class="p">()</span>
+<span class="n">train_encoded</span> <span class="o">=</span> <span class="n">ohe</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;colname&#39;</span><span class="p">)</span>
+<span class="n">test_encoded</span> <span class="o">=</span> <span class="n">ohe</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+
+<span class="n">train_reversed_to_original</span> <span class="o">=</span> <span class="n">ohe</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">train_encoded</span><span class="p">)</span>
+<span class="n">test_reversed_to_original</span> <span class="o">=</span> <span class="n">ohe</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">test_encoded</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="frequencyencoder">
+<h3>FrequencyEncoder<a class="headerlink" href="#frequencyencoder" title="Permalink to this headline">¶</a></h3>
+<p>Encoder to represent categoric variable classes’ frequency across the dataset.</p>
+<section id="id19">
+<h4>Logic<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>Original column [‘a’, ‘a’, ‘a’, ‘b’, ‘b’, ‘c’, ‘c’, ‘c’, ‘c’, np.nan]</p>
+<p>Encoded column  [0.3, 0.3, 0.3, 0.2, 0.2, 0.4, 0.4, 0.4, 0.4, 0.1] # np.nan]</p>
+</div></blockquote>
+<p>When transform() - unseen categories will be represented by the most common (highest) frequency.</p>
+<p>Can handle missing values - encode NaN by NaN frequency or leave NaN values untransformed.
+Resulting frequencies are normalized as a percentage.</p>
+<p><strong>Initialize FrequencyEncoder</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fe</span> <span class="o">=</span> <span class="n">FrequencyEncoder</span><span class="p">()</span>
+<span class="n">train_encoded</span> <span class="o">=</span> <span class="n">fe</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">)</span>
+<span class="n">test_encoded</span> <span class="o">=</span> <span class="n">fe</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+
+<span class="n">train_reversed_to_original</span> <span class="o">=</span> <span class="n">fe</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">train_encoded</span><span class="p">)</span>
+<span class="n">test_reversed_to_original</span> <span class="o">=</span> <span class="n">fe</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">test_encoded</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Attributes</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code></p>
+<ul>
+<li><p>Defined (at init) missing values encoding value.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">colname</span></code></p>
+<ul>
+<li><p>Defined (at fit_transform()) column that had been transformed.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pattern</span></code></p>
+<ul>
+<li><p>Defined (at fit_transform()) encoding map.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id20">
+<h4>Parameters<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code> [default=True]</p>
+<ul>
+<li><p>If True: Encode NaN values by their frequency. If False return np.nan in the encoded column.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id21">
+<h4>Methods<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">fit_transform(df,</span> <span class="pre">colname)</span></code></p>
+<ul>
+<li><p>Fit FrequencyEncoder to data and return transformed data.</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
+<p>df containing the colname to transform.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">colname</span></code> str</p>
+<p>Column name in df to be transformed.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">transform(df)</span></code></p>
+<ul>
+<li><p>Apply the fitted FrequencyEncoder to new data and return transformed data. Unseen categories will be represented as NaN.</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
+<p>Data containing the colname to transform.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inverse_transform(df)</span></code></p>
+<ul>
+<li><p>Inverse transform data that had been encoded by FrequencyEncoder. Data must contain colname that was passed at fit_transform().</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
+<p>Data containing the colname to transform.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id22">
+<h4>Examples<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">frequency_encoder</span> <span class="o">=</span> <span class="n">FrequencyEncoder</span><span class="p">()</span>
+<span class="n">train_encoded</span> <span class="o">=</span> <span class="n">frequency_encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">)</span>
+<span class="n">test_encoded</span> <span class="o">=</span> <span class="n">frequency_encoder</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+
+<span class="n">train_reversed_to_original</span> <span class="o">=</span> <span class="n">frequency_encoder</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">train_encoded</span><span class="p">)</span>
+<span class="n">test_reversed_to_original</span> <span class="o">=</span> <span class="n">frequency_encoder</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">test_encoded</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="meantargetencoder">
+<h3>MeanTargetEncoder<a class="headerlink" href="#meantargetencoder" title="Permalink to this headline">¶</a></h3>
+<p>Encode train cat cols by mean target value for category.</p>
+<section id="id23">
+<h4>Logic<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h4>
+<p>To avoid target leakage train set encoding is performed by breaking data into 5 folds &amp;
+encoding categories of each fold with their respective target mean values calculated on the other 4 folds.
+This will introduce minor noize to train data encoding (at fit_transform()) as a normalization technique.
+Test set (transform()) is encoded without normalization.</p>
+<p>When transform() - unseen categories will be represented by the global target mean.</p>
+<p>Can handle missing values - encode NaN by global mean or leave NaN values untransformed.</p>
+<p><strong>Initialize MeanTargetEncoder</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mean_target_encoder</span> <span class="o">=</span> <span class="n">MeanTargetEncoder</span><span class="p">(</span><span class="n">save_inverse_transform</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">train_encoded</span> <span class="o">=</span> <span class="n">mean_target_encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">,</span> <span class="s1">&#39;targetname&#39;</span><span class="p">)</span>
+<span class="n">test_encoded</span> <span class="o">=</span> <span class="n">mean_target_encoder</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+
+<span class="n">train_reversed_to_original</span> <span class="o">=</span> <span class="n">mean_target_encoder</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">train_encoded</span><span class="p">)</span>
+<span class="n">test_reversed_to_original</span> <span class="o">=</span> <span class="n">mean_target_encoder</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">test_encoded</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Attributes</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code></p>
+<ul>
+<li><p>Defined (at init) missing values encoding value.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">colname</span></code></p>
+<ul>
+<li><p>Defined (at fit_transform()) column that had been transformed.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pattern</span></code></p>
+<ul>
+<li><p>Defined (at fit_transform()) encoding map.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">save_inverse_transform</span></code></p>
+<ul>
+<li><p>Defined (at init) flag for saving the pattern for inverse transform.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id24">
+<h4>Parameters<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code> [default=True]</p>
+<ul>
+<li><p>If True: Encode NaN values by target global mean. If False return np.nan in the encoded column.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">save_inverse_transform</span></code> [default=False]</p>
+<ul>
+<li><p>If True: Saves mean target values for each category at each encoding fold. Enable if need to inverse_transform the encoded data. Defaults to False because for large datasets saved pattern can significantly increase instance object size.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id25">
+<h4>Methods<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">fit_transform(df,</span> <span class="pre">colname,</span> <span class="pre">targetname)</span></code></p>
+<ul>
+<li><p>Fit MeanTargetEncoder to data and return transformed data.</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
+<p>df containing the colname to transform.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">colname</span></code> str</p>
+<p>Column name in df to be transformed.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">targetname</span></code> str</p>
+<p>Target column name in df for extracting the mean values for each colname category.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">transform(df)</span></code></p>
+<ul>
+<li><p>Apply the fitted MeanTargetEncoder to new data and return transformed data. Unseen categories will be encoded by the global target mean.</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
+<p>Data containing the colname to transform.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inverse_transform(df)</span></code></p>
+<ul>
+<li><p>Inverse transform data that had been encoded by MeanTargetEncoder. Data must contain colname that was passed at fit_transform().</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
+<p>Data containing the colname to transform.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id26">
+<h4>Examples<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mean_target_encoder</span> <span class="o">=</span> <span class="n">MeanTargetEncoder</span><span class="p">(</span><span class="n">save_inverse_transform</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">train_encoded</span> <span class="o">=</span> <span class="n">mean_target_encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">,</span> <span class="s1">&#39;targetname&#39;</span><span class="p">)</span>
+<span class="n">test_encoded</span> <span class="o">=</span> <span class="n">mean_target_encoder</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+
+<span class="n">train_reversed_to_original</span> <span class="o">=</span> <span class="n">mean_target_encoder</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">train_encoded</span><span class="p">)</span>
+<span class="n">test_reversed_to_original</span> <span class="o">=</span> <span class="n">mean_target_encoder</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">test_encoded</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="weightofevidenceencoder">
+<h3>WeightOfEvidenceEncoder<a class="headerlink" href="#weightofevidenceencoder" title="Permalink to this headline">¶</a></h3>
+<p>Encoder to represent categoric variables by Weight of Evidence in regards to the binary target variable.</p>
+<section id="id27">
+<h4>Logic<a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h4>
+<p>Built on top of sclearn package <a class="reference external" href="https://contrib.scikit-learn.org/category_encoders/woe.html#">category_encoders.woe.WOEEncoder</a>.</p>
+<p>If encoded value is negative - it represents a category that is more heavily enclided to the negative target class (0).
+Positive encoding result represents inclination to the positive target class (1).</p>
+<p>When fit_transform() is used on a train set, variable is encoded with adding minor noize to reduce the risk of overfitting.</p>
+<p>Can handle missing values - encode NaN by zero WoE or leave NaN untransformed.</p>
+<p><strong>Initialize WeightOfEvidenceEncoder</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">WOE</span> <span class="o">=</span> <span class="n">WeightOfEvidenceEncoder</span><span class="p">()</span>
+<span class="n">train_encoded</span> <span class="o">=</span> <span class="n">WOE</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">,</span> <span class="s1">&#39;targetname&#39;</span><span class="p">)</span>
+<span class="n">test_encoded</span> <span class="o">=</span> <span class="n">WOE</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+
+<span class="n">train_reversed_to_original</span> <span class="o">=</span> <span class="n">WOE</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">train_encoded</span><span class="p">)</span>
+<span class="n">test_reversed_to_original</span> <span class="o">=</span> <span class="n">WOE</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">test_encoded</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Attributes</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code></p>
+<ul>
+<li><p>Defined (at init) missing values encoding value.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">colname</span></code></p>
+<ul>
+<li><p>Defined (at fit_transform()) column that had been transformed.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">params</span></code></p>
+<ul>
+<li><p>Defined (at init) category_encoders.woe.WOEEncoder <a class="reference external" href="https://contrib.scikit-learn.org/category_encoders/woe.html#">parameters</a></p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id29">
+<h4>Parameters<a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code> [default=True]</p>
+<ul>
+<li><p>If True: Encode NaN values by zero WoE. If False return np.nan in the encoded column.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kwargs</span></code></p>
+<ul>
+<li><p>category_encoders.woe.WOEEncoder <a class="reference external" href="https://contrib.scikit-learn.org/category_encoders/woe.html#">parameters</a>. Following parameters are set by default: <code class="docutils literal notranslate"><span class="pre">'randomized':True</span></code>, <code class="docutils literal notranslate"><span class="pre">'random_state':42</span></code>, <code class="docutils literal notranslate"><span class="pre">'handle_missing':'return_nan'</span></code> &lt;- infered from na_sentinel setting.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id31">
+<h4>Methods<a class="headerlink" href="#id31" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">fit_transform(df,</span> <span class="pre">colname,</span> <span class="pre">targetname)</span></code></p>
+<ul>
+<li><p>Fit WeightOfEvidenceEncoder to data and return transformed data.</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
+<p>df containing the colname to transform.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">colname</span></code> str</p>
+<p>Column name in df to be transformed.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">targetname</span></code> str</p>
+<p>Target column name in df for calculating WoE for each colname category.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">transform(df)</span></code></p>
+<ul>
+<li><p>Apply the fitted WeightOfEvidenceEncoder to new data and return transformed data. Unseen categories’ WoE is set to 0.</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
+<p>Data containing the colname to transform.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inverse_transform(df)</span></code></p>
+<ul>
+<li><p>Inverse transform data that had been encoded by WeightOfEvidenceEncoder. Data must contain colname that was passed at fit_transform().</p>
+<p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
+<p>Data containing the colname to transform.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id32">
+<h4>Examples<a class="headerlink" href="#id32" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">WOE</span> <span class="o">=</span> <span class="n">WeightOfEvidenceEncoder</span><span class="p">()</span>
+<span class="n">train_encoded</span> <span class="o">=</span> <span class="n">WOE</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">,</span> <span class="s1">&#39;targetname&#39;</span><span class="p">)</span>
+<span class="n">test_encoded</span> <span class="o">=</span> <span class="n">WOE</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+
+<span class="n">train_reversed_to_original</span> <span class="o">=</span> <span class="n">WOE</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">train_encoded</span><span class="p">)</span>
+<span class="n">test_reversed_to_original</span> <span class="o">=</span> <span class="n">WOE</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">test_encoded</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
 <section id="timer">
 <h2>timer<a class="headerlink" href="#timer" title="Permalink to this headline">¶</a></h2>
 <p>Timer decorator to measure any function execution time and create elapsed time output: hours/minues/seconds will be calculated and returned conveniently.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">verstack</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">timer</span>
 </pre></div>
 </div>
-<section id="id11">
-<h3>Examples<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<section id="id33">
+<h3>Examples<a class="headerlink" href="#id33" title="Permalink to this headline">¶</a></h3>
 <p>timer is a decorator function: it must placed above the function (that needs to be timed) definition</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack.tools</span> <span class="kn">import</span> <span class="n">timer</span>
 
@@ -570,7 +1166,7 @@ In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="nav-item nav-item-0"><a href="#">verstack 0.1.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">verstack 0.5.2 Documentation</a></li> 
+        <li class="nav-item nav-item-this"><a href="">verstack 1.0.0 Documentation</a></li> 
       </ul>
     </div>
 <script type="text/javascript">

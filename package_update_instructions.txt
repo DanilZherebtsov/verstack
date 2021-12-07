@@ -8,7 +8,7 @@ Every time you want to update your package:
 
 	2. update index.rst file in the docs folder and build a new release on readthedocks.org
 
-	3. Update the README.md with instruction and push to github (need updating at this step befoore creating a new release, so it would get posted on pypi)
+	3. Update the README.md with instruction and push to github (need updating at this step before creating a new release, so it would get posted on pypi)
 
 	4. upload a new version to github
 

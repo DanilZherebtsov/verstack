@@ -8,11 +8,18 @@ veratack package contains the following tools:
     *impute all missing values in a pandas dataframe using advanced machine learning with 1 line of code. Powered by XGBoost
 2. Multicore 
     *execute any function in concurrency using all the available cpu cores
-3.ThreshTuner
+3. ThreshTuner
     *tune threshold for binary classification predictions
 4. stratified_continuous_split 
     *create train/test splits stratified on the continuous variable
-5. timer 
+5. categoric_encoders encode categoric variable by numeric labels:
+    * Factorizer - encode categoric variable by numeric labels
+    * OneHotEncoder represent categoric variable as a set of binary variables
+    * FrequencyEncoder - encode categoric variable by class frequencies
+    * MeanTargetEncoder - encode categoric variable by mean of the target variable
+    * WeightOfEvidenceEncoder - encode categoric variable as a weight of evidence of a binary target variable
+ 
+6. timer 
     *convenient timer decorator to quickly measure and display time of any function execution
 
 
@@ -328,6 +335,401 @@ Can accept only pandas.DataFrame/pandas.Series as data input.
   X_train, X_val, y_train, y_val = scsplit(X, y, stratify = y, 
                                            test_size = 0.3, random_state = 5)
 ```
+
+
+
+
+
+
+
+
+
+
+# Factorizer
+
+Encode categoric column by numeric labels.
+
+Assign numeric labels starting with 0 to all unique variable's categories. 
+
+Missing values can be encoded by an integer value (defaults to -1) / float / string or can be left untransformed.
+
+When transform () - unseen categories will be be represented as NaN.
+
+#### Initialize Factorizer
+
+```Python
+  from verstack.categoric_encoders import Factorizer
+  # initialize with default parameters
+  factorizer = Factorizer()
+  # initialize with changing the NaN encoding value
+  factorizer = Factorizer(na_sentinel = np.nan) #-999/0.33333/'No data')
+```
+
+##### Attributes
+
+    na_sentinel
+        Defined (at init) missing values encoding value. 
+    colname
+        Defined (at fit_transform()) column that had been transformed. 
+    pattern
+        Defined (at fit_transform()) encoding map.
+
+##### Parameters
+
+    na_sentinel [default=-1]
+        Missing values encoding value. Can take int/float/str/np.nan values.
+
+##### Methods
+
+    fit_transform(df, colname)
+        Fit Factorizer to data and return transformed data.
+        Parameters
+          df pd.DataFrame
+              df containing the colname to transform.
+          colname str
+              Column name in df to be transformed.
+
+    transform(df)
+        Apply the fitted Factorizer to new data and return transformed data. Unseen categories will be represented by NaN.
+        Parameters
+          df pd.DataFrame
+              Data containing the colname to transform.
+
+    inverse_transform(df)
+        Inverse transform data that had been encoded by Factorizer. Data must contain colname that was passed at fit_transform().
+        Parameters
+          df pd.DataFrame
+              Data containing the colname to transform.
+
+##### Examples
+
+Use with default na_sentinel:
+
+```Python
+
+  factorizer = Factorizer()
+  train_encoded = factorizer.fit_transform(train, 'colname') # will encode NaN values by -1
+  test_encoded = factorizer.transform(test)
+
+  train_reversed_to_original = factorizer.inverse_transform(train_encoded)
+  test_reversed_to_original = factorizer.inverse_transform(test_encoded)
+
+# keep missing values untransformed:
+
+  factorizer = Factorizer(na_sentinel = np.nan)
+  train_encoded = factorizer.fit_transform(train)
+```
+
+
+
+
+# OneHotEncoder
+
+Encode categoric column by a set of binary columns.
+
+Categoric 'column':['a','b','c'] will be represented by three binary columns 'a', 'b', 'c'. Original categoric 'column' is droped.
+Missing values can be represented by a separate column or omited.
+When transform() - unseen categories will not be represented by new columns, missing categories will be represented by empty (all zeros) columns.
+
+#### Initialize OneHotEncoder
+
+```Python
+  ohe = OneHotEncoder()
+  train_encoded = ohe.fit_transform(train, 'colname') # will create a separate column for NaN values (if any)
+  test_encoded = ohe.transform(test)
+
+  train_reversed_to_original = ohe.inverse_transform(train_encoded)
+  test_reversed_to_original = ohe.inverse_transform(test_encoded)
+```
+
+##### Attributes
+
+    na_sentinel 
+        Defined (at init) missing values encoding value. 
+    colname
+        Defined (at fit_transform()) column that had been transformed. 
+    categories
+        Defined (at fit_transform()) unique class categories which will be represented by binary columns.
+
+##### Parameters
+
+    na_sentinel [default=True]
+        If True: create separate class column for NaN values.
+
+##### Methods
+
+    fit_transform(df, colname, prefix)
+        Fit OneHotEncoder to data and return transformed data.
+        Parameters
+          df pd.DataFrame
+              df containing the colname to transform.
+          colname str
+              Column name in df to be transformed.
+          prefix str/int/float/bool/None, optional
+              String to append DataFrame column names. The default is None.
+
+    transform(df)
+        Apply the fitted OneHotEncoder to new data and return transformed data. Unseen categories will not be represented by new columns, missing categories will be represented by empty (all zeros) columns.
+        Parameters
+          df pd.DataFrame
+              Data containing the colname to transform.
+
+    inverse_transform(df)
+        Inverse transform data that had been encoded by OneHotEncoder. Data must contain one-hot-encoded columns that was created at fit_transform().
+        Parameters
+          df pd.DataFrame
+              Data containing the colname to transform.
+
+##### Examples
+
+```Python
+  ohe = OneHotEncoder()
+  train_encoded = ohe.fit_transform(train, 'colname', prefix = 'colname')
+  test_encoded = ohe.transform(test)
+
+  train_reversed_to_original = ohe.inverse_transform(train_encoded)
+  test_reversed_to_original = ohe.inverse_transform(test_encoded)
+```
+
+
+
+
+# FrequencyEncoder
+
+Encoder to represent categoric variable classes' frequency across the dataset.
+
+Original column ['a', 'a', 'a', 'b', 'b', 'c', 'c', 'c', 'c', np.nan]
+Encoded column  [0.3, 0.3, 0.3, 0.2, 0.2, 0.4, 0.4, 0.4, 0.4, 0.1] # np.nan]
+
+When transform() - unseen categories will be represented by the most common (highest) frequency.
+
+Can handle missing values - encode NaN by NaN frequency or leave NaN values untransformed.
+Resulting frequencies are normalized as a percentage.
+
+#### Initialize FrequencyEncoder
+
+```Python
+  fe = FrequencyEncoder()
+  train_encoded = fe.fit_transform(train, 'colname')
+  test_encoded = fe.transform(test)
+
+  train_reversed_to_original = fe.inverse_transform(train_encoded)
+  test_reversed_to_original = fe.inverse_transform(test_encoded)
+```
+
+##### Attributes
+
+    na_sentinel 
+        Defined (at init) missing values encoding value. 
+    colname
+        Defined (at fit_transform()) column that had been transformed. 
+    pattern
+        Defined (at fit_transform()) encoding map.
+
+##### Parameters
+
+    na_sentinel [default=True]
+        If True: Encode NaN values by their frequency. If False return np.nan in the encoded column.
+
+##### Methods
+
+    fit_transform(df, colname)
+        Fit FrequencyEncoder to data and return transformed data.
+        Parameters
+          df pd.DataFrame
+              df containing the colname to transform.
+          colname str
+              Column name in df to be transformed.
+
+    transform(df)
+        Apply the fitted FrequencyEncoder to new data and return transformed data. Unseen categories will be represented as NaN.
+        Parameters
+          df pd.DataFrame
+              Data containing the colname to transform.
+
+    inverse_transform(df)
+        Inverse transform data that had been encoded by FrequencyEncoder. Data must contain colname that was passed at fit_transform().
+        Parameters
+          df pd.DataFrame
+              Data containing the colname to transform.
+
+##### Examples
+
+```Python
+  frequency_encoder = FrequencyEncoder()
+  train_encoded = frequency_encoder.fit_transform(train, 'colname')
+  test_encoded = frequency_encoder.transform(test)
+
+  train_reversed_to_original = frequency_encoder.inverse_transform(train_encoded)
+  test_reversed_to_original = frequency_encoder.inverse_transform(test_encoded)
+```
+
+
+
+
+# MeanTargetEncoder
+
+Encode train cat cols by mean target value for category.
+
+To avoid target leakage train set encoding is performed by breaking data into 5 folds & 
+encoding categories of each fold with their respective target mean values calculated on the other 4 folds.
+This will introduce minor noize to train data encoding (at fit_transform()) as a normalization technique. 
+Test set (transform()) is encoded without normalization.
+
+When transform() - unseen categories will be represented by the global target mean.
+
+Can handle missing values - encode NaN by global mean or leave NaN values untransformed.
+
+#### Initialize MeanTargetEncoder
+
+```Python
+  mean_target_encoder = MeanTargetEncoder(save_inverse_transform = True)
+  train_encoded = mean_target_encoder.fit_transform(train, 'colname', 'targetname')
+  test_encoded = mean_target_encoder.transform(test)
+
+  train_reversed_to_original = mean_target_encoder.inverse_transform(train_encoded)
+  test_reversed_to_original = mean_target_encoder.inverse_transform(test_encoded)
+```
+
+##### Attributes
+
+    na_sentinel
+        Defined (at init) missing values encoding value. 
+    colname
+        Defined (at fit_transform()) column that had been transformed. 
+    pattern
+        Defined (at fit_transform()) encoding map.
+    save_inverse_transform
+        Defined (at init) flag for saving the pattern for inverse transform.
+
+##### Parameters
+
+    na_sentinel [default=True]
+        If True: Encode NaN values by target global mean. If False return np.nan in the encoded column.
+    save_inverse_transform [default=False]
+        If True: Saves mean target values for each category at each encoding fold. Enable if need to inverse_transform the encoded data. Defaults to False because for large datasets saved pattern can significantly increase instance object size.
+
+##### Methods
+
+    fit_transform(df, colname, targetname)
+        Fit MeanTargetEncoder to data and return transformed data.
+        Parameters
+          df pd.DataFrame
+              df containing the colname to transform.
+          colname str
+              Column name in df to be transformed.
+          targetname str
+              Target column name in df for extracting the mean values for each colname category.
+
+    transform(df)
+        Apply the fitted MeanTargetEncoder to new data and return transformed data. Unseen categories will be encoded by the global target mean.
+        Parameters
+          df pd.DataFrame
+              Data containing the colname to transform.
+
+    inverse_transform(df)
+        Inverse transform data that had been encoded by MeanTargetEncoder. Data must contain colname that was passed at fit_transform().
+        Parameters
+          df pd.DataFrame
+              Data containing the colname to transform.
+
+##### Examples
+
+```Python
+  mean_target_encoder = MeanTargetEncoder(save_inverse_transform = True)
+  train_encoded = mean_target_encoder.fit_transform(train, 'colname', 'targetname')
+  test_encoded = mean_target_encoder.transform(test)
+
+  train_reversed_to_original = mean_target_encoder.inverse_transform(train_encoded)
+  test_reversed_to_original = mean_target_encoder.inverse_transform(test_encoded)
+```
+
+
+
+
+# WeightOfEvidenceEncoder
+
+Encoder to represent categoric variables by Weight of Evidence in regards to the binary target variable.
+
+Built on top of sclearn package [category_encoders.woe.WOEEncoder](https://contrib.scikit-learn.org/category_encoders/woe.html#).
+
+If encoded value is negative - it represents a category that is more heavily enclided to the negative target class (0).
+Positive encoding result represents inclination to the positive target class (1).
+
+When fit_transform() is used on a train set, variable is encoded with adding minor noize to reduce the risk of overfitting.
+Can handle missing values - encode NaN by zero WoE or leave NaN untransformed.
+
+#### Initialize WeightOfEvidenceEncoder
+
+```Python
+  WOE = WeightOfEvidenceEncoder()
+  train_encoded = WOE.fit_transform(train, 'colname', 'targetname')
+  test_encoded = WOE.transform(test)
+
+  train_reversed_to_original = WOE.inverse_transform(train_encoded)
+  test_reversed_to_original = WOE.inverse_transform(test_encoded)
+```
+
+##### Attributes
+
+    na_sentinel 
+        Defined (at init) missing values encoding value. 
+    colname
+        Defined (at fit_transform()) column that had been transformed. 
+    params
+        Defined (at init) category_encoders.woe.WOEEncoder `parameters <https://contrib.scikit-learn.org/category_encoders/woe.html#>`_
+
+
+##### Parameters
+
+    na_sentinel [default=True]
+        If True: Encode NaN values by zero WoE. If False return np.nan in the encoded column.
+    kwargs
+       category_encoders.woe.WOEEncoder [parameters](https://contrib.scikit-learn.org/category_encoders/woe.html#). Following parameters are set by default: ``'randomized':True``, ``'random_state':42``, ``'handle_missing':'return_nan'`` <- infered from na_sentinel setting.
+
+##### Methods
+
+    fit_transform(df, colname, targetname)
+        Fit WeightOfEvidenceEncoder to data and return transformed data.
+        Parameters
+          df pd.DataFrame
+              df containing the colname to transform.
+          colname str
+              Column name in df to be transformed.
+          targetname str
+              Target column name in df for calculating WoE for each colname category.
+
+    transform(df)
+        Apply the fitted WeightOfEvidenceEncoder to new data and return transformed data. Unseen categories' WoE is set to 0.
+        Parameters
+          df pd.DataFrame
+              Data containing the colname to transform.
+
+    inverse_transform(df)
+        Inverse transform data that had been encoded by WeightOfEvidenceEncoder. Data must contain colname that was passed at fit_transform().
+        Parameters
+          df pd.DataFrame
+              Data containing the colname to transform.
+
+##### Examples
+
+```Python
+  WOE = WeightOfEvidenceEncoder()
+  train_encoded = WOE.fit_transform(train, 'colname', 'targetname')
+  test_encoded = WOE.transform(test)
+
+  train_reversed_to_original = WOE.inverse_transform(train_encoded)
+  test_reversed_to_original = WOE.inverse_transform(test_encoded)
+```
+
+
+
+
+
+
+
+
+
 
 # timer
 
