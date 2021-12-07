@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from args_validators import is_not_bool_na_sentinel
+from verstack.categoric_encoders.args_validators import is_not_bool_na_sentinel
 
 class Factorizer():
     '''
@@ -10,7 +10,7 @@ class Factorizer():
         string/number to replace original NaN values.
     
     '''
-    __version__ = '0.1.0'
+    __version__ = '0.1.1'
 
     def __init__(self, na_sentinel = -1):
         '''

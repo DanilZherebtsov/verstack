@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from args_validators import is_bool_na_sentinel, assert_fit_transform_args, assert_transform_args, assert_binary_target
+from verstack.categoric_encoders.args_validators import is_bool_na_sentinel, assert_fit_transform_args, assert_transform_args, assert_binary_target
 
 class WeightOfEvidenceEncoder():
     '''
@@ -11,7 +11,7 @@ class WeightOfEvidenceEncoder():
     When transform() unseen categories are encoded by 0 WoE.
     '''
 
-    __version__ = '0.1.0'    
+    __version__ = '0.1.1'    
     
     def __init__(self, na_sentinel = True, **kwargs):
         '''
