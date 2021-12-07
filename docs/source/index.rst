@@ -437,7 +437,7 @@ When transform () - unseen categories will be be represented as NaN.
 
 .. code-block:: python
 
-  from verstack.categoric_encoders import Factorizer
+  from verstack import Factorizer
   
   # initialize with default parameters
   factorizer = Factorizer()
@@ -546,6 +546,7 @@ When transform() - unseen categories will not be represented by new columns, mis
 
 .. code-block:: python
 
+  from verstack import OneHotEncoder
   ohe = OneHotEncoder()
   train_encoded = ohe.fit_transform(train, 'colname') # will create a separate column for NaN values (if any)
   test_encoded = ohe.transform(test)
@@ -653,6 +654,7 @@ Resulting frequencies are normalized as a percentage.
 
 .. code-block:: python
 
+  from verstack import FrequencyEncoder
   fe = FrequencyEncoder()
   train_encoded = fe.fit_transform(train, 'colname')
   test_encoded = fe.transform(test)
@@ -756,6 +758,7 @@ Can handle missing values - encode NaN by global mean or leave NaN values untran
 
 .. code-block:: python
 
+  from verstack import MeanTargetEncoder
   mean_target_encoder = MeanTargetEncoder(save_inverse_transform = True)
   train_encoded = mean_target_encoder.fit_transform(train, 'colname', 'targetname')
   test_encoded = mean_target_encoder.transform(test)
@@ -872,6 +875,7 @@ Can handle missing values - encode NaN by zero WoE or leave NaN untransformed.
 
 .. code-block:: python
 
+  from verstack import WeightOfEvidenceEncoder
   WOE = WeightOfEvidenceEncoder()
   train_encoded = WOE.fit_transform(train, 'colname', 'targetname')
   test_encoded = WOE.transform(test)

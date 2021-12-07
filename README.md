@@ -20,7 +20,7 @@ veratack package contains the following tools:
     * WeightOfEvidenceEncoder - encode categoric variable as a weight of evidence of a binary target variable
  
 6. timer 
-    *convenient timer decorator to quickly measure and display time of any function execution
+    * convenient timer decorator to quickly measure and display time of any function execution
 
 
 With NaNImputer you can fill missing values in numeric, binary and categoric columns in your pandas dataframe using advanced XGBRegressor/XGBClassifier models with just 1 line of code. Regardless of the data types in your dataframe (string/bool/numeric): 
@@ -358,7 +358,7 @@ When transform () - unseen categories will be be represented as NaN.
 #### Initialize Factorizer
 
 ```Python
-  from verstack.categoric_encoders import Factorizer
+  from verstack import Factorizer
   # initialize with default parameters
   factorizer = Factorizer()
   # initialize with changing the NaN encoding value
@@ -434,6 +434,7 @@ When transform() - unseen categories will not be represented by new columns, mis
 #### Initialize OneHotEncoder
 
 ```Python
+  from verstack import OneHotEncoder
   ohe = OneHotEncoder()
   train_encoded = ohe.fit_transform(train, 'colname') # will create a separate column for NaN values (if any)
   test_encoded = ohe.transform(test)
@@ -509,6 +510,7 @@ Resulting frequencies are normalized as a percentage.
 #### Initialize FrequencyEncoder
 
 ```Python
+  from verstack import FrequencyEncoder
   fe = FrequencyEncoder()
   train_encoded = fe.fit_transform(train, 'colname')
   test_encoded = fe.transform(test)
@@ -583,6 +585,7 @@ Can handle missing values - encode NaN by global mean or leave NaN values untran
 #### Initialize MeanTargetEncoder
 
 ```Python
+  from verstack import MeanTargetEncoder
   mean_target_encoder = MeanTargetEncoder(save_inverse_transform = True)
   train_encoded = mean_target_encoder.fit_transform(train, 'colname', 'targetname')
   test_encoded = mean_target_encoder.transform(test)
@@ -662,6 +665,7 @@ Can handle missing values - encode NaN by zero WoE or leave NaN untransformed.
 #### Initialize WeightOfEvidenceEncoder
 
 ```Python
+  from verstack import WeightOfEvidenceEncoder
   WOE = WeightOfEvidenceEncoder()
   train_encoded = WOE.fit_transform(train, 'colname', 'targetname')
   test_encoded = WOE.transform(test)
