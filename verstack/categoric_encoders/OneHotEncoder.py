@@ -8,7 +8,7 @@ class OneHotEncoder():
     binary variables one for each class.
     
     '''
-    __version__ = '0.1.1'
+    __version__ = '0.1.2'
     
     def __init__(self, na_sentinel = True):
         '''
