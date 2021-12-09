@@ -63,6 +63,8 @@ class OneHotEncoder():
         '''
         Fit encoder, transform column in df, save attributes for transform(/inverse_transform().
 
+        Change na_sentinel to False if df[colname].isnull().sum() == 0
+
         Parameters
         ----------
         df : pd.DataFrame
@@ -80,6 +82,11 @@ class OneHotEncoder():
         '''
         
         assert_fit_transform_args(df, colname)
+        
+        # change na_sentinel if col does not include NaNs
+        if df[colname].isnull().sum() == 0:
+            self._na_sentinel = False
+
         self._colname = colname
         self.__original_fit_transform_cols_sequence = df.columns.tolist()
         self.__prefix = prefix
