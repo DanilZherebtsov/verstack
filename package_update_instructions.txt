@@ -31,6 +31,8 @@ Every time you want to update your package:
 			python setup.py sdist
 		- upload package to pypi (if no twine package: pip install twine)
 			twine upload dist/*  (will prompt username to pypy and password)
-
+			!!! if error:
+			python setup.py sdist
+			twine upload --skip-existing dist/*
 Upgrade package using pip:
 pip install --upgrade verstack

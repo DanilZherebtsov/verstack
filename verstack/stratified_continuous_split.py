@@ -45,28 +45,26 @@ def combine_single_valued_bins(y_binned):
         if value == 1:
             keys_with_single_value.append(key)
 
-    # first combine with singles in keys_with_single_values
-    def combine_singles(val, lst, operator, keys_with_single_value):
-        for ix, v in enumerate(lst):
-            if v == val:
-                combine_with = lst[ix] + 1 if operator == 'subtract' else lst[ix] - 1
-                y_binned[y_binned == val] = combine_with
-                keys_with_single_value = [x for x in keys_with_single_value if x not in [val, combine_with]]
-                y_binned_count[combine_with] = y_binned_count[combine_with] + 1 if operator == 'subtract' else y_binned_count[combine_with] - 1
-                if val in y_binned_count.keys():
-                    del y_binned_count[val]
-        return keys_with_single_value
-    for val in keys_with_single_value:
-        # for each single value:
-            # create lists based on keys_with_single_value with +-1 deviation
-            # use these lists to find a match in keys_with_single_value
-        lst_without_val = [i for i in keys_with_single_value if i != val]
-        add_list = [x+1 for x in lst_without_val]
-        subtract_list = [x-1 for x in lst_without_val]
-
-        keys_with_single_value = combine_singles(val, subtract_list, 'subtract', keys_with_single_value)
-        keys_with_single_value = combine_singles(val, add_list, 'add', keys_with_single_value)
-
+    # first combine nearest neighbors (bins that are next to each other with a diff of 1)
+    neighbors = []
+    for i in keys_with_single_value:
+        for j in [x for x in keys_with_single_value if x != i]:
+            if i+1 == j:
+                neighbors.append(i)
+                neighbors.append(j)
+            if i-1 == j:
+                neighbors.append(i)
+                neighbors.append(j)
+    neighbors = sorted(list(set(neighbors)))
+    # split neighbors into groups for combining
+    splits = int(len(neighbors)/2)
+    neighbors = np.array_split(neighbors, splits)
+    for group in neighbors:
+        val_to_use = group[0] 
+        for val in group:
+            y_binned = np.where(y_binned == val, val_to_use, y_binned)
+            keys_with_single_value = [x  for x in keys_with_single_value if x != val]
+    # --------------------------------------------------------------------------------
     # now conbine the leftover keys_with_single_values with the rest of the bins
     def find_nearest(array, value):
         array = np.asarray(array)
@@ -79,6 +77,24 @@ def combine_single_valued_bins(y_binned):
         y_binned[ix_to_change] = nearest
 
     return y_binned
+
+def validate_test_train_size_arguments(test_size, train_size):
+    if not test_size and not train_size:
+        test_size = 0.3
+        train_size = 0.7
+
+    if not test_size and not not train_size:
+        test_size = 1-train_size
+
+    if not not test_size and not train_size:
+        train_size = 1-test_size
+
+    if not not test_size and not not train_size:
+        sum_train_test_size = test_size + train_size
+        if sum_train_test_size > 1:
+            diff = abs(1 - sum_train_test_size)
+            train_size -= diff
+    return test_size, train_size
 
 
 def scsplit(*args, stratify, test_size = 0.3, train_size = 0.7, continuous = True, random_state = None):
@@ -114,6 +130,9 @@ def scsplit(*args, stratify, test_size = 0.3, train_size = 0.7, continuous = Tru
                 X_train (pd.DataFrame): valid split target variable
 
     """
+    # validate test_size/train_size arguments
+    test_size, train_size = validate_test_train_size_arguments(test_size, train_size)
+
     if random_state:
         np.random.seed(random_state)
 
