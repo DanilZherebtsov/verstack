@@ -13,9 +13,10 @@ dependencies = ['pandas', 'numpy']
 rtd_build_env = os.environ.get('READTHEDOCS', False)
 if not rtd_build_env:
     dependencies.append('xgboost')
-    dependencies.append('sklearn')
+    dependencies.append('sklearn==1.0.1')
     dependencies.append('lightgbm==3.3.0')
     dependencies.append('optuna==2.10.0')
+    dependencies.append('plotly==5.3.1')
 
 setup(
   name = 'verstack',
@@ -28,7 +29,7 @@ setup(
   author = 'Danil Zherebtsov',
   author_email = 'danil.com@me.com',
   url = 'https://github.com/DanilZherebtsov/verstack',
-  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/refs/tags/1.1.6.tar.gz',
+  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/refs/tags/1.1.7.tar.gz',
   keywords = ['impute', 'missing', 'values', 'stratify', 'nan', 'continuous', 'multiprocessing', 'concurrent', 'timer'],
   install_requires=dependencies,
   classifiers=[
