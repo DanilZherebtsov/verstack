@@ -10,9 +10,9 @@ from functools import partial
 import warnings
 from verstack.tools import timer
 warnings.filterwarnings("ignore")
-from verstack.LGBMTuner.lgb_metrics import get_pruning_metric, get_optimization_metric_func, define_objective, classification_metrics, regression_metrics, get_eval_score, print_lower_greater_better, supported_metrics
-from verstack.LGBMTuner.args_validators import *
-from verstack.LGBMTuner.optuna_tools import Distribution, OPTUNA_DISTRIBUTIONS_MAP, SearchSpace
+from lgbm_optuna_tuning.lgb_metrics import get_pruning_metric, get_optimization_metric_func, define_objective, classification_metrics, regression_metrics, get_eval_score, print_lower_greater_better, supported_metrics, get_n_rounds_optimization_metric
+from lgbm_optuna_tuning.args_validators import *
+from lgbm_optuna_tuning.optuna_tools import Distribution, OPTUNA_DISTRIBUTIONS_MAP, SearchSpace
 # BACKLOG: add option to pass different init params on class __init__
 # BACKLOG: add option to pass different param_grid for optimization
 # OPTIONAL TODO - add factorization to targets and inverse_transform predictions for classification (E.g. Ghosts, prudential)
@@ -415,8 +415,6 @@ class LGBMTuner:
         validate_numpy_ndarray_arguments(y)
         validate_params_argument(params)
         validate_verbose_eval_argument(verbose_eval)
-        
-        from LGBMTuner.lgb_metrics import get_n_rounds_optimization_metric
 
         if self.verbosity > 0:
             print('\nTune n_estimators with early_stopping\n')
