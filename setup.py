@@ -14,6 +14,8 @@ rtd_build_env = os.environ.get('READTHEDOCS', False)
 if not rtd_build_env:
     dependencies.append('xgboost')
     dependencies.append('sklearn')
+    dependencies.append('lightgbm==3.3.0')
+    dependencies.append('optuna==2.10.0')
 
 setup(
   name = 'verstack',
@@ -26,7 +28,7 @@ setup(
   author = 'Danil Zherebtsov',
   author_email = 'danil.com@me.com',
   url = 'https://github.com/DanilZherebtsov/verstack',
-  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/refs/tags/1.0.6.tar.gz',
+  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/refs/tags/1.0.7.tar.gz',
   keywords = ['impute', 'missing', 'values', 'stratify', 'nan', 'continuous', 'multiprocessing', 'concurrent', 'timer'],
   install_requires=dependencies,
   classifiers=[
