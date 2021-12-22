@@ -10,16 +10,16 @@ from functools import partial
 import warnings
 from verstack.tools import timer
 warnings.filterwarnings("ignore")
-from LGBMTuner.lgb_metrics import get_pruning_metric, get_optimization_metric_func, define_objective, classification_metrics, regression_metrics, get_eval_score, print_lower_greater_better
-from LGBMTuner.args_validators import *
-from LGBMTuner.optuna_tools import Distribution, OPTUNA_DISTRIBUTIONS_MAP, SearchSpace
+from verstack.LGBMTuner.lgb_metrics import get_pruning_metric, get_optimization_metric_func, define_objective, classification_metrics, regression_metrics, get_eval_score, print_lower_greater_better, supported_metrics
+from verstack.LGBMTuner.args_validators import *
+from verstack.LGBMTuner.optuna_tools import Distribution, OPTUNA_DISTRIBUTIONS_MAP, SearchSpace
 # BACKLOG: add option to pass different init params on class __init__
 # BACKLOG: add option to pass different param_grid for optimization
 # OPTIONAL TODO - add factorization to targets and inverse_transform predictions for classification (E.g. Ghosts, prudential)
 
 class LGBMTuner:
 
-    __version__ == '0.0.1'
+    __version__ == '0.0.3'
 
     def __init__(self, metric, trials = 100, refit = True, verbosity = 1, visualization = True, seed = 42):
         '''
@@ -88,7 +88,6 @@ class LGBMTuner:
 
     @metric.setter
     def metric(self, value):
-        from LGBMTuner.lgb_metrics import supported_metrics
         if type(value) != str : raise TypeError('metric must be a string')
         if value not in supported_metrics: raise KeyError(f'LGBMTuner supports the following evaluation metrics: {supported_metrics}')
         self._metric = value
