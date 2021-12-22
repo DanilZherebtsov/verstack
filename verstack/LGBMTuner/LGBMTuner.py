@@ -19,7 +19,7 @@ from verstack.LGBMTuner.optuna_tools import Distribution, OPTUNA_DISTRIBUTIONS_M
 
 class LGBMTuner:
 
-    __version__ == '0.0.3'
+    __version__ = '0.0.3'
 
     def __init__(self, metric, trials = 100, refit = True, verbosity = 1, visualization = True, seed = 42):
         '''
