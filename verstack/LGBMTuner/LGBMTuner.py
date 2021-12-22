@@ -19,7 +19,7 @@ from optuna_tools import Distribution, OPTUNA_DISTRIBUTIONS_MAP, SearchSpace
 
 class LGBMTuner:
 
-    __version__ == 0.0.1
+    __version__ == '0.0.1'
 
     def __init__(self, metric, trials = 100, refit = True, verbosity = 1, visualization = True, seed = 42):
         '''
