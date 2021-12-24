@@ -1,10 +1,11 @@
 ############################
-verstack 1.0.7 Documentation
+verstack 1.1.9 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
 veratack package contains the following tools:
 
+* **LGBMTuner** automated lightgbm models tuniner with optuna
 * **NaNImputer** impute all missing values in a pandas dataframe using advanced machine learning with 1 line of code
 * **Multicore** execute any function in concurrency using all the available cpu cores
 * **ThreshTuner** tune threshold for binary classification predictions
@@ -16,7 +17,7 @@ veratack package contains the following tools:
  * **FrequencyEncoder** encode categoric variable by class frequencies
  * **MeanTargetEncoder** encode categoric variable by mean of the target variable
  * **WeightOfEvidenceEncoder** encode categoric variable as a weight of evidence of a binary target variable
- * **timer** convenient timer decorator to quickly measure and display time of any function execution
+* **timer** convenient timer decorator to quickly measure and display time of any function execution
 
 
 .. note:: 
@@ -27,6 +28,266 @@ veratack package contains the following tools:
 
   $ ``pip install --upgrade verstack``
 
+
+******************
+LGBMTuner
+******************
+
+Fully automated lightgbm model hyperparameter tuning class with optuna under the hood. 
+LGBMTuner selects optimal hyperparameters based on executed trials (configurable), optimizes n_estimators and fits the final model to the whole train set.
+Feature importances are available in numeric format, as a static plot, and as an interactive plot (html).
+Optimization history and parameters importance in static and interactive formats are alse accesable by built in methods.
+
+Logic
+================================================================
+
+The only required user inputs are the X (features), y (labels) and evaluation metric name, LGBMTuner will handle the rest 
+
+ - lgbm model type (regression/classification) is inferred from the labels and evaluation metric (passed by user)
+ - optimization metric may be different from the evaluation metric (passed by user). LGBMTuner at hyperparameters search stage imploys the error reduction strategy, thus:
+   - most regression task type metrics are supported for optimization, if not, MSE is selected for optimization
+   - for classification task types hyperparameters are tuned by optimizing log_loss, n_estimators are tuned with evaluation_metric
+ - early stopping is engaged at each stage of LGBMTuner optimizations
+ - for every trial (iteration) a random train_test_split is performed (stratified for classification)
+ - lgbm model initial parameters!=defaults and are inferred from the data stats and built in logic
+ - optimization parameters and their search space are inferred from the data stats and built in logic
+ - LGBMTuner class instance (after optimization) can be used for making predictions with conventional syntaxis (predict/predict_proba)
+ - verbosity is controlled and by default outputs only the necessary optimization process/results information
+
+**Initialize LGBMTuner**
+
+.. code-block:: python
+
+  from verstack import LGBMTuner
+  
+  # initialize with default parameters
+  tuner = LGBMTuner('rmse')
+  
+  # initialize with selected parameters
+  tuner = LGBMTuner(metric = 'rmse', 
+                    trials = 200, 
+                    refit = False, 
+                    verbosity = 0, 
+                    visualization = False, 
+                    seed = 999)
+
+Parameters
+===========================
+* ``metric`` [default=None]
+
+  Evaluation metric for hyperparameters optimization. LGBMTuner supports the following metrics (note the syntax)
+    ['mae', 'mse', 'rmse', 'rmsle', 'mape', 'smape', 'rmspe', 'r2', 'auc', 'gini', 'log_loss', 'accuracy', 'balanced_accuracy', 'precision', 'precision_weighted', 'precision_macro', 'recall', 'recall_weighted', 'recall_macro', 'f1', 'f1_weighted', 'f1_macro', 'lift']
+
+* ``trials`` [default=100]
+
+  Number of trials to run
+
+* ``refit`` [default=True]
+
+  Fit the model with optimized hyperparameters on the whole train set (required for feature_importances, plot_importances() and prediction methods)
+
+* ``verbosity`` [default=1]
+
+  Console verbosity level: 0 - no output except for optuna CRITICAL errors and builtin exceptions; 
+  (1-5) based on optuna.logging options. The default is 1
+
+* ``visualization`` [default=True]
+
+  Automatically output feature_importance & optimization plots into the console after tuning. Plots are also available on demand by corresponding methods
+
+* ``seed`` [default=42]
+
+  Random state parameter
+
+Methods
+===========================
+* ``fit(X, y)``
+
+  Execute LGBM model hyperparameters tuning
+
+    Parameters
+
+    - ``X`` [pd.DataFrame]
+
+      Train features
+    
+    - ``y`` [pd.Series]
+      
+      Train labels
+
+* ``optimize_n_estimators(X, y, params, verbose_eval = 100)``
+
+  Optimize n_estimators for lgb model.    
+
+    Parameters
+
+    - ``X`` [np.array]
+
+      Train features
+    
+    - ``y`` [np.array]
+      
+      Train labels
+
+    - ``params`` [dict]
+      
+      parameters to use for training the model with early stopping
+
+    - ``verbose_eval`` [int]
+      
+      evaluation output at each ``verbose_eval`` iteratio n
+
+    returns 
+      (best_iteration, best_score)
+
+* ``fit_optimized(X, y)``
+
+  Train model with tuned params on whole train data
+
+    - ``X`` [np.array]
+
+      Train features
+    
+    - ``y`` [np.array]
+
+* ``predict(test, threshold = 0.5)``
+
+  Predict by optimized model on new data
+
+    - ``test`` [pd.DataFrame]
+
+      Test features
+    
+    - ``threshold`` [default=0.5]
+
+      Classification threshold (applicable for binary classification)
+
+  returns
+    array of int
+
+* ``predict_proba(test)``
+
+  Predict probabilities by optimized model on new data
+
+    - ``test`` [pd.DataFrame]
+
+      Test features
+
+  returns
+    array of float
+
+* ``plot_importances(n_features = 15, figsize = (10,6), interactive = False)``
+
+  Plot feature importance
+    
+    - ``n_features`` [default=15]
+
+      Number of important features to plot
+
+    - ``figsize`` [default=(10,6)]
+
+      plot size
+
+    - ``interactive`` [default=False]
+
+      Create & save to current wd interactive html plot.
+
+* ``plot_optimization_history(interactive = False)``
+
+  Plot optimization function improvement history
+
+    - ``interactive`` [default=False]
+
+      Create & save to current wd interactive html plot
+
+* ``plot_param_importances(interactive = False)``
+
+  Plot params importance plot
+  
+    - ``interactive`` [default=False]
+
+      Create & save to current wd interactive html plot. 
+
+* ``plot_intermediate_values(interactive = False, legend = False)``
+
+  Plot optimization trials history. Shows successful and terminated trials. If trials > 50 it is better to study the interactive version
+
+    - ``interactive`` [default=False]
+
+      Create & save to current wd interactive html plot
+
+    - ``legend`` [default=False]
+
+      Plot legen on a static plot
+
+**Attributes**
+
+* ``metric``
+
+  Evaluation metric defined by user at LGBMTuner init
+
+* ``refit``
+
+  Setting for refitting the optimized model on whole train dataset
+
+* ``verbosity``
+
+  Verbosity level settings
+
+* ``visualization``
+
+  Automatic plots output after optimization setting
+  
+* ``seed``
+
+  Random state value
+
+* ``fitted_model``
+
+  Trained LGBM booster model with optimized parameters
+
+* ``feature_importances``
+
+  Feature importance values
+
+* ``study``
+
+  optuna.study.study.Study object after hyperparameters tuning
+
+* ``init_params``
+
+  initial LGBM model parameters
+
+* ``best_params``
+
+  learned optimized parameters
+
+Examples
+================================================================
+
+Using LGBMTuner with all default parameters
+
+.. code-block:: python
+
+  imputer = LGBMTuner('auc')
+  tuner.fit(X, y)
+  tuner.feature_importances
+  tuner.plot_importances()
+  tuner.plot_intermediate_values()
+  tuner.plot_optimization_history()
+  tuner.plot_param_importances()
+  tuner.best_params
+  tuner.predict(test)
+
+LGBMTuner with custom settings
+
+.. code-block:: python
+
+  imputer = LGBMTuner(metric = 'auc', trials = 300, verbosity = 3, visualization = False)
+  tuner.fit(X, y)
+  tuner.plot_importances(legend = True)
+  tuner.plot_intermediate_values(interactive = True)
+  tuner.predict(test, threshold = 0.3)
 
 ******************
 NaNImputer
@@ -79,20 +340,20 @@ Parameters
 ===========================
 * ``conservative`` [default=False]
 
-  - Model complexity level used to impute missing values. If ``True``: model will be set to less complex and much faster.
+  Model complexity level used to impute missing values. If ``True``: model will be set to less complex and much faster.
 
 * ``n_feats`` [default=10]
 
-  - Number of corellated independent features to be used forcorresponding column (with NaN) model training and imputation.
+  Number of corellated independent features to be used forcorresponding column (with NaN) model training and imputation.
 
 * ``nan_cols`` [default=None]
 
-  - List of columns to impute missing values in. If None: all the columns with missing values will be used.
+  List of columns to impute missing values in. If None: all the columns with missing values will be used.
 
 
 * ``fix_string_nans`` [default=True]
 
-  - Find possible missing values in numeric columns that had been (mistakenly) encoded as strings, E.g. 'Missing'/'NaN'/'No data' and replace them with np.nan for further imputation.
+  Find possible missing values in numeric columns that had been (mistakenly) encoded as strings, E.g. 'Missing'/'NaN'/'No data' and replace them with np.nan for further imputation.
 
 * ``multiprocessing_load`` [default=3]
 
@@ -103,19 +364,19 @@ Parameters
 
 * ``verbose`` [default=True]
 
-  - Print the imputation progress.
+  Print the imputation progress.
 
 * ``fill_nans_in_pure_text`` [default=True]
 
-  - Fill the missing values in text fields by string 'Missing_data'.Applicable for text fields (not categoric).
+  Fill the missing values in text fields by string 'Missing_data'.Applicable for text fields (not categoric).
 
 * ``drop_empty_cols`` [default=True]
 
-  - Drop columns with all NaNs.
+  Drop columns with all NaNs.
 
 * ``drop_nan_cols_with_constant`` [default=True]
 
-  - Drop columns containing NaNs and known values as a single constant.
+  Drop columns containing NaNs and known values as a single constant.
 
 * ``feature_selection`` [default="correlation"]
   - Define algorithm to select most important feats for each column imputation. Quick option: "correlation" is based on selecting n_feats with the highest binary correlation with each column for NaNs imputation. Less quick but more precise: "feature_importance" is based on extracting feature_importances from an xgboost model.
@@ -124,7 +385,7 @@ Methods
 ===========================
 * ``impute(data)``
 
-  - Execute NaNs imputation columnwise in a pd.DataFrame
+  Execute NaNs imputation columnwise in a pd.DataFrame
 
     Parameters
 
@@ -181,11 +442,11 @@ Parameters
 ===========================
 * ``workers`` int or bool [default=False]
 
-  - Number of workers if passed by user. If ``False``: all available cpu cores will be used.
+  Number of workers if passed by user. If ``False``: all available cpu cores will be used.
 
 * ``multiple_iterables`` bool [default=False]
 
-  - If function needs to iterate over multiple iterables, set to ``True``.
+  If function needs to iterate over multiple iterables, set to ``True``.
 
   Multiple iterables must be passed as a list (see examples below).
 
@@ -193,7 +454,7 @@ Methods
 ===========================
 * ``execute(func, iterable)``
 
-  - Execute passed function and iterable(s) in concurrency.
+  Execute passed function and iterable(s) in concurrency.
 
     Parameters
 
@@ -268,21 +529,21 @@ Parameters
 ===========================
 * ``n_thresholds`` int [default=200]
 
-  - Number of thresholds to test. If not set by user: 200 thresholds will be tested.
+  Number of thresholds to test. If not set by user: 200 thresholds will be tested.
 
 * ``min_threshold`` float or int [default=None]
 
-  - Minimum threshold value. If not set by user: will be infered from labels balance based on fraction_of_1
+  Minimum threshold value. If not set by user: will be inferred from labels balance based on fraction_of_1
 
 * ``max_threshold`` float or int [default=None]
 
-  - Maximum threshold value. If not set by user: will be infered from labels balance based on fraction_of_1
+  Maximum threshold value. If not set by user: will be inferred from labels balance based on fraction_of_1
 
 Methods
 ===========================
 * ``fit(labels, pred, loss_func)``
 
-  - Calculate loss_func results for labels & preds for the defined/default thresholds. Print the threshold(s) with the best loss_func scores
+  Calculate loss_func results for labels & preds for the defined/default thresholds. Print the threshold(s) with the best loss_func scores
 
     Parameters
 
@@ -300,19 +561,17 @@ Methods
 
       loss function for scoring the predictions, e.g. sklearn.metrics.f1_score
 
-
-
 * ``result()``
 
-  - Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for for all the the defined/default thresholds
+  Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for for all the the defined/default thresholds
 
 * ``best_score()``
 
-  - Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for the best loss_func_score
+  Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for the best loss_func_score
 
 * ``best_predict_ratio()``
 
-  - Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for the (predicted) fraction_of_1 which is closest to the (actual) labels_fraction_of_1 
+  Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for the (predicted) fraction_of_1 which is closest to the (actual) labels_fraction_of_1 
 
 Examples
 ================================================================
@@ -373,27 +632,27 @@ Parameters
 ===========================
 * ``X,y,data`` 
 
-  - data input for the split in pandas.DataFrame/pandas.Series format.
+  data input for the split in pandas.DataFrame/pandas.Series format.
 
 * ``stratify`` 
 
-  - target variable for the split in pandas/eries format.
+  target variable for the split in pandas/eries format.
 
 * ``test_size`` [default=0.3]
 
-  - test split ratio.
+  test split ratio.
 
 * ``train_size`` [default=0.7]
 
-  - train split ratio.
+  train split ratio.
 
 * ``continuous`` [default=True]
 
-  - stratification target definition. If True, verstack will perform the stratification on the continuous target variable, if False, sklearn.model_selection.train_test_split will be performed with verstack enhancements.
+  stratification target definition. If True, verstack will perform the stratification on the continuous target variable, if False, sklearn.model_selection.train_test_split will be performed with verstack enhancements.
 
 * ``random_state`` [default=5]
 
-  - random state value.
+  random state value.
 
 
 Examples
@@ -414,10 +673,6 @@ categoric_encoders
 .. note:: 
 
   All the categoric encoders are conveniently integrated to work with pandas.DataFrame. Modules receive pd.DataFrame and kwargs as inputs and return pd.DataFrame with encoded column. All the necessary attributes for further transform/inverse_transform are saved in instance objects and can be seralized (e.g. pickle) for latter application.
-
-
-
-
 
 Factorizer
 ========================================
@@ -449,29 +704,29 @@ When transform () - unseen categories will be be represented as NaN.
 
 * ``na_sentinel`` 
 
-  - Defined (at init) missing values encoding value. 
+  Defined (at init) missing values encoding value. 
 
 * ``colname`` 
 
-  - Defined (at fit_transform()) column that had been transformed. 
+  Defined (at fit_transform()) column that had been transformed. 
 
 * ``pattern`` 
 
-  - Defined (at fit_transform()) encoding map.
+  Defined (at fit_transform()) encoding map.
 
 Parameters
 """""""""""""""""""""""""""""""""
 
 * ``na_sentinel`` [default=-1]
 
-  - Missing values encoding value. Can take int/float/str/np.nan values.
+  Missing values encoding value. Can take int/float/str/np.nan values.
 
 Methods
 """""""""""""""""""""""""""""""""
 
 * ``fit_transform(df, colname)``
 
-  - Fit Factorizer to data and return transformed data.
+  Fit Factorizer to data and return transformed data.
 
     Parameters
 
@@ -485,7 +740,7 @@ Methods
 
 * ``transform(df)``
 
-  - Apply the fitted Factorizer to new data and return transformed data. Unseen categories will be represented by NaN.
+  Apply the fitted Factorizer to new data and return transformed data. Unseen categories will be represented by NaN.
 
     Parameters
 
@@ -495,7 +750,7 @@ Methods
 
 * ``inverse_transform(df)``
 
-  - Inverse transform data that had been encoded by Factorizer. Data must contain colname that was passed at fit_transform().
+  Inverse transform data that had been encoded by Factorizer. Data must contain colname that was passed at fit_transform().
 
     Parameters
 
@@ -523,10 +778,6 @@ Keep missing values untransformed:
 
   factorizer = Factorizer(na_sentinel = np.nan)
   train_encoded = factorizer.fit_transform(train)
-
-
-
-
 
 OneHotEncoder
 ========================================
@@ -558,29 +809,29 @@ When transform() - unseen categories will not be represented by new columns, mis
 
 * ``na_sentinel`` 
 
-  - Defined (at init) missing values encoding value. 
+  Defined (at init) missing values encoding value. 
 
 * ``colname`` 
 
-  - Defined (at fit_transform()) column that had been transformed. 
+  Defined (at fit_transform()) column that had been transformed. 
 
 * ``categories`` 
 
-  - Defined (at fit_transform()) unique class categories which will be represented by binary columns.
+  Defined (at fit_transform()) unique class categories which will be represented by binary columns.
 
 Parameters
 """""""""""""""""""""""""""""""""
 
 * ``na_sentinel`` [default=True]
 
-  - If True: create separate class column for NaN values.
+  If True: create separate class column for NaN values.
 
 Methods
 """""""""""""""""""""""""""""""""
 
 * ``fit_transform(df, colname, prefix)``
 
-  - Fit OneHotEncoder to data and return transformed data.
+  Fit OneHotEncoder to data and return transformed data.
 
     Parameters
 
@@ -599,7 +850,7 @@ Methods
 
 * ``transform(df)``
 
-  - Apply the fitted OneHotEncoder to new data and return transformed data. Unseen categories will not be represented by new columns, missing categories will be represented by empty (all zeros) columns.
+  Apply the fitted OneHotEncoder to new data and return transformed data. Unseen categories will not be represented by new columns, missing categories will be represented by empty (all zeros) columns.
 
     Parameters
 
@@ -609,7 +860,7 @@ Methods
 
 * ``inverse_transform(df)``
 
-  - Inverse transform data that had been encoded by OneHotEncoder. Data must contain one-hot-encoded columns that was created at fit_transform().
+  Inverse transform data that had been encoded by OneHotEncoder. Data must contain one-hot-encoded columns that was created at fit_transform().
 
     Parameters
 
@@ -628,10 +879,6 @@ Examples
 
   train_reversed_to_original = ohe.inverse_transform(train_encoded)
   test_reversed_to_original = ohe.inverse_transform(test_encoded)
-
-
-
-
 
 FrequencyEncoder
 ========================================
@@ -666,15 +913,15 @@ Resulting frequencies are normalized as a percentage.
 
 * ``na_sentinel`` 
 
-  - Defined (at init) missing values encoding value. 
+  Defined (at init) missing values encoding value. 
 
 * ``colname`` 
 
-  - Defined (at fit_transform()) column that had been transformed. 
+  Defined (at fit_transform()) column that had been transformed. 
 
 * ``pattern`` 
 
-  - Defined (at fit_transform()) encoding map.
+  Defined (at fit_transform()) encoding map.
 
 Parameters
 """""""""""""""""""""""""""""""""
@@ -688,7 +935,7 @@ Methods
 
 * ``fit_transform(df, colname)``
 
-  - Fit FrequencyEncoder to data and return transformed data.
+  Fit FrequencyEncoder to data and return transformed data.
 
     Parameters
 
@@ -703,7 +950,7 @@ Methods
 
 * ``transform(df)``
 
-  - Apply the fitted FrequencyEncoder to new data and return transformed data. Unseen categories will be represented as NaN.
+  Apply the fitted FrequencyEncoder to new data and return transformed data. Unseen categories will be represented as NaN.
 
     Parameters
 
@@ -713,7 +960,7 @@ Methods
 
 * ``inverse_transform(df)``
 
-  - Inverse transform data that had been encoded by FrequencyEncoder. Data must contain colname that was passed at fit_transform().
+  Inverse transform data that had been encoded by FrequencyEncoder. Data must contain colname that was passed at fit_transform().
 
     Parameters
 
@@ -732,10 +979,6 @@ Examples
 
   train_reversed_to_original = frequency_encoder.inverse_transform(train_encoded)
   test_reversed_to_original = frequency_encoder.inverse_transform(test_encoded)
-
-
-
-
 
 MeanTargetEncoder
 ========================================
@@ -770,19 +1013,19 @@ Can handle missing values - encode NaN by global mean or leave NaN values untran
 
 * ``na_sentinel`` 
 
-  - Defined (at init) missing values encoding value. 
+  Defined (at init) missing values encoding value. 
 
 * ``colname`` 
 
-  - Defined (at fit_transform()) column that had been transformed. 
+  Defined (at fit_transform()) column that had been transformed. 
 
 * ``pattern`` 
 
-  - Defined (at fit_transform()) encoding map.
+  Defined (at fit_transform()) encoding map.
 
 * ``save_inverse_transform`` 
 
-  - Defined (at init) flag for saving the pattern for inverse transform.
+  Defined (at init) flag for saving the pattern for inverse transform.
 
 
 Parameters
@@ -790,18 +1033,18 @@ Parameters
 
 * ``na_sentinel`` [default=True]
 
-  - If True: Encode NaN values by target global mean. If False return np.nan in the encoded column.
+  If True: Encode NaN values by target global mean. If False return np.nan in the encoded column.
 
 * ``save_inverse_transform`` [default=False]
 
-  - If True: Saves mean target values for each category at each encoding fold. Enable if need to inverse_transform the encoded data. Defaults to False because for large datasets saved pattern can significantly increase instance object size.
+  If True: Saves mean target values for each category at each encoding fold. Enable if need to inverse_transform the encoded data. Defaults to False because for large datasets saved pattern can significantly increase instance object size.
 
 Methods
 """""""""""""""""""""""""""""""""
 
 * ``fit_transform(df, colname, targetname)``
 
-  - Fit MeanTargetEncoder to data and return transformed data.
+  Fit MeanTargetEncoder to data and return transformed data.
 
     Parameters
 
@@ -820,7 +1063,7 @@ Methods
 
 * ``transform(df)``
 
-  - Apply the fitted MeanTargetEncoder to new data and return transformed data. Unseen categories will be encoded by the global target mean.
+  Apply the fitted MeanTargetEncoder to new data and return transformed data. Unseen categories will be encoded by the global target mean.
 
     Parameters
 
@@ -830,7 +1073,7 @@ Methods
 
 * ``inverse_transform(df)``
 
-  - Inverse transform data that had been encoded by MeanTargetEncoder. Data must contain colname that was passed at fit_transform().
+  Inverse transform data that had been encoded by MeanTargetEncoder. Data must contain colname that was passed at fit_transform().
 
     Parameters
 
@@ -887,15 +1130,15 @@ Can handle missing values - encode NaN by zero WoE or leave NaN untransformed.
 
 * ``na_sentinel`` 
 
-  - Defined (at init) missing values encoding value. 
+  Defined (at init) missing values encoding value. 
 
 * ``colname`` 
 
-  - Defined (at fit_transform()) column that had been transformed. 
+  Defined (at fit_transform()) column that had been transformed. 
 
 * ``params`` 
 
-  - Defined (at init) category_encoders.woe.WOEEncoder `parameters <https://contrib.scikit-learn.org/category_encoders/woe.html#>`_
+  Defined (at init) category_encoders.woe.WOEEncoder `parameters <https://contrib.scikit-learn.org/category_encoders/woe.html#>`_
 
 
 Parameters
@@ -903,18 +1146,18 @@ Parameters
 
 * ``na_sentinel`` [default=True]
 
-  - If True: Encode NaN values by zero WoE. If False return np.nan in the encoded column.
+  If True: Encode NaN values by zero WoE. If False return np.nan in the encoded column.
 
 * ``kwargs`` 
 
-  - category_encoders.woe.WOEEncoder `parameters <https://contrib.scikit-learn.org/category_encoders/woe.html#>`_. Following parameters are set by default: ``'randomized':True``, ``'random_state':42``, ``'handle_missing':'return_nan'`` <- infered from na_sentinel setting.
+  category_encoders.woe.WOEEncoder `parameters <https://contrib.scikit-learn.org/category_encoders/woe.html#>`_. Following parameters are set by default: ``'randomized':True``, ``'random_state':42``, ``'handle_missing':'return_nan'`` <- inferred from na_sentinel setting.
 
 Methods
 """""""""""""""""""""""""""""""""
 
 * ``fit_transform(df, colname, targetname)``
 
-  - Fit WeightOfEvidenceEncoder to data and return transformed data.
+  Fit WeightOfEvidenceEncoder to data and return transformed data.
 
     Parameters
 
@@ -933,7 +1176,7 @@ Methods
 
 * ``transform(df)``
 
-  - Apply the fitted WeightOfEvidenceEncoder to new data and return transformed data. Unseen categories' WoE is set to 0.
+  Apply the fitted WeightOfEvidenceEncoder to new data and return transformed data. Unseen categories' WoE is set to 0.
 
     Parameters
 
@@ -943,7 +1186,7 @@ Methods
 
 * ``inverse_transform(df)``
 
-  - Inverse transform data that had been encoded by WeightOfEvidenceEncoder. Data must contain colname that was passed at fit_transform().
+  Inverse transform data that had been encoded by WeightOfEvidenceEncoder. Data must contain colname that was passed at fit_transform().
 
     Parameters
 
@@ -963,10 +1206,6 @@ Examples
   train_reversed_to_original = WOE.inverse_transform(train_encoded)
   test_reversed_to_original = WOE.inverse_transform(test_encoded)
 
-
-
-
-
 ******************
 timer
 ******************
@@ -976,7 +1215,6 @@ Timer decorator to measure any function execution time and create elapsed time o
 .. code-block:: python 
 
   verstack.tools.timer
-
 
 Examples
 ================================================================

@@ -43,7 +43,7 @@ def validate_plot_importances_figsize_argument(value):
 
 def validate_numpy_ndarray_arguments(value):
     if not isinstance(value, np.ndarray):
-        raise TypeError('Arguments to fit_optimized() must be of type numpy.ndarray')
+        raise TypeError('Arguments to fit_optimized() must be of type numpy.array')
 
 def validate_params_argument(value):
     if not isinstance(value, dict):

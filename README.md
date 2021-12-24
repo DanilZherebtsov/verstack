@@ -1,287 +1,677 @@
- # verstack - tools for applied machine learning
+verstack 1.0.7 Documentation
+============================
 
-Machine learning tools to make a Data Scientist's work efficient
+Machine learning tools to make a Data Scientist\'s work efficient
 
 veratack package contains the following tools:
 
-1. NaNImputer 
-    *impute all missing values in a pandas dataframe using advanced machine learning with 1 line of code. Powered by XGBoost
-2. Multicore 
-    *execute any function in concurrency using all the available cpu cores
-3. ThreshTuner
-    *tune threshold for binary classification predictions
-4. stratified_continuous_split 
-    *create train/test splits stratified on the continuous variable
-5. categoric_encoders encode categoric variable by numeric labels:
-    * Factorizer - encode categoric variable by numeric labels
-    * OneHotEncoder represent categoric variable as a set of binary variables
-    * FrequencyEncoder - encode categoric variable by class frequencies
-    * MeanTargetEncoder - encode categoric variable by mean of the target variable
-    * WeightOfEvidenceEncoder - encode categoric variable as a weight of evidence of a binary target variable
- 
-6. timer 
-    * convenient timer decorator to quickly measure and display time of any function execution
+-   **LGBMTuner** automated lightgbm models tuniner with optuna
+-   **NaNImputer** impute all missing values in a pandas dataframe using
+    advanced machine learning with 1 line of code
+-   **Multicore** execute any function in concurrency using all the
+    available cpu cores
+-   **ThreshTuner** tune threshold for binary classification predictions
+-   **stratified\_continuous\_split** create train/test splits
+    stratified on the continuous variable
+-   **categoric\_encoders** encode categoric variable by numeric labels
 
+> -   **Factorizer** encode categoric variable by numeric labels
+> -   **OneHotEncoder** represent categoric variable as a set of binary
+>     variables
+> -   **FrequencyEncoder** encode categoric variable by class
+>     frequencies
+> -   **MeanTargetEncoder** encode categoric variable by mean of the
+>     target variable
+> -   **WeightOfEvidenceEncoder** encode categoric variable as a weight
+>     of evidence of a binary target variable
 
-With NaNImputer you can fill missing values in numeric, binary and categoric columns in your pandas dataframe using advanced XGBRegressor/XGBClassifier models with just 1 line of code. Regardless of the data types in your dataframe (string/bool/numeric): 
- - all of them will be checked for missing values
- - transformed into numeric formats
- - split into the subsets with and without missing values
- - applicalbe models will be selected and configured for each of the columns with NaNs
- - models will be trained in multiprocessing mode utilizing all the available cores and threads (this saves a lot of time)
- - NaNs will be predicted and placed into corresponding indixes
- - columns with all NaNs will be droped
- - columns with NaNs and all other constants will be dropped
- - data will be reverse-transformed into original format
+-   **timer** convenient timer decorator to quickly measure and display
+    time of any function execution
 
-The module is highly configurable with default argumets set for the highest performance and verbosity
+# Getting verstack
+
+\$ `pip install verstack`
+
+\$ `pip install --upgrade verstack`
+
+LGBMTuner
+---------
+
+Fully automated lightgbm model hyperparameter tuning class with optuna
+under the hood. LGBMTuner selects optimal hyperparameters based on
+executed trials (configurable), optimizes n\_estimators and fits the
+final model to the whole train set. Feature importances are available in
+numeric format, as a static plot, and as an interactive plot (html).
+Optimization history and parameters importance in static and interactive
+formats are alse accesable by built in methods.
+
+### Logic
+
+The only required user inputs are the X (features), y (labels) and
+evaluation metric name, LGBMTuner will handle the rest
+
+> -   lgbm model type (regression/classification) is inferred from the
+>     labels and evaluation metric (passed by user)
+> -   optimization metric may be different from the evaluation metric
+>     (passed by user). LGBMTuner at hyperparameters search stage
+>     imploys the error reduction strategy, thus:
+>     -   most regression task type metrics are supported for
+>         optimization, if not, MSE is selected for optimization
+>     -   for classification task types hyperparameters are tuned by
+>         optimizing log\_loss, n\_estimators are tuned with
+>         evaluation\_metric
+> -   early stopping is engaged at each stage of LGBMTuner optimizations
+> -   for every trial (iteration) a random train\_test\_split is
+>     performed (stratified for classification)
+> -   lgbm model initial parameters!=defaults and are inferred from the
+>     data stats and built in logic
+> -   optimization parameters and their search space are inferred from
+>     the data stats and built in logic
+> -   LGBMTuner class instance (after optimization) can be used for
+>     making predictions with conventional syntaxis
+>     (predict/predict\_proba)
+> -   verbosity is controlled and by default outputs only the necessary
+>     optimization process/results information
+
+**Initialize LGBMTuner**
+
+``` {.python}
+from verstack import LGBMTuner
+
+# initialize with default parameters
+tuner = LGBMTuner('rmse')
+
+# initialize with selected parameters
+tuner = LGBMTuner(metric = 'rmse', 
+                  trials = 200, 
+                  refit = False, 
+                  verbosity = 0, 
+                  visualization = False, 
+                  seed = 999)
+```
+
+### Parameters
+
+-   `metric` \[default=None\]
+
+    Evaluation metric for hyperparameters optimization. LGBMTuner supports the following metrics (note the syntax)
+
+    :   \[\'mae\', \'mse\', \'rmse\', \'rmsle\', \'mape\', \'smape\',
+        \'rmspe\', \'r2\', \'auc\', \'gini\', \'log\_loss\',
+        \'accuracy\', \'balanced\_accuracy\', \'precision\',
+        \'precision\_weighted\', \'precision\_macro\', \'recall\',
+        \'recall\_weighted\', \'recall\_macro\', \'f1\',
+        \'f1\_weighted\', \'f1\_macro\', \'lift\'\]
+
+-   `trials` \[default=100\]
+
+    Number of trials to run
+
+-   `refit` \[default=True\]
+
+    Fit the model with optimized hyperparameters on the whole train set
+    (required for feature\_importances, plot\_importances() and
+    prediction methods)
+
+-   `verbosity` \[default=1\]
+
+    Console verbosity level: 0 - no output except for optuna CRITICAL
+    errors and builtin exceptions; (1-5) based on optuna.logging
+    options. The default is 1
+
+-   `visualization` \[default=True\]
+
+    Automatically output feature\_importance & optimization plots into
+    the console after tuning. Plots are also available on demand by
+    corresponding methods
+
+-   `seed` \[default=42\]
+
+    Random state parameter
+
+### Methods
+
+-   `fit(X, y)`
+
+    Execute LGBM model hyperparameters tuning
+
+    > Parameters
+    >
+    > -   `X` \[pd.DataFrame\]
+    >
+    >     Train features
+    >
+    > -   `y` \[pd.Series\]
+    >
+    >     Train labels
+
+-   `optimize_n_estimators(X, y, params, verbose_eval = 100)`
+
+    Optimize n\_estimators for lgb model.
+
+    > Parameters
+    >
+    > -   `X` \[np.array\]
+    >
+    >     Train features
+    >
+    > -   `y` \[np.array\]
+    >
+    >     Train labels
+    >
+    > -   `params` \[dict\]
+    >
+    >     parameters to use for training the model with early stopping
+    >
+    > -   `verbose_eval` \[int\]
+    >
+    >     evaluation output at each `verbose_eval` iteratio n
+    >
+    > returns
+    >
+    > :   (best\_iteration, best\_score)
+
+-   `fit_optimized(X, y)`
+
+    Train model with tuned params on whole train data
+
+    > -   `X` \[np.array\]
+    >
+    >     Train features
+    >
+    > -   `y` \[np.array\]
+
+-   `predict(test, threshold = 0.5)`
+
+    Predict by optimized model on new data
+
+    > -   `test` \[pd.DataFrame\]
+    >
+    >     Test features
+    >
+    > -   `threshold` \[default=0.5\]
+    >
+    >     Classification threshold (applicable for binary
+    >     classification)
+
+    returns
+
+    :   array of int
+
+-   `predict_proba(test)`
+
+    Predict probabilities by optimized model on new data
+
+    > -   `test` \[pd.DataFrame\]
+    >
+    >     Test features
+
+    returns
+
+    :   array of float
+
+-   `plot_importances(n_features = 15, figsize = (10,6), interactive = False)`
+
+    Plot feature importance
+
+    > -   `n_features` \[default=15\]
+    >
+    >     Number of important features to plot
+    >
+    > -   `figsize` \[default=(10,6)\]
+    >
+    >     plot size
+    >
+    > -   `interactive` \[default=False\]
+    >
+    >     Create & save to current wd interactive html plot.
+
+-   `plot_optimization_history(interactive = False)`
+
+    Plot optimization function improvement history
+
+    > -   `interactive` \[default=False\]
+    >
+    >     Create & save to current wd interactive html plot
+
+-   `plot_param_importances(interactive = False)`
+
+    Plot params importance plot
+
+    > -   `interactive` \[default=False\]
+    >
+    >     Create & save to current wd interactive html plot.
+
+-   `plot_intermediate_values(interactive = False, legend = False)`
+
+    Plot optimization trials history. Shows successful and terminated
+    trials. If trials \> 50 it is better to study the interactive
+    version
+
+    > -   `interactive` \[default=False\]
+    >
+    >     Create & save to current wd interactive html plot
+    >
+    > -   `legend` \[default=False\]
+    >
+    >     Plot legen on a static plot
+
+**Attributes**
+
+-   `metric`
+
+    Evaluation metric defined by user at LGBMTuner init
+
+-   `refit`
+
+    Setting for refitting the optimized model on whole train dataset
+
+-   `verbosity`
+
+    Verbosity level settings
+
+-   `visualization`
+
+    Automatic plots output after optimization setting
+
+-   `seed`
+
+    Random state value
+
+-   `fitted_model`
+
+    Trained LGBM booster model with optimized parameters
+
+-   `feature_importances`
+
+    Feature importance values
+
+-   `study`
+
+    optuna.study.study.Study object after hyperparameters tuning
+
+-   `init_params`
+
+    initial LGBM model parameters
+
+-   `best_params`
+
+    learned optimized parameters
+
+### Examples
+
+Using LGBMTuner with all default parameters
+
+``` {.python}
+imputer = LGBMTuner('auc')
+tuner.fit(X, y)
+tuner.feature_importances
+tuner.plot_importances()
+tuner.plot_intermediate_values()
+tuner.plot_optimization_history()
+tuner.plot_param_importances()
+tuner.best_params
+tuner.predict(test)
+```
+
+LGBMTuner with custom settings
+
+``` {.python}
+imputer = LGBMTuner(metric = 'auc', trials = 300, verbosity = 3, visualization = False)
+tuner.fit(X, y)
+tuner.plot_importances(legend = True)
+tuner.plot_intermediate_values(interactive = True)
+tuner.predict(test, threshold = 0.3)
+```
+
+NaNImputer
+----------
+
+Impute all missing values in a pandas dataframe by xgboost models in
+multiprocessing mode using a single line of code.
+
+### Logic
+
+With NaNImputer you can fill missing values in numeric, binary and
+categoric columns in your pandas dataframe using advanced
+XGBRegressor/XGBClassifier models with just 1 line of code. Regardless
+of the data types in your dataframe (string/bool/numeric):
+
+> -   all of the columns will be checked for missing values
+> -   transformed into numeric formats
+> -   split into subsets with and without missing values
+> -   applicalbe models will be selected and configured for each of the
+>     columns with NaNs
+> -   models will be trained in multiprocessing mode utilizing all the
+>     available cores and threads of your cpu (this saves a lot of time)
+> -   NaNs will be predicted and placed into corresponding indixes
+> -   columns with all NaNs will be droped
+> -   columns containing NaNs and known values as a single constant
+> -   data will be reverse-transformed into original format
+
+The module is highly configurable with default argumets set for the
+highest performance and verbosity
 
 The only limitation is:
-- NaNs in pure text columns are not imputed. By default they are filled with 'Missing_data' value. Configurable. If disabled - will return these columns with missing values untouched
 
+-   NaNs in pure text columns are not imputed. By default they are
+    filled with \'Missing\_data\' value. Configurable. If disabled -
+    will return these columns with missing values untouched
 
-## Usage
+**Initialize NaNImputer**
 
-In the following paragraphs, I am going to describe how you can get and use verstack for your own projects.
-
-###  Getting it
-
-To download verstack, either fork this github repo or simply use Pypi via pip
-```sh
-$ pip install verstack
-$ pip install --upgrade verstack
-```
-
-# NaNImputer
-NaNImputer was programmed with ease-of-use in mind. First, import the NaNImputer class from verstack
-
-```Python
+``` {.python}
 from verstack import NaNImputer
-```
 
-And you are ready to go!
-
-#### Initialize NaNImputer
-First, let's create an imputer class instannce. We will not pass any argumets for this example and use all the defaults
-
-```Python
+# initialize with default parameters
 imputer = NaNImputer()
+
+# initialize with selected parameters
+imputer = NaNImputer(conservative = False, 
+                     n_feats = 10, 
+                     nan_cols = None, 
+                     fix_string_nans = True, 
+                     multiprocessing_load = 3, 
+                     verbose = True, 
+                     fill_nans_in_pure_text = True, 
+                     drop_empty_cols = True, 
+                     drop_nan_cols_with_constant = True)
 ```
 
-#### Impute missing values in all columns of your dataframe
-All you need to do is pass your dataframe as an only argument to the impute method of your imputer object and store the results in another object
+### Parameters
 
-```Python
-df_without_nans = imputer.impute(df)
+-   `conservative` \[default=False\]
+
+    Model complexity level used to impute missing values. If `True`:
+    model will be set to less complex and much faster.
+
+-   `n_feats` \[default=10\]
+
+    Number of corellated independent features to be used
+    forcorresponding column (with NaN) model training and imputation.
+
+-   `nan_cols` \[default=None\]
+
+    List of columns to impute missing values in. If None: all the
+    columns with missing values will be used.
+
+-   `fix_string_nans` \[default=True\]
+
+    Find possible missing values in numeric columns that had been
+    (mistakenly) encoded as strings, E.g. \'Missing\'/\'NaN\'/\'No
+    data\' and replace them with np.nan for further imputation.
+
+-   `multiprocessing_load` \[default=3\]
+
+    -   Levels of parallel multiprocessing compute
+        -   1 = single core
+        -   2 = half of all available cores
+        -   3 = all available cores
+
+-   `verbose` \[default=True\]
+
+    Print the imputation progress.
+
+-   `fill_nans_in_pure_text` \[default=True\]
+
+    Fill the missing values in text fields by string
+    \'Missing\_data\'.Applicable for text fields (not categoric).
+
+-   `drop_empty_cols` \[default=True\]
+
+    Drop columns with all NaNs.
+
+-   `drop_nan_cols_with_constant` \[default=True\]
+
+    Drop columns containing NaNs and known values as a single constant.
+
+-   `feature_selection` \[default=\"correlation\"\]
+
+    -   Define algorithm to select most important feats for each column
+        imputation. Quick option: \"correlation\" is based on selecting
+        n\_feats with the highest binary correlation with each column
+        for NaNs imputation. Less quick but more precise:
+        \"feature\_importance\" is based on extracting
+        feature\_importances from an xgboost model.
+
+### Methods
+
+-   `impute(data)`
+
+    Execute NaNs imputation columnwise in a pd.DataFrame
+
+    > Parameters
+    >
+    > -   `data` pd.DataFrame
+    >
+    >     dataframe with missing values in a single/multiple columns
+
+### Examples
+
+Using NaNImputer with all default parameters
+
+``` {.python}
+imputer = NaNImputer()
+df_imputed = imputer.impute(df)
 ```
-By default you will see all messages corresponding to each column imputation progress, data dimensions, utilized cores, timing
 
-In most cases the resulting dataframe (df_without_nans according to our example) will have all the missing values imputed
-For now missing values in text columns (not categorical) with over 500 unique values can not be imputed. By default they will be filled with 'Missing_data' string. This action can be disabled
+Say you would like to impute missing values in a list of specific
+columns, use 20 most important features for each of these columns
+imputation and deploy a half of the available cpu cores
 
-#### Configuring NaNImputer
-All the class configuration arguments are passed at class initialization
-```Python 
-# E.g.
-imputer = NaNImputer(verbose = False)
-```
-##### Parameters
-
-    conservative (bool, optional):
-        Model complexity level used to impute missing values.
-        If True: model will be set to less complex and much faster.
-        Default = False
-    n_feats (int, optional):
-        Number of corellated independent features to be used for
-        corresponding column (with NaN) model training and imputation.
-        Default = 10
-    nan_cols (list, optional):
-        List of columns to impute missing values in.
-        If None - all columns with missing values will be used.
-        Default = None
-    fix_string_nans (bool, optional):
-        Find possible missing values in numeric columns that had been
-        (mistakenly) encoded as strings, E.g. 'Missing'/'NaN'/'No data'
-        and replace them with np.nan for further imputation
-        Default = True
-    multiprocessing_load (int, optional):
-        Levels of parallel multiprocessing compute
-        1 = single core
-        2 = half of all available cores
-        3 = all available cores
-        Default = 3
-    verbose (bool, optional):
-        Print the imputation progress.
-        Default = True
-    fill_nans_in_pure_text (bool, optional):
-        Fill the missing values in text fields by string 'Missing_data'.
-        Applicable for text fields (not categoric).
-        Default = True
-    drop_empty_cols (bool, optional):
-        Drop columns with all NaNs
-        Default = True
-    drop_nan_cols_with_constant (bool, optional):
-        Drop columns containing NaNs and all other constant values
-        Default = True
-    feature_selection (str, optional):
-        Define algorithm to select most important feats for each
-        column imputation. Options: "correlation"/"feature_importance"
-        Default = "correlation"        
-
-##### Methods
-
-    impute(data):
-        Execute NaNs imputation columnwise in a pd.DataFrame
-
-To impute missing values in a list of specific columns, use 20 most important features for each of these columns imputation and deploy a half of the available cpu cores, settings are as follows:
-```Python 
+``` {.python}
 imputer = NaNImputer(nan_cols = ['col1', 'col2'], n_feats = 20, multiprocessing_load = 2)
 df_imputed = imputer.impute(df)
 ```
 
-# Multicore
+Multicore
+---------
 
 Execute any function in concurrency using all the available cpu cores.
 
-```Python
+### Logic
+
+> Multicore module is built on top of concurrent.futures package. Passed
+> iterables are divided into chunks according to the number of workers
+> and passed into separate processes.
+>
+> Results are extracted from finished processes and combined into a
+> single/multiple output as per the defined function output
+> requirements.
+>
+> Multiple outputs are returned as a nested list.
+
+**Initialize Multicore**
+
+``` {.python}
 from verstack import Multicore
+
+# initialize with default parameters
+multicore = Multicore()
+
+# initialize with selected parameters
+multicore = Multicore(workers = 6,
+                      multiple_iterables = True)
 ```
 
-#### Initialize Multicore
-First, let's create a worker class instannce. We will not pass any argumets for this example and use all the defaults
+### Parameters
 
-```Python
-worker = Multicore()
+-   `workers` int or bool \[default=False\]
+
+    Number of workers if passed by user. If `False`: all available cpu
+    cores will be used.
+
+-   `multiple_iterables` bool \[default=False\]
+
+    If function needs to iterate over multiple iterables, set to `True`.
+
+    Multiple iterables must be passed as a list (see examples below).
+
+### Methods
+
+-   `execute(func, iterable)`
+
+    Execute passed function and iterable(s) in concurrency.
+
+    > Parameters
+    >
+    > -   `func` function
+    >
+    >     function to execute in parallel
+    >
+    > -   `iterable` list/pd.Series/pd.DataFrame/dictionary
+    >
+    >     data to iterate over
+
+### Examples
+
+Use Multicore with all default parameters
+
+``` {.python}
+multicore = Multicore()
+result = multicore.execute(function, iterable_list)
 ```
 
-#### Use Multicore with default parameters
+If you want to use a limited number of cpu cores and need to iterate
+over two objects:
 
-```Python
-worker = Multicore()
-result = worker.execute(function, iterable_list)
-```
-Execution time will be printed.
-
-#### Limit number of workers and pass multiple iterables
-
-```Python
-worker = Multicore(workers = 2, multiple_iterables = True)
-result = worker.execute(function, [iterable_dataframe, iterable_list])
+``` {.python}
+multicore = Multicore(workers = 2, multiple_iterables = True)
+result = multicore.execute(function, [iterable_dataframe, iterable_list])
 ```
 
-##### Parameters
+ThreshTuner
+-----------
 
-    workers (int or bool, optional):
-        Number of workers if passed by user. If ``False``: all available cpu cores will be used.
-        Default = False
-    multiple_iterables (bool, optional):
-        If function needs to iterate over multiple iterables, set to ``True``.
-        Multiple iterables must be passed as a list (see examples below).
-        Default = False
+Find the best threshold to split your predictions in a binary
+classification task. Most applicable for imbalance target cases. In
+addition to thresholds & loss\_func scores, the predicted\_ratio
+(predicted fraction of 1) will be calculated and saved for every
+threshold. This will help the identify the appropriate threshold not
+only based on the score, but also based on the resulting distribution of
+0 and 1 in the predictions.
 
-##### Methods
+### Logic
 
-    Multicore.execute(func, iterable):
-        Execute passed function and iterable(s) in concurrency.
+> Default behavior (only pass the labels and predictions):
+>
+> :   -   Calculate the labels balance (fraction\_of\_1 in labels)
+>     -   Define the min\_threshold as fraction\_of\_1 \* 0.8
+>     -   Define the max\_threshold as fraction\_of\_1 \* 1.2 but not
+>         greater than 1
+>     -   Define the n\_thresholds = 200
+>     -   Create 200 threshold options uniformly distributed between
+>         min\_threshold & max\_threshold
+>     -   Deploy the balanced\_accuracy\_score as loss\_func
+>     -   Peform loss function calculation and save results in class
+>         instance placeholders
+>
+> Customization options
+>
+> :   -   Change the n\_thresholds to the desired value
+>     -   Change the min\_threshold & max\_threshold to the desired
+>         values
+>     -   Pass the loss\_func of choice, e.g. sklearn.metrics.f1\_score
+>
+> This will result in user defined granulation of thresholds to test
 
-##### Examples
-  
-Pass a function, one iterable object and use all the available cpu cores
+**Initialize ThreshTuner**
 
-```Python
-  from verstack import Multicore
-
-  worker = Multicore()
-  result = worker.execute(function, iterable_list)
-```
-
-Pass a function, multiple iterable objects and use a limited number of cpu cores
-
-```Python
-  from verstack import Multicore
-
-  worker = Multicore(workers = 2, multiple_iterables = True)
-  result = worker.execute(function, [iterable_dataframe, iterable_list])
-  # note that multiple iterable objects must be passes as a list to execute() method
-```
-
-# ThreshTuner
-Find the best threshold to split your predictions in a binary classification task. Most applicable for imbalance target cases. 
-In addition to thresholds & loss_func scores, the predicted_ratio (predicted fraction of 1) will be calculated and saved for every threshold. This will help the identify the appropriate threshold not only based on the score, but also based on the resulting distribution of 0 and 1 in the predictions.
-
-```Python
+``` {.python}
 from verstack import ThreshTuner
-```
 
-#### Initialize ThreshTuner
-First, let's create an thresh class instannce. We will not pass any argumets for this example and use all the defaults
-
-```Python
+# initialize with default parameters
 thresh = ThreshTuner()
+
+# initialize with selected parameters
+thresh = ThreshTuner(n_thresholds = 500,
+                     min_threshold = 0.3,
+                     max_threshold = 0.7)
 ```
 
-#### Find the best threshold using default parameters
-All you need to do is pass your labels and predictions as the only arguments to the fit method of your ThreshTuner object and the results will be stored in the class instance placeholders
+### Parameters
 
-```Python
-thresh.fit(lables, pred)
+-   `n_thresholds` int \[default=200\]
+
+    Number of thresholds to test. If not set by user: 200 thresholds
+    will be tested.
+
+-   `min_threshold` float or int \[default=None\]
+
+    Minimum threshold value. If not set by user: will be inferred from
+    labels balance based on fraction\_of\_1
+
+-   `max_threshold` float or int \[default=None\]
+
+    Maximum threshold value. If not set by user: will be inferred from
+    labels balance based on fraction\_of\_1
+
+### Methods
+
+-   `fit(labels, pred, loss_func)`
+
+    Calculate loss\_func results for labels & preds for the
+    defined/default thresholds. Print the threshold(s) with the best
+    loss\_func scores
+
+    > Parameters
+    >
+    > -   `labels` array/list/series
+    >     \[default=balanced\_accuracy\_score\]
+    >
+    >     y\_true labels represented as 0 or 1
+    >
+    > -   `pred` array/list/series
+    >
+    >     predicted probabilities of 1
+    >
+    > -   `loss_func` function
+    >
+    >     loss function for scoring the predictions, e.g.
+    >     sklearn.metrics.f1\_score
+
+-   `result()`
+
+    Display a dataframe with
+    thresholds/loss\_func\_scores/fraction\_of\_1 for for all the the
+    defined/default thresholds
+
+-   `best_score()`
+
+    Display a dataframe with
+    thresholds/loss\_func\_scores/fraction\_of\_1 for the best
+    loss\_func\_score
+
+-   `best_predict_ratio()`
+
+    Display a dataframe with
+    thresholds/loss\_func\_scores/fraction\_of\_1 for the (predicted)
+    fraction\_of\_1 which is closest to the (actual)
+    labels\_fraction\_of\_1
+
+### Examples
+
+Use ThreshTuner with all default parameters
+
+``` {.python}
+thresh = ThreshTuner()
+thres.fit(labels, pred)
 ```
-By default 200 thresholds will be tested using the balanced_accuracy_score. The minimum and maximum thresholds will be inferred from the labels distribution (fraction_of_1)
 
-#### Configuring ThreshTuner
+Customized ThreshTuner application
 
-```Python 
-# E.g.
-thresh = ThreshTuner(n_thresholds = 500)
-```
-##### Parameters
-
-    n_thresholds (int, optional):
-        Number of thresholds to test.
-        Default = 200
-    min_threshold (float/int, optional):
-        Minimum threshold value. If not set by user: will be infered from labels balance based on fraction_of_1
-        Default = None
-    max_threshold (float/int, optional):
-        Maximum threshold value. If not set by user: will be infered from labels balance based on fraction_of_1
-        Default = None
-
-##### Methods
-
-    fit(labels, pred, loss_func):
-        Calculate loss_func results for labels & preds for the defined/default thresholds. Print the threshold(s) with the best loss_func scores
-
-        Parameters
-        labels (array/list/series) [default=balanced_accuracy_score]
-          y_true labels represented as 0 or 1
-
-        pred (array/list/series)
-          predicted probabilities of 1
-
-        loss_func (function)
-          loss function for scoring the predictions, e.g. sklearn.metrics.f1_score
-
-    result():
-        Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for for all the the defined/default thresholds
-
-    best_score():
-        Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for the best loss_func_score
-
-    best_predict_ratio():
-        Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for the (predicted) fraction_of_1 which is closest to the (actual) labels_fraction_of_1
-
-To configure ThreshTuner use the following logic:
-```Python 
+``` {.python}
 from sklearn.metrics import f1_score
 
 thresh = ThreshTuner(n_thresholds = 500, min_threshold = 0.2, max_threshold = 0.6)
 thresh.fit(labels, pred, f1_score)
 ```
 
-To access the results:
-```Python
+Access the results after .fit()
+
+``` {.python}
 thresh = ThreshTuner()
-thresh.fit(labels, pred)
+thres.fit(labels, pred)
 
 # return pd.DataFrame with all the results
 thresh.result
@@ -294,495 +684,661 @@ thresh.best_predict_ratio()
 thresh.labels_fractio_of_1
 ```
 
-# stratified_continuous_split
+stratified\_continuous\_split
+-----------------------------
 
 Create stratified splits based on either continuous or categoric target variable.
-  - For continuous target variable verstack uses binning and categoric split based on bins
-  - For categoric target enhanced sklearn.model_selection.train_test_split is used: in case there are not enough categories for the split, the minority classes will be combined with nearest neighbors.
+
+:   -   For continuous target variable verstack uses binning and
+        categoric split based on bins
+    -   For categoric target enhanced
+        sklearn.model\_selection.train\_test\_split is used: in case
+        there are not enough categories for the split, the minority
+        classes will be combined with nearest neighbors.
 
 Can accept only pandas.DataFrame/pandas.Series as data input.
-```Python
-  verstack.stratified_continuous_split.scsplit(*args, 
-                                               stratify, 
-                                               test_size = 0.3, 
-                                               train_size = 0.7, 
-                                               continuous = True, 
-                                               random_state = None)
+
+``` {.python}
+verstack.stratified_continuous_split.scsplit(*args, 
+                                             stratify, 
+                                             test_size = 0.3, 
+                                             train_size = 0.7, 
+                                             continuous = True, 
+                                             random_state = None)
 ```
 
-##### Parameters
+### Parameters
 
-    X,y,data: (pd.DataFrame/pd.Series)
-        data input for the split in pandas.DataFrame/pandas.Series format.
-    stratify (pd.Series): 
-        target variable for the split in pandas/eries format.
-    test_size (float, optional):
-        test split ratio. Default = 0.3
-    train_size (float, optional):
-        train split ratio. Default = 0.3
-    continuous (bool, optional):
-        stratification target definition. If True, verstack will perform the stratification on the continuous target variable, if False, sklearn.model_selection.train_test_split will be performed with verstack enhancements. Default = True
-    random_state (int, optional):
-        random state value.
-        Default = 5
+-   `X,y,data`
 
-##### Examples
-  
-```Python
-  from verstack.stratified_continuous_split import scsplit
-  
-  train, test = scsplit(data, stratify = data['continuous_column_name'])
-  X_train, X_val, y_train, y_val = scsplit(X, y, stratify = y, 
-                                           test_size = 0.3, random_state = 5)
+    data input for the split in pandas.DataFrame/pandas.Series format.
+
+-   `stratify`
+
+    target variable for the split in pandas/eries format.
+
+-   `test_size` \[default=0.3\]
+
+    test split ratio.
+
+-   `train_size` \[default=0.7\]
+
+    train split ratio.
+
+-   `continuous` \[default=True\]
+
+    stratification target definition. If True, verstack will perform the
+    stratification on the continuous target variable, if False,
+    sklearn.model\_selection.train\_test\_split will be performed with
+    verstack enhancements.
+
+-   `random_state` \[default=5\]
+
+    random state value.
+
+### Examples
+
+``` {.python}
+from verstack.stratified_continuous_split import scsplit
+
+train, test = scsplit(data, stratify = data['continuous_column_name'])
+X_train, X_val, y_train, y_val = scsplit(X, y, stratify = y, 
+                                         test_size = 0.3, random_state = 5)
 ```
 
+categoric\_encoders
+-------------------
 
+::: {.note}
+::: {.title}
+Note
+:::
 
+All the categoric encoders are conveniently integrated to work with
+pandas.DataFrame. Modules receive pd.DataFrame and kwargs as inputs and
+return pd.DataFrame with encoded column. All the necessary attributes
+for further transform/inverse\_transform are saved in instance objects
+and can be seralized (e.g. pickle) for latter application.
+:::
 
-
-
-
-
-
-
-# Factorizer
+### Factorizer
 
 Encode categoric column by numeric labels.
 
-Assign numeric labels starting with 0 to all unique variable's categories. 
+#### Logic
 
-Missing values can be encoded by an integer value (defaults to -1) / float / string or can be left untransformed.
+Assign numeric labels starting with 0 to all unique variable\'s
+categories.
+
+Missing values can be encoded by an integer value (defaults to -1) /
+float / string or can be left untransformed.
 
 When transform () - unseen categories will be be represented as NaN.
 
-#### Initialize Factorizer
+**Initialize Factorizer**
 
-```Python
-  from verstack import Factorizer
-  # initialize with default parameters
-  factorizer = Factorizer()
-  # initialize with changing the NaN encoding value
-  factorizer = Factorizer(na_sentinel = np.nan) #-999/0.33333/'No data')
+``` {.python}
+from verstack import Factorizer
+
+# initialize with default parameters
+factorizer = Factorizer()
+
+# initialize with changing the NaN encoding value
+factorizer = Factorizer(na_sentinel = np.nan) #-999/0.33333/'No data')
 ```
 
-##### Attributes
+**Attributes**
 
-    na_sentinel
-        Defined (at init) missing values encoding value. 
-    colname
-        Defined (at fit_transform()) column that had been transformed. 
-    pattern
-        Defined (at fit_transform()) encoding map.
+-   `na_sentinel`
 
-##### Parameters
+    Defined (at init) missing values encoding value.
 
-    na_sentinel [default=-1]
-        Missing values encoding value. Can take int/float/str/np.nan values.
+-   `colname`
 
-##### Methods
+    Defined (at fit\_transform()) column that had been transformed.
 
-    fit_transform(df, colname)
-        Fit Factorizer to data and return transformed data.
-        Parameters
-          df pd.DataFrame
-              df containing the colname to transform.
-          colname str
-              Column name in df to be transformed.
+-   `pattern`
 
-    transform(df)
-        Apply the fitted Factorizer to new data and return transformed data. Unseen categories will be represented by NaN.
-        Parameters
-          df pd.DataFrame
-              Data containing the colname to transform.
+    Defined (at fit\_transform()) encoding map.
 
-    inverse_transform(df)
-        Inverse transform data that had been encoded by Factorizer. Data must contain colname that was passed at fit_transform().
-        Parameters
-          df pd.DataFrame
-              Data containing the colname to transform.
+#### Parameters
 
-##### Examples
+-   `na_sentinel` \[default=-1\]
 
-Use with default na_sentinel:
+    Missing values encoding value. Can take int/float/str/np.nan values.
 
-```Python
+#### Methods
 
-  factorizer = Factorizer()
-  train_encoded = factorizer.fit_transform(train, 'colname') # will encode NaN values by -1
-  test_encoded = factorizer.transform(test)
+-   `fit_transform(df, colname)`
 
-  train_reversed_to_original = factorizer.inverse_transform(train_encoded)
-  test_reversed_to_original = factorizer.inverse_transform(test_encoded)
+    Fit Factorizer to data and return transformed data.
 
-# keep missing values untransformed:
+    > Parameters
+    >
+    > -   `df` pd.DataFrame
+    >
+    >     df containing the colname to transform.
+    >
+    > -   `colname` str
+    >
+    >     Column name in df to be transformed.
 
-  factorizer = Factorizer(na_sentinel = np.nan)
-  train_encoded = factorizer.fit_transform(train)
+-   `transform(df)`
+
+    Apply the fitted Factorizer to new data and return transformed data.
+    Unseen categories will be represented by NaN.
+
+    > Parameters
+    >
+    > -   `df` pd.DataFrame
+    >
+    >     Data containing the colname to transform.
+
+-   `inverse_transform(df)`
+
+    Inverse transform data that had been encoded by Factorizer. Data
+    must contain colname that was passed at fit\_transform().
+
+    > Parameters
+    >
+    > -   `df` pd.DataFrame
+    >
+    >     Data containing the colname to transform.
+
+#### Examples
+
+Use with default na\_sentinel:
+
+``` {.python}
+factorizer = Factorizer()
+train_encoded = factorizer.fit_transform(train, 'colname') # will encode NaN values by -1
+test_encoded = factorizer.transform(test)
+
+train_reversed_to_original = factorizer.inverse_transform(train_encoded)
+test_reversed_to_original = factorizer.inverse_transform(test_encoded)
 ```
 
+Keep missing values untransformed:
 
+``` {.python}
+factorizer = Factorizer(na_sentinel = np.nan)
+train_encoded = factorizer.fit_transform(train)
+```
 
-
-# OneHotEncoder
+### OneHotEncoder
 
 Encode categoric column by a set of binary columns.
 
-Categoric 'column':['a','b','c'] will be represented by three binary columns 'a', 'b', 'c'. Original categoric 'column' is droped.
+#### Logic
+
+Categoric \'column\':\[\'a\',\'b\',\'c\'\] will be represented by three
+binary columns \'a\', \'b\', \'c\'. Original categoric \'column\' is
+droped.
+
 Missing values can be represented by a separate column or omited.
-When transform() - unseen categories will not be represented by new columns, missing categories will be represented by empty (all zeros) columns.
 
-#### Initialize OneHotEncoder
+When transform() - unseen categories will not be represented by new
+columns, missing categories will be represented by empty (all zeros)
+columns.
 
-```Python
-  from verstack import OneHotEncoder
-  ohe = OneHotEncoder()
-  train_encoded = ohe.fit_transform(train, 'colname') # will create a separate column for NaN values (if any)
-  test_encoded = ohe.transform(test)
+**Initialize OneHotEncoder**
 
-  train_reversed_to_original = ohe.inverse_transform(train_encoded)
-  test_reversed_to_original = ohe.inverse_transform(test_encoded)
+``` {.python}
+from verstack import OneHotEncoder
+ohe = OneHotEncoder()
+train_encoded = ohe.fit_transform(train, 'colname') # will create a separate column for NaN values (if any)
+test_encoded = ohe.transform(test)
+
+train_reversed_to_original = ohe.inverse_transform(train_encoded)
+test_reversed_to_original = ohe.inverse_transform(test_encoded)
 ```
 
-##### Attributes
+**Attributes**
 
-    na_sentinel 
-        Defined (at init) missing values encoding value. 
-    colname
-        Defined (at fit_transform()) column that had been transformed. 
-    categories
-        Defined (at fit_transform()) unique class categories which will be represented by binary columns.
+-   `na_sentinel`
 
-##### Parameters
+    Defined (at init) missing values encoding value.
 
-    na_sentinel [default=True]
-        If True: create separate class column for NaN values.
+-   `colname`
 
-##### Methods
+    Defined (at fit\_transform()) column that had been transformed.
 
-    fit_transform(df, colname, prefix)
-        Fit OneHotEncoder to data and return transformed data.
-        Parameters
-          df pd.DataFrame
-              df containing the colname to transform.
-          colname str
-              Column name in df to be transformed.
-          prefix str/int/float/bool/None, optional
-              String to append DataFrame column names. The default is None.
+-   `categories`
 
-    transform(df)
-        Apply the fitted OneHotEncoder to new data and return transformed data. Unseen categories will not be represented by new columns, missing categories will be represented by empty (all zeros) columns.
-        Parameters
-          df pd.DataFrame
-              Data containing the colname to transform.
+    Defined (at fit\_transform()) unique class categories which will be
+    represented by binary columns.
 
-    inverse_transform(df)
-        Inverse transform data that had been encoded by OneHotEncoder. Data must contain one-hot-encoded columns that was created at fit_transform().
-        Parameters
-          df pd.DataFrame
-              Data containing the colname to transform.
+#### Parameters
 
-##### Examples
+-   `na_sentinel` \[default=True\]
 
-```Python
-  ohe = OneHotEncoder()
-  train_encoded = ohe.fit_transform(train, 'colname', prefix = 'colname')
-  test_encoded = ohe.transform(test)
+    If True: create separate class column for NaN values.
 
-  train_reversed_to_original = ohe.inverse_transform(train_encoded)
-  test_reversed_to_original = ohe.inverse_transform(test_encoded)
+#### Methods
+
+-   `fit_transform(df, colname, prefix)`
+
+    Fit OneHotEncoder to data and return transformed data.
+
+    > Parameters
+    >
+    > -   `df` pd.DataFrame
+    >
+    >     df containing the colname to transform.
+    >
+    > -   `colname` str
+    >
+    >     Column name in df to be transformed.
+    >
+    > -   `prefix` str/int/float/bool/None, optional
+    >
+    >     String to append DataFrame column names. The default is None.
+
+-   `transform(df)`
+
+    Apply the fitted OneHotEncoder to new data and return transformed
+    data. Unseen categories will not be represented by new columns,
+    missing categories will be represented by empty (all zeros) columns.
+
+    > Parameters
+    >
+    > -   `df` pd.DataFrame
+    >
+    >     Data containing the colname to transform.
+
+-   `inverse_transform(df)`
+
+    Inverse transform data that had been encoded by OneHotEncoder. Data
+    must contain one-hot-encoded columns that was created at
+    fit\_transform().
+
+    > Parameters
+    >
+    > -   `df` pd.DataFrame
+    >
+    >     Data containing the colname to transform.
+
+#### Examples
+
+``` {.python}
+ohe = OneHotEncoder()
+train_encoded = ohe.fit_transform(train, 'colname', prefix = 'colname')
+test_encoded = ohe.transform(test)
+
+train_reversed_to_original = ohe.inverse_transform(train_encoded)
+test_reversed_to_original = ohe.inverse_transform(test_encoded)
 ```
 
+### FrequencyEncoder
 
+Encoder to represent categoric variable classes\' frequency across the
+dataset.
 
+#### Logic
 
-# FrequencyEncoder
+> Original column \[\'a\', \'a\', \'a\', \'b\', \'b\', \'c\', \'c\',
+> \'c\', \'c\', np.nan\]
+>
+> Encoded column \[0.3, 0.3, 0.3, 0.2, 0.2, 0.4, 0.4, 0.4, 0.4, 0.1\] \#
+> np.nan\]
 
-Encoder to represent categoric variable classes' frequency across the dataset.
+When transform() - unseen categories will be represented by the most
+common (highest) frequency.
 
-Original column ['a', 'a', 'a', 'b', 'b', 'c', 'c', 'c', 'c', np.nan]
-Encoded column  [0.3, 0.3, 0.3, 0.2, 0.2, 0.4, 0.4, 0.4, 0.4, 0.1] # np.nan]
+Can handle missing values - encode NaN by NaN frequency or leave NaN
+values untransformed. Resulting frequencies are normalized as a
+percentage.
 
-When transform() - unseen categories will be represented by the most common (highest) frequency.
+**Initialize FrequencyEncoder**
 
-Can handle missing values - encode NaN by NaN frequency or leave NaN values untransformed.
-Resulting frequencies are normalized as a percentage.
+``` {.python}
+from verstack import FrequencyEncoder
+fe = FrequencyEncoder()
+train_encoded = fe.fit_transform(train, 'colname')
+test_encoded = fe.transform(test)
 
-#### Initialize FrequencyEncoder
-
-```Python
-  from verstack import FrequencyEncoder
-  fe = FrequencyEncoder()
-  train_encoded = fe.fit_transform(train, 'colname')
-  test_encoded = fe.transform(test)
-
-  train_reversed_to_original = fe.inverse_transform(train_encoded)
-  test_reversed_to_original = fe.inverse_transform(test_encoded)
+train_reversed_to_original = fe.inverse_transform(train_encoded)
+test_reversed_to_original = fe.inverse_transform(test_encoded)
 ```
 
-##### Attributes
+**Attributes**
 
-    na_sentinel 
-        Defined (at init) missing values encoding value. 
-    colname
-        Defined (at fit_transform()) column that had been transformed. 
-    pattern
-        Defined (at fit_transform()) encoding map.
+-   `na_sentinel`
 
-##### Parameters
+    Defined (at init) missing values encoding value.
 
-    na_sentinel [default=True]
-        If True: Encode NaN values by their frequency. If False return np.nan in the encoded column.
+-   `colname`
 
-##### Methods
+    Defined (at fit\_transform()) column that had been transformed.
 
-    fit_transform(df, colname)
-        Fit FrequencyEncoder to data and return transformed data.
-        Parameters
-          df pd.DataFrame
-              df containing the colname to transform.
-          colname str
-              Column name in df to be transformed.
+-   `pattern`
 
-    transform(df)
-        Apply the fitted FrequencyEncoder to new data and return transformed data. Unseen categories will be represented as NaN.
-        Parameters
-          df pd.DataFrame
-              Data containing the colname to transform.
+    Defined (at fit\_transform()) encoding map.
 
-    inverse_transform(df)
-        Inverse transform data that had been encoded by FrequencyEncoder. Data must contain colname that was passed at fit_transform().
-        Parameters
-          df pd.DataFrame
-              Data containing the colname to transform.
+#### Parameters
 
-##### Examples
+-   `na_sentinel` \[default=True\]
+    -   If True: Encode NaN values by their frequency. If False return
+        np.nan in the encoded column.
 
-```Python
-  frequency_encoder = FrequencyEncoder()
-  train_encoded = frequency_encoder.fit_transform(train, 'colname')
-  test_encoded = frequency_encoder.transform(test)
+#### Methods
 
-  train_reversed_to_original = frequency_encoder.inverse_transform(train_encoded)
-  test_reversed_to_original = frequency_encoder.inverse_transform(test_encoded)
+-   `fit_transform(df, colname)`
+
+    Fit FrequencyEncoder to data and return transformed data.
+
+    > Parameters
+    >
+    > -   `df` pd.DataFrame
+    >
+    >     df containing the colname to transform.
+    >
+    > -   `colname` str
+    >
+    >     Column name in df to be transformed.
+
+-   `transform(df)`
+
+    Apply the fitted FrequencyEncoder to new data and return transformed
+    data. Unseen categories will be represented as NaN.
+
+    > Parameters
+    >
+    > -   `df` pd.DataFrame
+    >
+    >     Data containing the colname to transform.
+
+-   `inverse_transform(df)`
+
+    Inverse transform data that had been encoded by FrequencyEncoder.
+    Data must contain colname that was passed at fit\_transform().
+
+    > Parameters
+    >
+    > -   `df` pd.DataFrame
+    >
+    >     Data containing the colname to transform.
+
+#### Examples
+
+``` {.python}
+frequency_encoder = FrequencyEncoder()
+train_encoded = frequency_encoder.fit_transform(train, 'colname')
+test_encoded = frequency_encoder.transform(test)
+
+train_reversed_to_original = frequency_encoder.inverse_transform(train_encoded)
+test_reversed_to_original = frequency_encoder.inverse_transform(test_encoded)
 ```
 
-
-
-
-# MeanTargetEncoder
+### MeanTargetEncoder
 
 Encode train cat cols by mean target value for category.
 
-To avoid target leakage train set encoding is performed by breaking data into 5 folds & 
-encoding categories of each fold with their respective target mean values calculated on the other 4 folds.
-This will introduce minor noize to train data encoding (at fit_transform()) as a normalization technique. 
-Test set (transform()) is encoded without normalization.
+#### Logic
 
-When transform() - unseen categories will be represented by the global target mean.
+To avoid target leakage train set encoding is performed by breaking data
+into 5 folds & encoding categories of each fold with their respective
+target mean values calculated on the other 4 folds. This will introduce
+minor noize to train data encoding (at fit\_transform()) as a
+normalization technique. Test set (transform()) is encoded without
+normalization.
 
-Can handle missing values - encode NaN by global mean or leave NaN values untransformed.
+When transform() - unseen categories will be represented by the global
+target mean.
 
-#### Initialize MeanTargetEncoder
+Can handle missing values - encode NaN by global mean or leave NaN
+values untransformed.
 
-```Python
-  from verstack import MeanTargetEncoder
-  mean_target_encoder = MeanTargetEncoder(save_inverse_transform = True)
-  train_encoded = mean_target_encoder.fit_transform(train, 'colname', 'targetname')
-  test_encoded = mean_target_encoder.transform(test)
+**Initialize MeanTargetEncoder**
 
-  train_reversed_to_original = mean_target_encoder.inverse_transform(train_encoded)
-  test_reversed_to_original = mean_target_encoder.inverse_transform(test_encoded)
+``` {.python}
+from verstack import MeanTargetEncoder
+mean_target_encoder = MeanTargetEncoder(save_inverse_transform = True)
+train_encoded = mean_target_encoder.fit_transform(train, 'colname', 'targetname')
+test_encoded = mean_target_encoder.transform(test)
+
+train_reversed_to_original = mean_target_encoder.inverse_transform(train_encoded)
+test_reversed_to_original = mean_target_encoder.inverse_transform(test_encoded)
 ```
 
-##### Attributes
+**Attributes**
 
-    na_sentinel
-        Defined (at init) missing values encoding value. 
-    colname
-        Defined (at fit_transform()) column that had been transformed. 
-    pattern
-        Defined (at fit_transform()) encoding map.
-    save_inverse_transform
-        Defined (at init) flag for saving the pattern for inverse transform.
+-   `na_sentinel`
 
-##### Parameters
+    Defined (at init) missing values encoding value.
 
-    na_sentinel [default=True]
-        If True: Encode NaN values by target global mean. If False return np.nan in the encoded column.
-    save_inverse_transform [default=False]
-        If True: Saves mean target values for each category at each encoding fold. Enable if need to inverse_transform the encoded data. Defaults to False because for large datasets saved pattern can significantly increase instance object size.
+-   `colname`
 
-##### Methods
+    Defined (at fit\_transform()) column that had been transformed.
 
-    fit_transform(df, colname, targetname)
-        Fit MeanTargetEncoder to data and return transformed data.
-        Parameters
-          df pd.DataFrame
-              df containing the colname to transform.
-          colname str
-              Column name in df to be transformed.
-          targetname str
-              Target column name in df for extracting the mean values for each colname category.
+-   `pattern`
 
-    transform(df)
-        Apply the fitted MeanTargetEncoder to new data and return transformed data. Unseen categories will be encoded by the global target mean.
-        Parameters
-          df pd.DataFrame
-              Data containing the colname to transform.
+    Defined (at fit\_transform()) encoding map.
 
-    inverse_transform(df)
-        Inverse transform data that had been encoded by MeanTargetEncoder. Data must contain colname that was passed at fit_transform().
-        Parameters
-          df pd.DataFrame
-              Data containing the colname to transform.
+-   `save_inverse_transform`
 
-##### Examples
+    Defined (at init) flag for saving the pattern for inverse transform.
 
-```Python
-  mean_target_encoder = MeanTargetEncoder(save_inverse_transform = True)
-  train_encoded = mean_target_encoder.fit_transform(train, 'colname', 'targetname')
-  test_encoded = mean_target_encoder.transform(test)
+#### Parameters
 
-  train_reversed_to_original = mean_target_encoder.inverse_transform(train_encoded)
-  test_reversed_to_original = mean_target_encoder.inverse_transform(test_encoded)
+-   `na_sentinel` \[default=True\]
+
+    If True: Encode NaN values by target global mean. If False return
+    np.nan in the encoded column.
+
+-   `save_inverse_transform` \[default=False\]
+
+    If True: Saves mean target values for each category at each encoding
+    fold. Enable if need to inverse\_transform the encoded data.
+    Defaults to False because for large datasets saved pattern can
+    significantly increase instance object size.
+
+#### Methods
+
+-   `fit_transform(df, colname, targetname)`
+
+    Fit MeanTargetEncoder to data and return transformed data.
+
+    > Parameters
+    >
+    > -   `df` pd.DataFrame
+    >
+    >     df containing the colname to transform.
+    >
+    > -   `colname` str
+    >
+    >     Column name in df to be transformed.
+    >
+    > -   `targetname` str
+    >
+    >     Target column name in df for extracting the mean values for
+    >     each colname category.
+
+-   `transform(df)`
+
+    Apply the fitted MeanTargetEncoder to new data and return
+    transformed data. Unseen categories will be encoded by the global
+    target mean.
+
+    > Parameters
+    >
+    > -   `df` pd.DataFrame
+    >
+    >     Data containing the colname to transform.
+
+-   `inverse_transform(df)`
+
+    Inverse transform data that had been encoded by MeanTargetEncoder.
+    Data must contain colname that was passed at fit\_transform().
+
+    > Parameters
+    >
+    > -   `df` pd.DataFrame
+    >
+    >     Data containing the colname to transform.
+
+#### Examples
+
+``` {.python}
+mean_target_encoder = MeanTargetEncoder(save_inverse_transform = True)
+train_encoded = mean_target_encoder.fit_transform(train, 'colname', 'targetname')
+test_encoded = mean_target_encoder.transform(test)
+
+train_reversed_to_original = mean_target_encoder.inverse_transform(train_encoded)
+test_reversed_to_original = mean_target_encoder.inverse_transform(test_encoded)
 ```
 
+### WeightOfEvidenceEncoder
 
+Encoder to represent categoric variables by Weight of Evidence in
+regards to the binary target variable.
 
+#### Logic
 
-# WeightOfEvidenceEncoder
+Built on top of sclearn package
+[category\_encoders.woe.WOEEncoder](https://contrib.scikit-learn.org/category_encoders/woe.html#).
 
-Encoder to represent categoric variables by Weight of Evidence in regards to the binary target variable.
+If encoded value is negative - it represents a category that is more
+heavily enclided to the negative target class (0). Positive encoding
+result represents inclination to the positive target class (1).
 
-Built on top of sclearn package [category_encoders.woe.WOEEncoder](https://contrib.scikit-learn.org/category_encoders/woe.html#).
+When fit\_transform() is used on a train set, variable is encoded with
+adding minor noize to reduce the risk of overfitting.
 
-If encoded value is negative - it represents a category that is more heavily enclided to the negative target class (0).
-Positive encoding result represents inclination to the positive target class (1).
+Can handle missing values - encode NaN by zero WoE or leave NaN
+untransformed.
 
-When fit_transform() is used on a train set, variable is encoded with adding minor noize to reduce the risk of overfitting.
-Can handle missing values - encode NaN by zero WoE or leave NaN untransformed.
+**Initialize WeightOfEvidenceEncoder**
 
-#### Initialize WeightOfEvidenceEncoder
+``` {.python}
+from verstack import WeightOfEvidenceEncoder
+WOE = WeightOfEvidenceEncoder()
+train_encoded = WOE.fit_transform(train, 'colname', 'targetname')
+test_encoded = WOE.transform(test)
 
-```Python
-  from verstack import WeightOfEvidenceEncoder
-  WOE = WeightOfEvidenceEncoder()
-  train_encoded = WOE.fit_transform(train, 'colname', 'targetname')
-  test_encoded = WOE.transform(test)
-
-  train_reversed_to_original = WOE.inverse_transform(train_encoded)
-  test_reversed_to_original = WOE.inverse_transform(test_encoded)
+train_reversed_to_original = WOE.inverse_transform(train_encoded)
+test_reversed_to_original = WOE.inverse_transform(test_encoded)
 ```
 
-##### Attributes
+**Attributes**
 
-    na_sentinel 
-        Defined (at init) missing values encoding value. 
-    colname
-        Defined (at fit_transform()) column that had been transformed. 
-    params
-        Defined (at init) category_encoders.woe.WOEEncoder `parameters <https://contrib.scikit-learn.org/category_encoders/woe.html#>`_
+-   `na_sentinel`
 
+    Defined (at init) missing values encoding value.
 
-##### Parameters
+-   `colname`
 
-    na_sentinel [default=True]
-        If True: Encode NaN values by zero WoE. If False return np.nan in the encoded column.
-    kwargs
-       category_encoders.woe.WOEEncoder [parameters](https://contrib.scikit-learn.org/category_encoders/woe.html#). Following parameters are set by default: ``'randomized':True``, ``'random_state':42``, ``'handle_missing':'return_nan'`` <- infered from na_sentinel setting.
+    Defined (at fit\_transform()) column that had been transformed.
 
-##### Methods
+-   `params`
 
-    fit_transform(df, colname, targetname)
-        Fit WeightOfEvidenceEncoder to data and return transformed data.
-        Parameters
-          df pd.DataFrame
-              df containing the colname to transform.
-          colname str
-              Column name in df to be transformed.
-          targetname str
-              Target column name in df for calculating WoE for each colname category.
+    Defined (at init) category\_encoders.woe.WOEEncoder
+    [parameters](https://contrib.scikit-learn.org/category_encoders/woe.html#)
 
-    transform(df)
-        Apply the fitted WeightOfEvidenceEncoder to new data and return transformed data. Unseen categories' WoE is set to 0.
-        Parameters
-          df pd.DataFrame
-              Data containing the colname to transform.
+#### Parameters
 
-    inverse_transform(df)
-        Inverse transform data that had been encoded by WeightOfEvidenceEncoder. Data must contain colname that was passed at fit_transform().
-        Parameters
-          df pd.DataFrame
-              Data containing the colname to transform.
+-   `na_sentinel` \[default=True\]
 
-##### Examples
+    If True: Encode NaN values by zero WoE. If False return np.nan in
+    the encoded column.
 
-```Python
-  WOE = WeightOfEvidenceEncoder()
-  train_encoded = WOE.fit_transform(train, 'colname', 'targetname')
-  test_encoded = WOE.transform(test)
+-   `kwargs`
 
-  train_reversed_to_original = WOE.inverse_transform(train_encoded)
-  test_reversed_to_original = WOE.inverse_transform(test_encoded)
+    category\_encoders.woe.WOEEncoder
+    [parameters](https://contrib.scikit-learn.org/category_encoders/woe.html#).
+    Following parameters are set by default: `'randomized':True`,
+    `'random_state':42`, `'handle_missing':'return_nan'` \<- inferred
+    from na\_sentinel setting.
+
+#### Methods
+
+-   `fit_transform(df, colname, targetname)`
+
+    Fit WeightOfEvidenceEncoder to data and return transformed data.
+
+    > Parameters
+    >
+    > -   `df` pd.DataFrame
+    >
+    >     df containing the colname to transform.
+    >
+    > -   `colname` str
+    >
+    >     Column name in df to be transformed.
+    >
+    > -   `targetname` str
+    >
+    >     Target column name in df for calculating WoE for each colname
+    >     category.
+
+-   `transform(df)`
+
+    Apply the fitted WeightOfEvidenceEncoder to new data and return
+    transformed data. Unseen categories\' WoE is set to 0.
+
+    > Parameters
+    >
+    > -   `df` pd.DataFrame
+    >
+    >     Data containing the colname to transform.
+
+-   `inverse_transform(df)`
+
+    Inverse transform data that had been encoded by
+    WeightOfEvidenceEncoder. Data must contain colname that was passed
+    at fit\_transform().
+
+    > Parameters
+    >
+    > -   `df` pd.DataFrame
+    >
+    >     Data containing the colname to transform.
+
+#### Examples
+
+``` {.python}
+WOE = WeightOfEvidenceEncoder()
+train_encoded = WOE.fit_transform(train, 'colname', 'targetname')
+test_encoded = WOE.transform(test)
+
+train_reversed_to_original = WOE.inverse_transform(train_encoded)
+test_reversed_to_original = WOE.inverse_transform(test_encoded)
 ```
 
+timer
+-----
 
+Timer decorator to measure any function execution time and create
+elapsed time output: hours/minues/seconds will be calculated and
+returned conveniently.
 
-
-
-
-
-
-
-
-# timer
-
-timer is a decorator function: it must placed above the function (that needs to be timed) definition.
-
-```Python
-  verstack.tools.timer
+``` {.python}
+verstack.tools.timer
 ```
 
-##### Examples
-  
-```Python
-  from verstack.tools import timer
+### Examples
 
-  @timer
-  def func(a,b):
-      print(f'Result is: {a + b}')
+timer is a decorator function: it must placed above the function (that
+needs to be timed) definition
 
-  func(2,3)
+``` {.python}
+from verstack.tools import timer
 
-  >>>Result is: 5
-  >>>Time elapsed for func execution: 0.0002 seconds
+@timer
+def func(a,b):
+    print(f'Result is: {a + b}')
+
+func(2,3)
+
+>>>Result is: 5
+>>>Time elapsed for func execution: 0.0002 seconds
 ```
 
-Experiment with different settings for your application, and if anything does not work as expected, feel free to reach out to me at danil.com@me.com
+Links
+-----
 
-License
-----
+[Git](https://github.com/DanilZherebtsov/verstack)
 
-MIT License
+[pypi](https://pypi.org/project/verstack/)
 
-Copyright (c) 2020 DanilZherebtsov
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-danil.com@me.com
+[author](https://www.linkedin.com/in/danil-zherebtsov/)

@@ -57,9 +57,9 @@ class LGBMTuner:
         self.visualization = visualization
         self.seed = seed
         self.target_minimum = None
-        self.fitted_model = None
+        self._fitted_model = None
         self._feature_importances = None
-        self.study = None # save optuna study for plotting
+        self._study = None # save optuna study for plotting
         self.target_classes = None
         self._init_params = None
         self._best_params = None
@@ -144,8 +144,8 @@ class LGBMTuner:
         if not self._is_int(value) : raise TypeError('seed must be an integer')
         self._seed = value
     # -------------------------------------------------------------------------    
-    # -------------------------------------------------------------------------    
     # only getters for the following arguments
+    # -------------------------------------------------------------------------    
     # init_params
     @property
     def init_params(self):
@@ -156,11 +156,22 @@ class LGBMTuner:
     def best_params(self):
         return self._best_params
     # -------------------------------------------------------------------------    
+    # feature_importances
     @property
     def feature_importances(self):
-        if not self.fitted_model:
+        if not self._fitted_model:
             raise AttributeError('LGBMTuner.fit(refit = True) must be applied before feature_importances can be displayed')
         return self._feature_importances
+    # -------------------------------------------------------------------------    
+    # fitted_model
+    @property
+    def fitted_model(self):
+        return self._fitted_model
+    # -------------------------------------------------------------------------    
+    # study
+    @property
+    def study(self):
+        return self._study
     
     # -------------------------------------------------------------------------    
     def _init_params_on_input(self, rows_num, y):
@@ -396,9 +407,9 @@ class LGBMTuner:
 
         Parameters
         ----------
-        X : pd.DataFrame
+        X : np.array
             train features.
-        y : pd.Series
+        y : np.array
             train target.
         params : dict
             model parameters.
@@ -447,15 +458,14 @@ class LGBMTuner:
 
         Parameters
         ----------
-        X : pd.DataFrame
+        X : np.array
             train features.
-        y : pd.Series
+        y : np.array
             train target.
 
         Returns
         -------
-        model : class instance
-            trained model.
+        None.
 
         '''
         validate_numpy_ndarray_arguments(X)
@@ -468,9 +478,7 @@ class LGBMTuner:
             for key, value in self._best_params.items():
                 print(f'{key:<33}: {value}')
             print('-'*73)
-        model = lgb.train(self._best_params, lgb.Dataset(X,y))
-
-        return model
+        self._fitted_model = lgb.train(self._best_params, lgb.Dataset(X,y))
 
     # ------------------------------------------------------------------------------------------
     def _get_target_minimum(self, y):
@@ -599,7 +607,7 @@ class LGBMTuner:
         validate_features_argument(test)
         validate_threshold_argument(threshold)
 
-        pred = self.fitted_model.predict(test.values, num_threads = self._init_params['num_threads'])
+        pred = self._fitted_model.predict(test.values, num_threads = self._init_params['num_threads'])
         
         # regression predict
         if self.metric in regression_metrics:
@@ -608,7 +616,7 @@ class LGBMTuner:
             return pred
         else:
             # binary classification predict
-            if self.fitted_model.params['objective'] == 'binary':
+            if self._fitted_model.params['objective'] == 'binary':
                 pred = (pred > threshold).astype('int')
             # multiclass classification predict
             # TODO: SAVE CLASSES NAMES TO APPLY THEM BACK
@@ -629,7 +637,7 @@ class LGBMTuner:
         Raises
         ------
         TypeError
-            If self.fitted_model.params['objective'] == 'regression - notify
+            If self._fitted_model.params['objective'] == 'regression - notify
             that predict_proba() is for classification objectives only.
 
         Returns
@@ -643,7 +651,7 @@ class LGBMTuner:
 
         if self.metric in regression_metrics:
             raise TypeError('predict_proba() is applicable for classification problems only')
-        pred = self.fitted_model.predict(test.values, num_threads = self._init_params['num_threads'])
+        pred = self._fitted_model.predict(test.values, num_threads = self._init_params['num_threads'])
         return pred
     # ------------------------------------------------------------------------------------------
     
@@ -663,7 +671,7 @@ class LGBMTuner:
 
     def _save_feature_importances(self, train_features):
         '''Save feature importances in class instance as a pd.Series'''
-        feat_importances = pd.Series(self.fitted_model.feature_importance(), index = train_features)
+        feat_importances = pd.Series(self._fitted_model.feature_importance(), index = train_features)
         normalized_importances = np.round((lambda x: x/sum(x))(feat_importances),5)
         self._feature_importances = normalized_importances
     # ------------------------------------------------------------------------------------------
@@ -717,7 +725,7 @@ class LGBMTuner:
             plt.show()
     # ------------------------------------------------------------------------------------------
     
-    def plot_optimization_history(self, interactive = False):    
+    def plot_optimization_history(self, interactive = False):
         '''
         Plot parameters optimization history.
 
@@ -736,14 +744,14 @@ class LGBMTuner:
         
         if interactive:
             from optuna.visualization import plot_optimization_history
-            fig = plot_optimization_history(self.study)
+            fig = plot_optimization_history(self._study)
             fig.write_html("optimization_history_plot.html")
             if self.verbosity > 0:
                 print(f'Optimization History Plot is saved to {os.path.join(os.getcwd(), "optimization_history_plot.html")}')
         else:
             from optuna.visualization.matplotlib import plot_optimization_history
             import matplotlib.pyplot as plt
-            plot_optimization_history(self.study)
+            plot_optimization_history(self._study)
             plt.show()
     # ------------------------------------------------------------------------------------------
     
@@ -766,14 +774,14 @@ class LGBMTuner:
 
         if interactive:
             from optuna.visualization import plot_param_importances
-            fig = plot_param_importances(self.study)
+            fig = plot_param_importances(self._study)
             fig.write_html("param_importances_plot.html")
             if self.verbosity > 0:
                 print(f'Param Importances Plot is saved to {os.path.join(os.getcwd(), "param_importances_plot.html")}')
         else:
             from optuna.visualization.matplotlib import plot_param_importances
             import matplotlib.pyplot as plt
-            plot_param_importances(self.study)
+            plot_param_importances(self._study)
             plt.show()
     # ------------------------------------------------------------------------------------------
     
@@ -799,14 +807,14 @@ class LGBMTuner:
         
         if interactive:
             from optuna.visualization import plot_intermediate_values
-            fig = plot_intermediate_values(self.study)
+            fig = plot_intermediate_values(self._study)
             fig.write_html("intermediate_values_plot.html")
             if self.verbosity > 0:
                 print(f'Intermediate Values Plot is saved to {os.path.join(os.getcwd(), "intermediate_values_plot.html")}')
         else:
             from optuna.visualization.matplotlib import plot_intermediate_values
             import matplotlib.pyplot as plt
-            fig = plot_intermediate_values(self.study)
+            fig = plot_intermediate_values(self._study)
             if not legend:
                 fig.get_legend().remove()
             plt.show()
@@ -892,9 +900,9 @@ class LGBMTuner:
         temp_params['n_estimators'] = iteration
         self._best_params = temp_params        
         if self.refit:
-            self.fitted_model = self.fit_optimized(X.values, y.values)
+            self.fit_optimized(X.values, y.values)
             self._save_feature_importances(X.columns)
-        self.study = study
+        self._study = study
 
         if self.visualization:
             self.plot_optimization_history()
