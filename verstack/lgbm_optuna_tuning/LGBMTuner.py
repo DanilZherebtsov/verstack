@@ -19,7 +19,7 @@ from verstack.lgbm_optuna_tuning.optuna_tools import Distribution, OPTUNA_DISTRI
 
 class LGBMTuner:
 
-    __version__ = '0.0.5'
+    __version__ = '0.0.6'
 
     def __init__(self, metric, trials = 100, refit = True, verbosity = 1, visualization = True, seed = 42):
         '''
@@ -675,7 +675,18 @@ class LGBMTuner:
         normalized_importances = np.round((lambda x: x/sum(x))(feat_importances),5)
         self._feature_importances = normalized_importances
     # ------------------------------------------------------------------------------------------
-    
+
+    def _display_html(self, html_file):
+        '''Run html plot in the default browser'''
+        import webbrowser
+        import time
+        # 1st method how to open html files in chrome using
+        filename = 'file:///'+os.getcwd()+'/' + html_file
+        webbrowser.open_new_tab(filename)
+        time.sleep(2)
+        os.remove(html_file)
+    # ------------------------------------------------------------------------------------------
+
     def plot_importances(self, n_features = 15, figsize = (10,6), interactive = False):   
         '''
         Plot feature importances.
@@ -713,8 +724,11 @@ class LGBMTuner:
                          title = 'Interactive Feature Importance Plot',
                          text = 'importance_percent')
             fig.write_html('feature_importance_plot.html')
-            if self.verbosity > 0:
-                print(f'Feature Importance Plot is saved to {os.path.join(os.getcwd(), "feature_importance_plot.html")}')
+            try:
+                self._display_html('feature_importance_plot.html')
+            except Exception as e:
+                print(f'Display html error: {e}')
+                print(f'Optimization History Plot is saved to {os.path.join(os.getcwd(), "feature_importance_plot.html")}')
         else:
             import matplotlib.pyplot as plt
             importances_for_plot = self._feature_importances.nlargest(n_features).sort_values()
@@ -746,7 +760,10 @@ class LGBMTuner:
             from optuna.visualization import plot_optimization_history
             fig = plot_optimization_history(self._study)
             fig.write_html("optimization_history_plot.html")
-            if self.verbosity > 0:
+            try:
+                self._display_html("optimization_history_plot.html")
+            except Exception as e:
+                print(f'Display html error: {e}')
                 print(f'Optimization History Plot is saved to {os.path.join(os.getcwd(), "optimization_history_plot.html")}')
         else:
             from optuna.visualization.matplotlib import plot_optimization_history
@@ -776,7 +793,10 @@ class LGBMTuner:
             from optuna.visualization import plot_param_importances
             fig = plot_param_importances(self._study)
             fig.write_html("param_importances_plot.html")
-            if self.verbosity > 0:
+            try:
+                self._display_html('param_importances_plot.html')
+            except Exception as e:
+                print(f'Display html error: {e}')
                 print(f'Param Importances Plot is saved to {os.path.join(os.getcwd(), "param_importances_plot.html")}')
         else:
             from optuna.visualization.matplotlib import plot_param_importances
@@ -792,7 +812,7 @@ class LGBMTuner:
         Parameters
         ----------
         interactive : bool, optional
-            Create & save to current wd interactive html plot. The default is False.
+            Create & show in default browsersave to current wd interactive html plot. The default is False.
         legend : bool, optional
             Flag to include legend in the static (not interactive) plot. The default is False.
 
@@ -809,7 +829,10 @@ class LGBMTuner:
             from optuna.visualization import plot_intermediate_values
             fig = plot_intermediate_values(self._study)
             fig.write_html("intermediate_values_plot.html")
-            if self.verbosity > 0:
+            try:
+                self._display_html('intermediate_values_plot.html')
+            except Exception as e:
+                print(f'Display html error: {e}')
                 print(f'Intermediate Values Plot is saved to {os.path.join(os.getcwd(), "intermediate_values_plot.html")}')
         else:
             from optuna.visualization.matplotlib import plot_intermediate_values

@@ -1,5 +1,5 @@
 ############################
-verstack 1.1.11 Documentation
+verstack 1.1.12 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -190,7 +190,7 @@ Methods
 
     - ``interactive`` [default=False]
 
-      Create & save to current wd interactive html plot.
+      Create & display with the default browser the interactive html plot or (if browser displya is unavailable) save to current wd.
 
 * ``plot_optimization_history(interactive = False)``
 
@@ -198,7 +198,7 @@ Methods
 
     - ``interactive`` [default=False]
 
-      Create & save to current wd interactive html plot
+      Create & display with the default browser the interactive html plot or (if browser displya is unavailable) save to current wd.
 
 * ``plot_param_importances(interactive = False)``
 
@@ -206,7 +206,7 @@ Methods
   
     - ``interactive`` [default=False]
 
-      Create & save to current wd interactive html plot. 
+      Create & display with the default browser the interactive html plot or (if browser displya is unavailable) save to current wd.
 
 * ``plot_intermediate_values(interactive = False, legend = False)``
 
@@ -214,7 +214,7 @@ Methods
 
     - ``interactive`` [default=False]
 
-      Create & save to current wd interactive html plot
+      Create & display with the default browser the interactive html plot or (if browser displya is unavailable) save to current wd.
 
     - ``legend`` [default=False]
 
