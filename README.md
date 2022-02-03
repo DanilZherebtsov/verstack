@@ -1,4 +1,4 @@
-verstack 1.1.12 Documentation
+verstack 1.1.13 Documentation
 ============================
 
 Machine learning tools to make a Data Scientist\'s work efficient
@@ -224,7 +224,7 @@ tuner = LGBMTuner(metric = 'rmse',
     >
     > -   `interactive` \[default=False\]
     >
-    >     Create & display with the default browser the interactive html plot or (if browser displya is unavailable) save to current wd.
+    >     Create & display with the default browser the interactive html plot or (if browser disply is unavailable) save to current wd.
 
 -   `plot_optimization_history(interactive = False)`
 
@@ -232,7 +232,7 @@ tuner = LGBMTuner(metric = 'rmse',
 
     > -   `interactive` \[default=False\]
     >
-    >     Create & display with the default browser the interactive html plot or (if browser displya is unavailable) save to current wd.
+    >     Create & display with the default browser the interactive html plot or (if browser disply is unavailable) save to current wd.
 
 -   `plot_param_importances(interactive = False)`
 
@@ -240,7 +240,7 @@ tuner = LGBMTuner(metric = 'rmse',
 
     > -   `interactive` \[default=False\]
     >
-    >     Create & display with the default browser the interactive html plot or (if browser displya is unavailable) save to current wd.
+    >     Create & display with the default browser the interactive html plot or (if browser disply is unavailable) save to current wd.
 
 -   `plot_intermediate_values(interactive = False, legend = False)`
 
@@ -250,7 +250,7 @@ tuner = LGBMTuner(metric = 'rmse',
 
     > -   `interactive` \[default=False\]
     >
-    >     Create & display with the default browser the interactive html plot or (if browser displya is unavailable) save to current wd.
+    >     Create & display with the default browser the interactive html plot or (if browser disply is unavailable) save to current wd.
     >
     > -   `legend` \[default=False\]
     >

@@ -19,7 +19,7 @@ from verstack.lgbm_optuna_tuning.optuna_tools import Distribution, OPTUNA_DISTRI
 
 class LGBMTuner:
 
-    __version__ = '0.0.6'
+    __version__ = '0.0.7'
 
     def __init__(self, metric, trials = 100, refit = True, verbosity = 1, visualization = True, seed = 42):
         '''
@@ -438,14 +438,29 @@ class LGBMTuner:
         n_rounds_optimization_params['metric'] = 'None'
 
         dtrain, dvalid = self._get_dtrain_dvalid_objects(X, y, self.metric, seed = self.seed)
-        lgb_model = lgb.train(n_rounds_optimization_params, 
-                              dtrain, 
-                              10000, 
-                              valid_sets=[dtrain, dvalid], 
-                              valid_names=['train', 'valid'],
-                              verbose_eval = verbose_eval_rounds, 
-                              early_stopping_rounds=self._init_params['early_stopping_rounds'],
-                              feval = get_n_rounds_optimization_metric(self.metric))
+
+        if n_rounds_optimization_params['objective'] == 'multiclass':
+            # disable custom feval function for multiclass 
+            # lgbm predicts multiple classes in a single array 
+            # without a way to assign predicted probability to a certain class
+            # use built in multi_logloss instead
+            del n_rounds_optimization_params['metric']
+            lgb_model = lgb.train(n_rounds_optimization_params, 
+                                  dtrain, 
+                                  10000, 
+                                  valid_sets=[dtrain, dvalid], 
+                                  valid_names=['train', 'valid'],
+                                  verbose_eval = verbose_eval_rounds, 
+                                  early_stopping_rounds=self._init_params['early_stopping_rounds'])
+        else:
+            lgb_model = lgb.train(n_rounds_optimization_params, 
+                                  dtrain, 
+                                  10000, 
+                                  valid_sets=[dtrain, dvalid], 
+                                  valid_names=['train', 'valid'],
+                                  verbose_eval = verbose_eval_rounds, 
+                                  early_stopping_rounds=self._init_params['early_stopping_rounds'],
+                                  feval = get_n_rounds_optimization_metric(self.metric))
         
         best_score = list(lgb_model.best_score['valid'].values())[0]
         
@@ -935,10 +950,16 @@ class LGBMTuner:
                 self.plot_importances()
         
         if self.verbosity > 0:
+            
+            if self.best_params['objective'] == 'multiclass':
+                n_rounds_eval_metric = 'multi_logloss'
+            else:
+                n_rounds_eval_metric = self.metric
+            
             break_symbol = '|'
             print(f"\nOptuna hyperparameters optimization finished")
             print(f"Best trial number:{study.best_trial.number:>2}{break_symbol:>5}     {optimization_metric_func.__name__}:{study.best_trial.value:>29}")
             print('-'*73)
             print(f'n_estimators optimization finished')
-            print(f'best iteration:{iteration:>5}{break_symbol:>5}     {self.metric}:{best_score:>19}')
+            print(f'best iteration:{iteration:>5}{break_symbol:>5}     {n_rounds_eval_metric}:{best_score:>19}')
             print('='*73)
