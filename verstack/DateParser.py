@@ -1,0 +1,887 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Feb 10 16:28:55 2022
+
+@author: danil
+"""
+
+"""
+Created on Wed Feb 09 15:01:43 2022
+
+@author: Danil Zherebtsov
+"""
+
+'''
+further improvements:
+    - use locale of the browser and create is_holyday feature
+        - automate holidays feats creation based on locale
+'''
+
+import numpy as np
+import pandas as pd
+import sys
+import gc
+import holidays
+from datetime import date, datetime
+import dateutil.parser as parser
+
+# -----------------------------------------------------------------------------
+months = {'JAN':1,
+          'FEB':2,
+          'MAR':3,
+          'APR':4,
+          'MAY':5,
+          'JUN':6,
+          'JUL':7,
+          'AUG':8,
+          'SEP':9,
+          'OCT':10,
+          'NOV':11,
+          'DEC':12}
+# -----------------------------------------------------------------------------
+weeks = [f'{str(wk)} WK' for wk in range(1,53)]
+yeardays = [wk*7 for wk in range(1,53)]
+
+week_yearday = dict(zip(weeks, yeardays))
+
+month_days = {1:31,
+              2:30,
+              3:31,
+              4:30,
+              5:31,
+              6:30,
+              7:31,
+              8:31,
+              9:30,
+              10:31,
+              11:30,
+              12:31}
+# -----------------------------------------------------------------------------
+quarters = {'1 Q': '3/31',
+            '2 Q': '6/30',
+            '3 Q': '9/30',
+            '4 Q': '12/31'}
+# -----------------------------------------------------------------------------
+states_provinces_dict = {
+    'prov': [
+        'Australia', 'AU', 'AUS',
+        'Austria', 'AT', 'AUT',
+        'Canada', 'CA', 'CAN',
+        'France', 'FR', 'FRA',
+        'Germany', 'DE', 'DEU',
+        'India', 'IN', 'IND',
+        'Italy', 'IT', 'ITA',
+        'NewZealand', 'NZ', 'NZL',
+        'Nicaragua', 'NI', 'NIC',
+        'Spain', 'ES', 'ESP',
+        'Switzerland', 'CH', 'CHE' 
+        ],
+    'state': [
+        'Brazil', 'BR', 'BRA',
+        'Chile', 'CL', 'CHL'
+        'Malaysia', 'MY', 'MYS',
+        'UnitedKingdom', 'UK', 'GB', 'GBR',
+        'UnitedStates', 'US', 'USA'
+        ]
+    }
+# -----------------------------------------------------------------------------
+class DateParser():
+
+    def __init__(self, country = None, state = None, prov = None, payday = None, verbose = True):
+        '''
+        Initialize DateParser instance.
+
+        Create empty blank attributes to be filled if datetime cols are found:
+            datetime_cols = None
+            created_datetime_cols = None
+        
+        Parameters
+        ----------
+        country : str, optional
+            Country name for parsing holidays. The default is None.
+        state : str, optional
+            State name (specific to country) for parsing holidays. The default is None.
+        prov : str, optional
+            State name (specific to country) for parsing holidays. The default is None.
+        Note: valid country/state/province arguments are available at: https://pypi.org/project/holidays/
+        
+        Returns
+        -------
+        None.
+
+        '''
+        self.country = country
+        self.state = state
+        self.prov = prov
+        self.payday = payday
+        self.verbose = verbose
+        self._datetime_cols = []
+        self._created_datetime_cols = []
+    
+    __version__ = '0.0.1'
+    
+    # -----------------------------------------------------------------------------
+    # print init parameters when calling the class instance
+    def __repr__(self):
+        return f'DateParser(country: {self.country}\
+            \n           state: {self.state}\
+            \n           prov: {self.prov}\
+            \n           payday: {self.payday}\
+            \n           datetime_cols: {self._datetime_cols}\
+            \n           created_datetime_cols: {self._created_datetime_cols}\
+            \n           verbose: {self.verbose}'
+
+    # Validate init arguments
+    # =========================================================================
+    # country
+    @property
+    def country(self):
+        return self._country
+
+    @country.setter
+    def country(self, value):
+        supported_countries = holidays.list_supported_countries()
+        def print_warning():
+            for country in supported_countries:
+                print(country)
+        if value:
+            if not isinstance(value, str):
+                print_warning()
+                raise TypeError('country name must be a string')
+            if value not in supported_countries:
+                print_warning()
+                raise ValueError(f'{value} is not a valid country name\nPlease enter a valid country name from the above list\nSupported countries list can be obtained by date_parser_instance.list_supported_countries() function')
+            self._country = value
+        else:
+            self._country = None
+    # -------------------------------------------------------------------------
+    # state
+    @property
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, state):
+        if state:
+            if not isinstance(state, str):
+                raise TypeError('state argument must be a string')
+            if not self.country:
+                raise ValueError('country argument must be passed')
+            if self.country in states_provinces_dict['state']:
+                self._state = state
+            else:
+                self._state = None
+        else:
+            self._state = None
+    # -------------------------------------------------------------------------
+    # prov
+    @property
+    def prov(self):
+        return self._prov
+
+    @prov.setter
+    def prov(self, prov):
+        if prov:
+            if not isinstance(prov, str):
+                raise TypeError('prov (province) argument must be a string')
+            if not self.country:
+                raise ValueError('country argument must be passed')
+            if self.country in states_provinces_dict['prov']:
+                self._prov = prov
+            else:
+                self._prov = None
+        else:
+            self._prov = None
+    # -----------------------------------------------------------------------------
+    # payday
+    @property
+    def payday(self):
+        return self._payday
+
+    @payday.setter
+    def payday(self, payday):
+        if payday:
+            if not isinstance(payday, list):
+                raise TypeError('payday argument must be a list of integers')
+            if not np.all([type(x) == int for x in payday]):
+                raise ValueError('payday argument must be a list of integers. E.g. [1,15]')
+            self._payday = payday
+        else:
+            self._payday = None
+    # -----------------------------------------------------------------------------
+    # datetime_cols
+    @property
+    def datetime_cols(self):
+        return self._datetime_cols
+    # -----------------------------------------------------------------------------
+    # created_datetime_cols
+    @property
+    def created_datetime_cols(self):
+        return self._created_datetime_cols
+    # -----------------------------------------------------------------------------
+    # verbose
+    @property
+    def verbose(self):
+        return self._verbose
+
+    @verbose.setter
+    def verbose(self, verbose):
+        if not isinstance(verbose, bool):
+            print('verbose argument must be bool (True/False). Setting default True')
+            self._verbose = True
+        else:
+            self._verbose = verbose
+    # =========================================================================
+    # Validate methods arguments
+    def _validate_country(self, value):
+        supported_countries = holidays.list_supported_countries()
+        def print_warning():
+            for country in supported_countries:
+                print(country)
+        if not isinstance(value, str):
+            print_warning()
+            raise TypeError('country name must be a string')
+        if value not in supported_countries:
+            print_warning()
+            raise ValueError(f'{value} is not a valid country name\nPlease enter a valid country name from the above list\nSupported countries list can be obtained by date_parser_instance.list_supported_countries() function')
+        return value
+    # -------------------------------------------------------------------------
+    def _validate_state(self, country, state):
+        if state:
+            if not isinstance(state, str):
+                raise TypeError('state argument must be a string')
+            if not self.country:
+                raise ValueError('country argument must be passed')
+            if self.country in states_provinces_dict['state']:
+                return state
+        else:
+            return None
+    # -------------------------------------------------------------------------
+    def _validate_prov(self, country, prov):
+        if prov:
+            if not isinstance(prov, str):
+                raise TypeError('prov (province) argument must be a string')
+            if not self.country:
+                raise ValueError('country argument must be passed')
+            if self.country in states_provinces_dict['prov']:
+                return prov
+        else:
+            return None
+    # =========================================================================
+    def _extract_years(self, datetime_col_series):
+        '''
+        Extract all unique years from datetime_col_series
+
+        Parameters
+        ----------
+        datetime_col_series : pd.Series of type pd.Datetime
+            series with datetime objects
+
+        Returns
+        -------
+        years : list
+            list of unique years.
+
+        '''
+        years = list(datetime_col_series.dropna().dt.year.unique())
+        years = [int(year) for year in years]
+        return years
+    # -----------------------------------------------------------------------------
+    def _return_holidays_flag(self, date, holidays_calendar):
+        '''
+        Validate if date string is in holidays_calendar
+
+        Parameters
+        ----------
+        date : str
+            datetime object.
+        holidays_calendar : holidays.instance
+            holidays dictionary.
+
+        Returns
+        -------
+        bool
+            True if date is holiday, False if not.
+
+        '''
+        return date in holidays_calendar
+    # -----------------------------------------------------------------------------
+    def _return_holidays_names(self, date, holidays_calendar):
+        '''
+        Validate if date string is in holidays_calendar and return holiday name
+
+        Parameters
+        ----------
+        date : str
+            datetime object.
+        holidays_calendar : holidays.instance
+            holidays dictionary.
+
+        Returns
+        -------
+        str
+            valid holiday name or 'not_a_holiday'
+
+        '''
+        if date in holidays_calendar:
+            return holidays_calendar[date]
+        else:
+            return 'not_a_holiday'
+    # -----------------------------------------------------------------------------
+    def list_supported_countries(self):
+        '''
+        Print holidays package supported countries
+
+        Returns
+        -------
+        None.
+
+        '''
+        print(holidays.list_supported_countries())
+    # -----------------------------------------------------------------------------
+    def get_holidays_calendar(self, country, years, state = None, prov = None):
+        '''
+        Create holidays calendar for a given country, years, state or province
+
+        Parameters
+        ----------
+        country : str
+            country name.
+        years : list
+            list of years to parse holidays.
+        state : str, optional
+            state name. The default is None.
+        prov : str, optional
+            province name. The default is None.
+            
+        Note: valid country/state/province arguments are available at: https://pypi.org/project/holidays/
+
+        Returns
+        -------
+        holidays_calendar : holidays instance
+            list of holidays dates and names.
+
+        '''
+        country = self._validate_country(country)
+        state = self._validate_state(country, state)
+        prov = self._validate_prov(country, prov) 
+        holidays_calendar = holidays.CountryHoliday(country, years, state = state, prov = prov)
+        return holidays_calendar        
+    # -----------------------------------------------------------------------------
+    def parse_holidays(self, datetime_col_series, country, state = None, prov = None, holiday_names = False):
+        '''
+        Extract holidays from a series of datetimes
+
+        Parameters
+        ----------
+        datetime_col_series : pd.Series with dtypes in ['O', 'pd.Datetime']
+            datetime objects.
+        country : str
+            country name.
+        state : str, optional
+            state name. The default is None.
+        prov : str, optional
+            province name. The default is None.
+        holiday_names : bool, optional
+            If True: returns individual holidays name, else: returns 
+            binary flag (0 or 1) if date is a holiday. 
+            The default is False.
+
+        Raises
+        ------
+        TypeError
+            If passed .
+
+        Returns
+        -------
+        pd.Series
+            holidays data.
+
+        '''
+        if datetime_col_series.dtype == 'O':
+            try:
+                datetime_col_series = pd.to_datetime(datetime_col_series)
+            except:
+                raise TypeError('Data can not be converted to datetime format')
+        years = self._extract_years(datetime_col_series)            
+        holidays_calendar = self.get_holidays_calendar(country, years, state, prov)
+        if holiday_names:    
+            holidays_names_series = datetime_col_series.dropna().apply(self._return_holidays_names, holidays_calendar = holidays_calendar)
+            return holidays_names_series
+        else:
+            holidays_flags_series = datetime_col_series.dropna().apply(self._return_holidays_flag, holidays_calendar = holidays_calendar)
+            holidays_flags_series = holidays_flags_series.astype(int)
+            return holidays_flags_series
+    # -----------------------------------------------------------------------------
+    def _get_days_from_epoch(self, datetime_object):
+        '''
+        Get number of days between datetime_object and epoch (1970-01-01).
+
+        Parameters
+        ----------
+        datetime_object : pd.Datetime
+            datetime value.
+
+        Returns
+        -------
+        int
+            number of days since epoch.
+
+        '''
+        return (datetime_object - datetime(1970,1,1)).days
+    # -----------------------------------------------------------------------------
+    def _get_payday_flag(self, day):
+        '''
+        Evaluate date (day) as a payday or not.
+
+        Parameters
+        ----------
+        day : int
+            monthday.
+
+        Returns
+        -------
+        int
+            0 if not a payday else 1.
+
+        '''
+        payday = self.payday
+        if day in payday:
+            return 1
+        else:
+            return 0
+    # -----------------------------------------------------------------------------
+    def extract_default_feats(self, X, col, train, prefix=''):
+        """
+        Create new features based on datetime column.
+
+        Extract information from datetime column and create corresponding date unit
+        features.
+
+        Args:
+            X (pd.DataFrame): data with datetime column(s).
+            col (str): datetime column name.
+            train (bool): Apply function to train or test set.
+                If True, instance attribute self._created_datetime_cols
+                gets appended with new column 'part_of_day'
+            prefix (str, optional): prefix to the new features names. Defaults to ''.
+
+        Returns: None
+
+        """
+
+        calendar_units = ['year', 'week', 'day']
+
+        time_units = ['quarter', 'month', 'weekday', 'dayofyear', 'hour', 
+                      'minute', 'second']
+
+
+        temp = X.sample(100 if len(X) >= 100 else len(X))
+
+        for unit in calendar_units:
+            unit_contents = getattr(X[col].dt.isocalendar(), unit)
+            if np.any(unit_contents):
+                X[prefix+unit] = getattr(X[col].dt.isocalendar(), unit)
+                if train:
+                    self._created_datetime_cols.append(prefix+unit)
+
+        for unit in time_units:
+            unit_contents = getattr(temp[col].dt, unit)
+            if np.any(unit_contents):
+                X[prefix+unit] = getattr(X[col].dt, unit)
+                if train:
+                    self._created_datetime_cols.append(prefix+unit)
+        return 0
+
+    def extract_time_of_day(self, hour):
+        """
+        Find part of day based on hour.
+
+        Args:
+            hour (int): hour value.
+            train (bool): Apply function to train or test set.
+                If True, instance attribute self._created_datetime_cols
+                gets appended with new column 'part_of_day'
+        Returns:
+            (int): value of calculated part of day.
+
+        """
+        if 6 <= hour <= 11:
+            return 1
+        elif 12 <= hour <= 17:
+            return 2
+        elif 18 <= hour <= 22:
+            return 3
+        else:
+            return 4
+
+    def extract_all_feats(self, X, train=True):
+        """
+        Extract all the supporting datetime features from all datetime columns.
+
+        Apply functions:
+            - extract_default_feats()
+            - extract_time_of_day()
+            - timediff
+            - if microseconds are present:
+                convert columns to timestamp
+
+        Args:
+            X (pd.DataFrame): data for datetime cols parsing.
+            datetime_cols (list): datetime cols.
+            created_datetime_cols (list): placeholder to fill with created
+                datetime columns (for future reference).
+            train (bool): Apply enclosed functions to train or test set.
+
+        Returns:
+            X (pd.DataFrame): data with parsed datetime cols.
+            created_datetime_cols (list): list of created datetie cols.
+
+        """
+
+        for col in self._datetime_cols:
+            if np.any(X[col].dt.microsecond):
+                # Divides and returns the integer value of the quotient. It dumps the digits after the decimal.
+                X[col] = X[col].values.astype(np.int64) // 10 ** 6
+            else:
+                self.extract_default_feats(X, col, train, prefix=col+'_')
+                if col+'_hour' in X:
+                    X[col+'_part_of_day'] = 0
+                    for i in range(len(X)):
+                        X[col + '_part_of_day'].iat[i] = self.extract_time_of_day(X[col+'_hour'].iat[i])
+                    if train: # do not append when parsing test
+                        self._created_datetime_cols.append(col+'_part_of_day')
+
+        if len(self._datetime_cols) == 2:
+            try:
+                # try because one of the two columns may be timestamp the other may be ordinary datetime
+                timediff_colname = f'timediff_{self._datetime_cols[0]}_{self._datetime_cols[1]}'
+                X[timediff_colname] = X[self._datetime_cols[0]] - X[self._datetime_cols[1]]
+                X[timediff_colname] = X[timediff_colname] / np.timedelta64(1, 'D')
+                if train: # do not append when parsing test
+                    self._created_datetime_cols.append(timediff_colname)
+            except:
+                pass
+        if self.country:
+            for col in self._datetime_cols:
+                X[f'{col}_holidays_flag'] = self.parse_holidays(X[col], self.country, self.state, self.prov, holiday_names = False)
+                X[f'{col}_holidays_name'] = self.parse_holidays(X[col], self.country, self.state, self.prov, holiday_names = True)
+                if train: # do not append when parsing test
+                    self._created_datetime_cols.append(f'{col}_holidays_flag')
+                    self._created_datetime_cols.append(f'{col}_holidays_name')
+
+        if self.payday:
+            if f'{col}_day' in X:
+                X[f'{col}_is_payday'] = X[f'{col}_day'].apply(self._get_payday_flag)
+                if train: # do not append when parsing test
+                    self._created_datetime_cols.append(f'{col}_is_payday')
+                
+        for col in self._datetime_cols:
+            X[f'{col}_days_from_epoch'] = X[col].apply(self._get_days_from_epoch)
+            if train: # do not append when parsing test
+                self._created_datetime_cols.append(f'{col}_days_from_epoch')
+ 
+        X.drop(self._datetime_cols, axis=1, inplace=True)
+        return X
+
+    def find_datetime_cols(self, X):
+        """
+        Find names of datetime cols in data.
+
+        Use dateutil and a sample of 10 rows and all columns.
+        Iterate over each value in each col and try to apply dateutil.parser.parse.
+        Save cols names to self._datetime_cols list.
+
+        Args:
+            X (pd.DataFrame): raw data.
+
+        Returns:
+            None.
+
+        """
+
+        # this will be the default values for year/month/day if they are not present in string
+        DEFAULT = datetime(2020, 1, 31)
+        sample = X.sample(1000 if len(X) >= 1000 else(len(X)))
+        datetime_cols = []
+        for col in sample:
+            #make sure that all the values in col are parsed as datetime
+            try:            
+                num_non_nan_vals_in_col = len(sample[col].dropna())
+                num_parsed_dates_in_col = len(sample[col].dropna().apply(parser.parse, default = DEFAULT))                
+                if num_non_nan_vals_in_col == num_parsed_dates_in_col:
+                    datetime_cols.append(col)                
+            except:
+                continue
+        # grab the actual datetime cols that can come from xlsx metadata
+        datetime_cols.extend(sample.select_dtypes(include = 'datetime').columns.tolist())
+        self._datetime_cols = list(set(datetime_cols))
+
+    # -------------------------------------------------------------------------
+    # quarter year format
+    def _confirm_quarter_year_format(self, val):
+        '''Confirm if string value can be transformed to pd.Timestamp'''
+        transformed = self._transform_quarter_year_to_datetime_string(val)
+        return type(pd.to_datetime(transformed)) == pd.Timestamp
+    # .........................................................................
+    def _transform_quarter_year_to_datetime_string(self, val):
+        '''Convert quarter/year values to datetime-like string
+            E.g. '1 Q 1990' -> '31/03/1990'
+        '''        
+        val_lst = val.split(' ')
+        if len(val_lst) == 3:
+            match_pattern = ' '.join(val_lst[:2])
+            new_datetime_val = quarters[match_pattern]+'/'+val_lst[-1]
+            return new_datetime_val
+    # -------------------------------------------------------------------------
+    # week year format
+    def _extract_month_from_yearday(self, yearday):
+        '''Extract month number integer from yearday integer.
+            E.g. yearday 36 == month 2 & day 5. Extracted value = 2
+        '''
+        cnt = 0
+        month = 0
+        for months, days in month_days.items():
+            while cnt < yearday:
+                cnt+=days            
+                month+=months
+        month -= 1
+        return month
+    # .........................................................................    
+    def _extract_monthday_from_yearday(self, yearday):
+        '''Extract month day integer from yearday integer.
+            E.g. yearday 36 == month 2 & day 5. Extracted value = 5
+        '''
+        yearday_copy = yearday
+        for months, days in month_days.items():
+            while yearday_copy > 0:
+                yearday_copy -= days    
+        day = month_days[months] - (abs(yearday_copy))
+        return day
+    # .........................................................................    
+    def _extract_yearday_from_week_time_string(self, val):
+        '''Extract year integer from week year string.
+            E.g. '12 WK 1990' -> 1990
+        '''
+        val_lst = val.split(' ')
+        week_val = ' '.join(val_lst[:2])
+        yearday = week_yearday[week_val]
+        return yearday
+    # .........................................................................    
+    def _transform_week_year_to_datetime_string(self, val):
+        '''Convert week/year values to datetime-like string
+            E.g. '12 WK 1990' -> '05/02/1990'
+        '''
+        val_lst = val.split(' ')
+        if len(val_lst) == 3:
+            yearday = self._extract_yearday_from_week_time_string(val)
+            month = self._extract_month_from_yearday(yearday)
+            monthday = self._extract_monthday_from_yearday(yearday)
+    
+            year_string = val_lst[-1]
+            day_month_string = '/'.join([str(monthday), str(month)])
+            new_datetime_val = '/'.join([day_month_string, year_string])
+        return new_datetime_val
+    # .........................................................................
+    def _confirm_week_year_format(self, val):
+        '''Confirm if string value can be transformed to pd.Timestamp'''
+        new_datetime_val = self._transform_week_year_to_datetime_string(val)
+        return type(pd.to_datetime((new_datetime_val))) == pd.Timestamp
+    # .........................................................................
+    def _find_transform_unconventional_cols(self, X):
+        '''
+        Find unconventional datetime columns E.g. '43 WK 1990' / '1 Q 2005', 
+        transform into datetime-like string
+
+        Parameters
+        ----------
+        X : pd.DataFrame
+            data for examination/transformation.
+
+        Returns
+        -------
+        X : pd.DataFrame
+            data transformed.
+
+        '''
+        for col in X.select_dtypes(include = 'O'):
+            # quarter based cols transformation
+            try:
+                if np.all(X[col].apply(self._confirm_quarter_year_format)):
+                    X[col] = X[col].apply(self._transform_quarter_year_to_datetime_string)
+            except:
+                pass
+            # week based cols transformation
+            try:
+                if np.all(X[col].apply(self._confirm_week_year_format)):
+                    X[col] = X[col].apply(self._transform_week_year_to_datetime_string)
+            except:
+                pass
+        return X
+    # -------------------------------------------------------------------------
+    # executed separately - transform cols with month val E.g. 'JAN', 'FEB' into integers
+    def _confirm_month_val(self, val):
+        '''Confirm if value is in months dictionary'''
+        return val in months.keys()
+    # .........................................................................    
+    def _find_transform_month_string_to_integer(self, X, train = True):
+        '''
+        Find/transform columns containing month codes ('JAN', 'FEB') into integers.
+
+        Parameters
+        ----------
+        X : pd.DataFrame
+            data for searching/transforming month codes.
+        train : bool, optional
+            train/test set transformation flag. If True: save the transformed 
+            column name to class instance. 
+            The default is True.
+
+        Returns
+        -------
+        X : pd.DataFrame
+            transformed data.
+
+        '''
+        for col in X.select_dtypes(include = 'O'):
+            try:
+                if np.all(X[col].apply(self._confirm_month_val)):
+                    X[f'{col}_month_number'] = X[col].map(months)
+                    X.drop(col, axis = 1, inplace = True)
+                    if train:
+                        self._created_datetime_cols.append(f'{col}_month_number')
+                    if self.verbose:
+                        print('   - Found columns with month codes (E.g. "Jan", "Feb")/transformed into integers.')
+            except:
+                continue
+        return X
+    # =============================================================================
+    def fit_transform(self, df):
+        """
+        Parse datetime cols in data and create derivative features.
+
+        Possible new features: [year, month, day, quarter, week, weekday, dayofyear,
+                                hour, minute, second, part_of_day, timediff].
+        If df contains 2 datetime columns, timediff column is created showing
+            the difference between two datetime columns in days
+        If df contains > 1 datetime columns, features are parsed from all of them
+            with corresponding prefixes in new features names.
+        Original datetime column(s) is deleted from df.
+
+        Args:
+            df (pd.DataFrame): raw data.
+        Returns:
+            df (pd.DataFrame): data with new features parsed from datetime columns.
+
+        """
+        if self.verbose:
+            print('\n   - Parsing dates')
+        try:
+            # try parsing month strings to month numbers on original data
+            # first unconditional transformation
+            df_copy = df.copy()
+            df_copy = self._find_transform_month_string_to_integer(df_copy, train = True)
+            # -----------------------------------------------------------------
+            X = df_copy.copy()
+            X = self._find_transform_unconventional_cols(X)
+            self.find_datetime_cols(X)
+            if self._datetime_cols:
+                # convert to datetime
+                for col in self._datetime_cols:
+                    X[col] = pd.to_datetime(X[col], errors='coerce', infer_datetime_format = True) # errors = 'coerse' allows to parse columns even if any value in datetime column is a mistake. coerce will set it to NaT.
+                    # for misclassified potential datetime cols check if converted to datetime as NaN
+                    if np.all(X[col].isnull()):
+                        # convert back the unlucky pd.to_datetime attempt to original format
+                        X[col] = df[col]
+                        self._datetime_cols = [x for x in self._datetime_cols if x != col]
+                        
+                #if len(self._datetime_cols) == 1:
+                X = self.extract_all_feats(X)
+                if self.verbose:
+                    print(f'      - Found and processed {len(self._datetime_cols)} date related columns')
+                    print(f'      - Created {len(self._created_datetime_cols)} new date related features')
+                    if len(self._datetime_cols) == 2:
+                        print('      - Introduced date/time difference feature')
+                    print('     ', '-'*50)
+                    gc.collect()
+                return X
+            else:               
+                if self.verbose:
+                    print('   - No datetime cols found')
+                return df_copy
+        except Exception as e:
+            self._datetime_cols = None
+            self._created_datetime_cols = None
+            print('!!!Parse dates error')
+            print(e)
+            return df_copy
+
+    def _align_test_columns_after_transform(self, X, original_test_cols):
+        '''
+        Align test set columns after transformation:
+            - add blank (np.zeros) columns if not extracted out of test set datetime cols
+            - remove the extra column that had been extracted from the test set datetime cols
+
+        Parameters
+        ----------
+        X : pd.DataFrame
+            data after extracting datetime cols.
+        original_test_cols : list of strings
+            original test set columns before extracting datetime features.
+
+        Returns
+        -------
+        X : pd.DataFrame
+            dataset with aligned columns.
+
+        '''
+        new_datetime_cols_in_test = [col for col in X if col not in original_test_cols]
+        to_drop_from_test = [col for col in new_datetime_cols_in_test if col not in self._created_datetime_cols]
+        to_add_to_test = [col for col in self._created_datetime_cols if col not in new_datetime_cols_in_test]
+        X.drop(to_drop_from_test, axis=1, inplace=True)
+        for col in to_add_to_test:
+            X[col] = 0
+        return X
+
+    def transform(self, df):
+        """
+        Parse datetime cols from test set using the fitted class instance.
+
+        Use the saved instance agrument self._datetime_cols to parse the defined cols.
+        Align the parsed cols with the instance argument self._created_datetime_cols
+
+        Args:
+            X (pd.DataFrame): raw data.
+
+        Returns:
+            X (pd.DataFrame): data with new features parsed from datetime columns.
+
+        """
+
+        original_test_cols = df.columns.tolist()
+        df_copy = df.copy()
+
+        df_copy = self._find_transform_month_string_to_integer(df_copy, train = False)
+
+        if self._datetime_cols:
+            X = df_copy.copy()
+            X = self._find_transform_unconventional_cols(X)
+            # convert to datetime
+            for col in self._datetime_cols:
+                if col in X:
+                    X[col] = pd.to_datetime(X[col], errors='coerce')
+            X = self.extract_all_feats(X, train=False)
+            if self.verbose:
+                print(f'      - Found and processed {len(self._datetime_cols)} date related columns')
+                print(f'      - Created {len(self._created_datetime_cols)} new date related features')
+                if len(self._datetime_cols) == 2:
+                    print('      - Introduced date/time difference feature')
+            X = self._align_test_columns_after_transform(X, original_test_cols)
+            return X
+        else:
+            if self.verbose:
+                print('   - No datetime cols found')
+            df_copy = self._align_test_columns_after_transform(df_copy, original_test_cols)
+            return df_copy
+
