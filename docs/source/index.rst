@@ -50,6 +50,7 @@ Datetime columns will be found automatically, transformed to pd.Timestamp format
  - is_holiday (if country argument is passed)
  - holiday_name (if country argument is passed)
  - is_payday (if payday argument is passed)
+ - days_from_epoch (1970/01/01)
  
  ... same set of features will be created (with column name prefix) for each of the datetime columns DateParser detects.
 
