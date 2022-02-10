@@ -1,11 +1,12 @@
 ############################
-verstack 2.0.0 Documentation
+verstack 2.0.1 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
 veratack package contains the following tools:
 
-* **LGBMTuner** automated lightgbm models tuniner with optuna
+* **DateParser** automated date columns finder and parser
+* **LGBMTuner** automated lightgbm models tuner with optuna
 * **NaNImputer** impute all missing values in a pandas dataframe using advanced machine learning with 1 line of code
 * **Multicore** execute any function in concurrency using all the available cpu cores
 * **ThreshTuner** tune threshold for binary classification predictions
@@ -28,6 +29,203 @@ veratack package contains the following tools:
 
   $ ``pip install --upgrade verstack``
 
+******************
+DateParser
+******************
+
+Fully automated DateParser tool that takes as input a pandas.DataFrame and returns a pandas.DataFrame with parsed datetime features.
+Holidays flags and names are created as features subject to user passing the country argument (E.g. country = 'US'). Holiday features extraction are based on utilizing the `holidays` package.
+Datetime columns will be found automatically, transformed to pd.Timestamp format, new columns with the follwing features (if applicable to the specific datetime format) will be created:
+ - year
+ - month
+ - day (monthday)
+ - quarter
+ - week
+ - weekday
+ - dayofyear
+ - hour
+ - minute
+ - second
+ - timediff (if two datetime columns are found)
+ - is_holiday (if country argument is passed)
+ - holiday_name (if country argument is passed)
+ - is_payday (if payday argument is passed)
+ 
+ ... same set of features will be created (with column name prefix) for each of the datetime columns DateParser detects.
+
+**Supported datetime formats**
+
+ - '28-OCT-90',
+ - '28-OCT-1990',
+ - '10/28/90',
+ - '10/28/1990',
+ - '28.10.90',
+ - '28.10.1990',
+ - '90/10/28',
+ - '1990/10/28',
+ - '4 Q 90',
+ - '4 Q 1990',
+ - 'OCT 90',
+ - 'OCT 1990',
+ - '43 WK 90',
+ - '43 WK 1990',
+ - '01:02',
+ - '02:34',
+ - '02:34.75',
+ - '20-JUN-1990 08:03',
+ - '20-JUN-1990 08:03:00',
+ - '1990-06-20 08:03',
+ - '1990-06-20 08:03:00.0'
+
+**Initialize DateParser**
+
+.. code-block:: python
+
+  from verstack import DateParser
+  
+  # initialize with default parameters
+  parser = DateParser()
+  
+  # initialize with selected parameters
+  parser = DateParser(country = 'US', 
+                    state = 'CA',
+                    payday = [1, 15])
+
+Parameters
+===========================
+* ``country`` [default=None]
+
+  Country name or abreviation. For a full list of supported countries call parser.list_supported_countries() 
+
+* ``state`` [default=None]
+
+  State abreviation. Correct state abreviations are available at https://pypi.org/project/holidays/
+
+* ``prov`` [default=None]
+
+  Province abreviation. Correct province abreviations are available at https://pypi.org/project/holidays/
+
+* ``payday`` [default=None]
+
+  List of paydays applicable in a specific country. E.g. [1, 15]
+
+* ``verbose`` [default=True]
+
+  Enable or desable console prints
+
+Methods
+===========================
+* ``fit_transform(df)``
+
+  Fully automatic search of datetime columns and features extraction. 
+  Apart from all the conventional datetime features will automatically parse holidays / paydays if specified and init.
+  Saves the found datetime columns names and feature extraction pipelines for the transform() method.
+
+    Parameters
+
+    - ``df`` [pd.DataFrame]
+
+      Data with raw features
+
+  returns
+    pd.DataFrame with new features
+
+* ``transform(df)``
+
+  Parse identical set of features from a new dataset. Usually applied to test set transformation. 
+  E.g. if test set datetime columns include a short timeframe so that quarter feature is constant and thus should not be created, the dataset will still be populated by this feature in order to preserve the identical columns names and order between train/test sets. Think machine learning.
+
+    Parameters
+
+    - ``df`` [pd.DataFrame]
+
+      Data with raw features (test/valid set)
+
+  returns
+    pd.DataFrame with new features
+
+* ``parse_holidays(datetime_col_series, country, state, province, holiday_names)``
+
+  Create series with holidays names or flags for a defined country based on series of datetime-like strings.
+
+    - ``datetime_col_series`` [pd.Series]
+
+      Series of datetime-like strings in line with supported_formats
+    
+    - ``country`` [str]
+
+      Country name or abreviation. For a full list of supported countries call parser.list_supported_countries() 
+
+    - ``state`` [str, default = None]
+
+      State abreviation. Correct state abreviations are available at https://pypi.org/project/holidays/
+
+    - ``prov`` [str, default = None]
+
+      Province abreviation. Correct province abreviations are available at https://pypi.org/project/holidays/
+
+    - ``holiday_names`` [bool, default = False]
+
+      Flag to return holidays as a binary feature or string holidays names
+
+  returns
+    pd.Series with holidays binary flags or holidays string names
+
+* ``get_holidays_calendar(country, years, state = None, prov = None)``
+
+  Get data on the holidays in a given country (optinally in a certain state/province) for a given year(s).
+
+    - ``country`` [str]
+
+      Country name or abreviation. For a full list of supported countries call parser.list_supported_countries() 
+
+    - ``state`` [str, default = None]
+
+      State abreviation. Correct state abreviations are available at https://pypi.org/project/holidays/
+
+    - ``prov`` [str, default = None]
+
+      Province abreviation. Correct province abreviations are available at https://pypi.org/project/holidays/
+
+  returns
+    dictionary with holidays dates and names
+
+* ``list_supported_countries()``
+
+  Print a list of supported countries and abreviations.
+
+**Attributes**
+
+* ``datetime_cols``
+
+  List of found datetime columns names. Available after fit_transform()
+
+* ``created_datetime_cols``
+
+  List of created datetime features. Available after fit_transform()
+
+* ``supported formats``
+
+  List of supported datetime formats
+
+Examples
+================================================================
+
+Using LGBMTuner with all default parameters
+
+.. code-block:: python
+
+  parser = DateParser()
+  train_with_parsed_dt_feats = parser.fit_transform(train)
+  test_with_parsed_dt_feats = parser.transform(test)
+
+DateParser with holidays/paydays
+
+.. code-block:: python
+
+  parser = DateParser(country = 'US', payday = [1, 15])
+  train_with_parsed_dt_feats = parser.fit_transform(train)
+  test_with_parsed_dt_feats = parser.transform(test)
 
 ******************
 LGBMTuner

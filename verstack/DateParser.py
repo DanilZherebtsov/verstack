@@ -27,6 +27,31 @@ from datetime import date, datetime
 import dateutil.parser as parser
 
 # -----------------------------------------------------------------------------
+formats = [
+    '28-OCT-90',
+    '28-OCT-1990',
+    '10/28/90',
+    '10/28/1990',
+    '28.10.90',
+    '28.10.1990',
+    '90/10/28',
+    '1990/10/28',
+    '4 Q 90',
+    '4 Q 1990',
+    'OCT 90',
+    'OCT 1990',
+    '43 WK 90',
+    '43 WK 1990',
+    '01:02',
+    '02:34',
+    '02:34.75',
+    '20-JUN-1990 08:03',
+    '20-JUN-1990 08:03:00',
+    '1990-06-20 08:03',
+    '1990-06-20 08:03:00.0'
+    ]
+
+# -----------------------------------------------------------------------------
 months = {'JAN':1,
           'FEB':2,
           'MAR':3,
@@ -118,7 +143,8 @@ class DateParser():
         self.verbose = verbose
         self._datetime_cols = []
         self._created_datetime_cols = []
-    
+        self.supported_formats = formats
+
     __version__ = '0.0.1'
     
     # -----------------------------------------------------------------------------
@@ -452,7 +478,7 @@ class DateParser():
         else:
             return 0
     # -----------------------------------------------------------------------------
-    def extract_default_feats(self, X, col, train, prefix=''):
+    def _extract_default_feats(self, X, col, train, prefix=''):
         """
         Create new features based on datetime column.
 
@@ -516,13 +542,13 @@ class DateParser():
         else:
             return 4
 
-    def extract_all_feats(self, X, train=True):
+    def _extract_all_feats(self, X, train=True):
         """
         Extract all the supporting datetime features from all datetime columns.
 
         Apply functions:
-            - extract_default_feats()
-            - extract_time_of_day()
+            - _extract_default_feats()
+            - _extract_time_of_day()
             - timediff
             - if microseconds are present:
                 convert columns to timestamp
@@ -545,7 +571,7 @@ class DateParser():
                 # Divides and returns the integer value of the quotient. It dumps the digits after the decimal.
                 X[col] = X[col].values.astype(np.int64) // 10 ** 6
             else:
-                self.extract_default_feats(X, col, train, prefix=col+'_')
+                self._extract_default_feats(X, col, train, prefix=col+'_')
                 if col+'_hour' in X:
                     X[col+'_part_of_day'] = 0
                     for i in range(len(X)):
@@ -585,7 +611,7 @@ class DateParser():
         X.drop(self._datetime_cols, axis=1, inplace=True)
         return X
 
-    def find_datetime_cols(self, X):
+    def _find_datetime_cols(self, X):
         """
         Find names of datetime cols in data.
 
@@ -785,7 +811,7 @@ class DateParser():
             # -----------------------------------------------------------------
             X = df_copy.copy()
             X = self._find_transform_unconventional_cols(X)
-            self.find_datetime_cols(X)
+            self._find_datetime_cols(X)
             if self._datetime_cols:
                 # convert to datetime
                 for col in self._datetime_cols:
@@ -797,7 +823,7 @@ class DateParser():
                         self._datetime_cols = [x for x in self._datetime_cols if x != col]
                         
                 #if len(self._datetime_cols) == 1:
-                X = self.extract_all_feats(X)
+                X = self._extract_all_feats(X)
                 if self.verbose:
                     print(f'      - Found and processed {len(self._datetime_cols)} date related columns')
                     print(f'      - Created {len(self._created_datetime_cols)} new date related features')
@@ -871,7 +897,7 @@ class DateParser():
             for col in self._datetime_cols:
                 if col in X:
                     X[col] = pd.to_datetime(X[col], errors='coerce')
-            X = self.extract_all_feats(X, train=False)
+            X = self._extract_all_feats(X, train=False)
             if self.verbose:
                 print(f'      - Found and processed {len(self._datetime_cols)} date related columns')
                 print(f'      - Created {len(self._created_datetime_cols)} new date related features')
