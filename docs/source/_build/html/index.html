@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>verstack 2.0.0 Documentation &#8212; verstack 0.1.1 documentation</title>
+    <title>verstack 2.0.1 Documentation &#8212; verstack 0.1.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/guzzle.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -36,7 +36,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="nav-item nav-item-0"><a href="#">verstack 0.1.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">verstack 2.0.0 Documentation</a></li> 
+        <li class="nav-item nav-item-this"><a href="">verstack 2.0.1 Documentation</a></li> 
       </ul>
     </div>
     <div class="container-wrapper">
@@ -52,7 +52,7 @@
     <h2>Contents</h2>
     <div class="sidebar-localtoc">
       <ul>
-<li><a class="reference internal" href="#">verstack 2.0.0 Documentation</a><ul>
+<li><a class="reference internal" href="#">verstack 2.0.1 Documentation</a><ul>
 <li><a class="reference internal" href="#dateparser">DateParser</a><ul>
 <li><a class="reference internal" href="#parameters">Parameters</a></li>
 <li><a class="reference internal" href="#methods">Methods</a></li>
@@ -151,14 +151,14 @@
             <ol class="breadcrumb">
               <li><a href="#">Docs</a></li>
               
-              <li>verstack 2.0.0 Documentation</li>
+              <li>verstack 2.0.1 Documentation</li>
             </ol>
           </div>
           
           <div class="document clearer body">
             
-  <section id="verstack-2-0-0-documentation">
-<h1>verstack 2.0.0 Documentation<a class="headerlink" href="#verstack-2-0-0-documentation" title="Permalink to this headline">¶</a></h1>
+  <section id="verstack-2-0-1-documentation">
+<h1>verstack 2.0.1 Documentation<a class="headerlink" href="#verstack-2-0-1-documentation" title="Permalink to this headline">¶</a></h1>
 <p>Machine learning tools to make a Data Scientist’s work efficient</p>
 <p>veratack package contains the following tools:</p>
 <ul class="simple">
@@ -205,10 +205,12 @@ Datetime columns will be found automatically, transformed to pd.Timestamp format
 <li><p>hour</p></li>
 <li><p>minute</p></li>
 <li><p>second</p></li>
-<li><p>timediff (if two datetime columns are found)</p></li>
-<li><p>is_holiday (if country argument is passed)</p></li>
-<li><p>holiday_name (if country argument is passed)</p></li>
-<li><p>is_payday (if payday argument is passed)</p></li>
+<li><p>part_of_day</p></li>
+<li><p>timediff (if two datetime columns are present)</p></li>
+<li><p>is_holiday (different in different countries, even different states inside countries)</p></li>
+<li><p>holiday_name</p></li>
+<li><p>is_payday</p></li>
+<li><p>days_from_epoch (1970/01/01)</p></li>
 </ul>
 <p>… same set of features will be created (with column name prefix) for each of the datetime columns DateParser detects.</p>
 </div></blockquote>
@@ -333,7 +335,7 @@ E.g. if test set datetime columns include a short timeframe so that quarter feat
 </dl>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">get_holidays_calendar(country,</span> <span class="pre">years,</span> <span class="pre">state</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">prov</span> <span class="pre">=</span> <span class="pre">None)</span></code></p>
-<p>Get data on the holidays in a given country (optinally in a certain state/province) for a given year(s)</p>
+<p>Get data on the holidays in a given country (optinally in a certain state/province) for a given year(s).</p>
 <blockquote>
 <div><ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">country</span></code> [str]</p>
@@ -1535,7 +1537,7 @@ Positive encoding result represents inclination to the positive target class (1)
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="nav-item nav-item-0"><a href="#">verstack 0.1.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">verstack 2.0.0 Documentation</a></li> 
+        <li class="nav-item nav-item-this"><a href="">verstack 2.0.1 Documentation</a></li> 
       </ul>
     </div>
 <script type="text/javascript">

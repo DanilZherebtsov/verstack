@@ -1,5 +1,5 @@
 ############################
-verstack 2.0.0 Documentation
+verstack 2.0.1 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -46,10 +46,12 @@ Datetime columns will be found automatically, transformed to pd.Timestamp format
  - hour
  - minute
  - second
- - timediff (if two datetime columns are found)
- - is_holiday (if country argument is passed)
- - holiday_name (if country argument is passed)
- - is_payday (if payday argument is passed)
+ - part_of_day
+ - timediff (if two datetime columns are present)
+ - is_holiday (different in different countries, even different states inside countries)
+ - holiday_name 
+ - is_payday 
+ - days_from_epoch (1970/01/01)
  
  ... same set of features will be created (with column name prefix) for each of the datetime columns DateParser detects.
 
@@ -173,7 +175,7 @@ Methods
 
 * ``get_holidays_calendar(country, years, state = None, prov = None)``
 
-  Get data on the holidays in a given country (optinally in a certain state/province) for a given year(s)
+  Get data on the holidays in a given country (optinally in a certain state/province) for a given year(s).
 
     - ``country`` [str]
 

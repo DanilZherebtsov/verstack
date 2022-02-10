@@ -56,6 +56,7 @@ datetime format) will be created:
  - hour 
  - minute 
  - second 
+ - part_of_day
  - timediff (if two datetime columns are found) 
  - is_holiday (if country argument is passed) 
  - holiday_name (if country argument is passed) 
