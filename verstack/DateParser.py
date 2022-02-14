@@ -731,16 +731,17 @@ class DateParser():
             data transformed.
 
         '''
-        for col in X.select_dtypes(include = 'O'):
+        sample = X.sample(1000 if len(X) >= 1000 else(len(X)))
+        for col in sample.select_dtypes(include = 'O'):
             # quarter based cols transformation
             try:
-                if np.all(X[col].apply(self._confirm_quarter_year_format)):
+                if np.all(sample[col].apply(self._confirm_quarter_year_format)):
                     X[col] = X[col].apply(self._transform_quarter_year_to_datetime_string)
             except:
                 pass
             # week based cols transformation
             try:
-                if np.all(X[col].apply(self._confirm_week_year_format)):
+                if np.all(sample[col].apply(self._confirm_week_year_format)):
                     X[col] = X[col].apply(self._transform_week_year_to_datetime_string)
             except:
                 pass
@@ -770,9 +771,11 @@ class DateParser():
             transformed data.
 
         '''
-        for col in X.select_dtypes(include = 'O'):
+        sample = X.sample(1000 if len(X) >= 1000 else(len(X)))
+
+        for col in sample.select_dtypes(include = 'O'):
             try:
-                if np.all(X[col].apply(self._confirm_month_val)):
+                if np.all(sample[col].apply(self._confirm_month_val)):
                     X[f'{col}_month_number'] = X[col].map(months)
                     X.drop(col, axis = 1, inplace = True)
                     if train:
