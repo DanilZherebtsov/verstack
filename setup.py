@@ -18,7 +18,7 @@ if not rtd_build_env:
     dependencies.append('optuna==2.10.0')
     dependencies.append('plotly==5.3.1')
     dependencies.append('matplotlib')
-    dependencies.append('dateutil==2.8.1')
+    dependencies.append('python-dateutil==2.8.1')
     dependencies.append('holidays==0.11.3.1')
 
 setup(
