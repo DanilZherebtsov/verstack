@@ -509,6 +509,7 @@ class DateParser():
             unit_contents = getattr(X[col].dt.isocalendar(), unit)
             if np.any(unit_contents):
                 X[prefix+unit] = getattr(X[col].dt.isocalendar(), unit)
+                X[prefix+unit] = X[prefix+unit].astype(int)
                 if train:
                     self._created_datetime_cols.append(prefix+unit)
 
