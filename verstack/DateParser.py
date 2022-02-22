@@ -145,7 +145,7 @@ class DateParser():
         self._created_datetime_cols = []
         self.supported_formats = formats
 
-    __version__ = '0.0.1'
+    __version__ = '0.0.2'
     
     # -----------------------------------------------------------------------------
     # print init parameters when calling the class instance
