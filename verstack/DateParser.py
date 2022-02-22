@@ -612,6 +612,21 @@ class DateParser():
         X.drop(self._datetime_cols, axis=1, inplace=True)
         return X
 
+    def _exclude_false_datetime_cols(self, X):
+        '''Find faulty datetime columns in the columns selected by dateutil.parser'''
+        # Add methods below and to the methods list
+        def coma_in_val(val):
+            return ',' in val
+        methods = [coma_in_val] 
+        # ----------------------------
+
+        for col in self._datetime_cols:
+            for method in methods:
+                if np.any(X[col].dropna().apply(coma_in_val)):
+                    self._datetime_cols = [x for x in self._datetime_cols if x != col]
+                # if apply new method:
+                #     self._datetime_cols.remove(col)
+        
     def _find_datetime_cols(self, X):
         """
         Find names of datetime cols in data.
@@ -642,8 +657,9 @@ class DateParser():
             except:
                 continue
         # grab the actual datetime cols that can come from xlsx metadata
-        datetime_cols.extend(sample.select_dtypes(include = 'datetime').columns.tolist())
+        datetime_cols.extend(sample.select_dtypes(include = ['datetime', 'datetime64', 'datetime64', 'datetime64[ns, UTC]']).columns.tolist())
         self._datetime_cols = list(set(datetime_cols))
+        self._exclude_false_datetime_cols(X)
 
     # -------------------------------------------------------------------------
     # quarter year format
