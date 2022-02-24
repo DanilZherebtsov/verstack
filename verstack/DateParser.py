@@ -145,7 +145,7 @@ class DateParser():
         self._created_datetime_cols = []
         self.supported_formats = formats
 
-    __version__ = '0.0.2'
+    __version__ = '0.0.3'
     
     # -----------------------------------------------------------------------------
     # print init parameters when calling the class instance
@@ -619,13 +619,17 @@ class DateParser():
             return ',' in val
         methods = [coma_in_val] 
         # ----------------------------
-
+    
+        # exclude real datetime cols from the following cross check
+        proper_datetime_format_cols = X[self._datetime_cols].select_dtypes(include = ['datetime', 'datetime64', 'datetime64', 'datetime64[ns, UTC]']).columns.tolist()
+    
         for col in self._datetime_cols:
-            for method in methods:
-                if np.any(X[col].dropna().apply(coma_in_val)):
-                    self._datetime_cols = [x for x in self._datetime_cols if x != col]
-                # if apply new method:
-                #     self._datetime_cols.remove(col)
+            if col not in proper_datetime_format_cols:
+                for method in methods:
+                    if np.any(X[col].dropna().apply(coma_in_val)):
+                        self._datetime_cols = [x for x in self._datetime_cols if x != col]
+                    # if apply new method:
+                    #     self._datetime_cols.remove(col)
         
     def _find_datetime_cols(self, X):
         """
