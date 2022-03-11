@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Mar 11 20:34:45 2022
+
+@author: danil
+"""
+
 import numpy as np
 from sklearn.metrics import mean_absolute_error as mae
 from sklearn.metrics import mean_squared_error as mse
@@ -33,6 +41,16 @@ classification_metrics = ['auc', 'gini', 'log_loss',
 
 # =============================================================================
 # REGRESSION METRICS
+
+def remove_negatives(pred, real):
+    '''Remove identical indexes from pred / real if either of these arrays contain negative values'''
+    neg_in_pred_idx = np.array(np.where(pred<0)).flatten()
+    neg_in_true_idx = np.array(np.where(real<0)).flatten()
+    
+    neg_in_pred_and_true = list(set(np.concatenate((neg_in_pred_idx, neg_in_true_idx))))
+    pred_non_negative = np.delete(pred, neg_in_pred_and_true)
+    real_non_negative = np.delete(real, neg_in_pred_and_true)
+    return pred_non_negative, real_non_negative
 
 def _error(real, pred):
     """ Simple error """
@@ -71,9 +89,8 @@ def rmsle(real, pred):
     try:
         return msle(real, pred, squared = False)
     except ValueError:
-        print('Changed negative predicted target to 0 for rmsle scoring')
-        pred = np.where(pred < 0, 0, pred)
-        return msle(real, pred, squared = False)
+        pred_non_negative, real_non_negative = remove_negatives(pred, real)
+        return msle(real_non_negative, pred_non_negative, squared = False)
 
 # ------------------------------------------------------------------------------
 
@@ -356,7 +373,11 @@ def lgb_rmse(pred, real):
 def lgb_rmsle(pred, real):
     '''sklearn.metrics.mean_squared_log_error(squared = False) wrapper for LGB'''
     is_higher_better = False
-    score = msle(real.label, pred, squared = False)
+    try:
+        score = msle(real.label, pred, squared = False)
+    except ValueError:
+        pred_non_negative, real_non_negative = remove_negatives(pred, real.label)        
+        score = msle(real_non_negative, pred_non_negative, squared = False)
     return 'lgb_rmsle', score, is_higher_better
 
 def lgb_mape(pred, real):
