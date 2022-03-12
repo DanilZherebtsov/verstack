@@ -145,7 +145,7 @@ class DateParser():
         self._created_datetime_cols = []
         self.supported_formats = formats
 
-    __version__ = '0.0.3'
+    __version__ = '0.0.4'
     
     # -----------------------------------------------------------------------------
     # print init parameters when calling the class instance
@@ -509,7 +509,10 @@ class DateParser():
             unit_contents = getattr(X[col].dt.isocalendar(), unit)
             if np.any(unit_contents):
                 X[prefix+unit] = getattr(X[col].dt.isocalendar(), unit)
-                X[prefix+unit] = X[prefix+unit].astype(int)
+                try:
+                    X[prefix+unit] = X[prefix+unit].astype(int)
+                except ValueError: # handle NaN
+                    X[prefix+unit] = X[prefix+unit].astype(float)
                 if train:
                     self._created_datetime_cols.append(prefix+unit)
 
