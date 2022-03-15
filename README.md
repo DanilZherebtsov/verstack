@@ -1,4 +1,4 @@
-verstack 2.0.10 Documentation
+verstack 2.0.11 Documentation
 ============================
 
 Machine learning tools to make a Data Scientist\'s work efficient
