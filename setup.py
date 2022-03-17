@@ -20,6 +20,7 @@ if not rtd_build_env:
     dependencies.append('matplotlib')
     dependencies.append('python-dateutil==2.8.1')
     dependencies.append('holidays==0.11.3.1')
+    dependencies.append('mlxtend')
 
 setup(
   name = 'verstack',
@@ -32,7 +33,7 @@ setup(
   author = 'Danil Zherebtsov',
   author_email = 'danil.com@me.com',
   url = 'https://github.com/DanilZherebtsov/verstack',
-  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/refs/tags/2.0.10.tar.gz',
+  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/refs/tags/2.0.11.tar.gz',
   keywords = ['impute', 'missing', 'values', 'stratify', 'nan', 'continuous', 'multiprocessing', 'concurrent', 'timer'],
   install_requires=dependencies,
   classifiers=[
