@@ -41,7 +41,7 @@ def pretty_print(message, order = 1, verbose = True):
     message : str
         message to print
     order : int, optional
-        order to tabulate the message print, can take values between 1 and 3. The default is 1.
+        order to tabulate the message print, can take values between 1 and 4. The default is 1.
     verbose : bool, optional
         Flag to print or not print message.
 
@@ -62,3 +62,5 @@ def pretty_print(message, order = 1, verbose = True):
         print(f'   . {message}')
     if order == 3:
         print(f'   .. {message}')
+    if order == 4:
+        print(f'   ... {message}')

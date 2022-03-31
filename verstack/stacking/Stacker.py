@@ -1,3 +1,42 @@
+# TEMP
+def pretty_print(message, order = 1, verbose = True):
+    '''Output messages to the console based on seniority level (order).
+
+    Parameters
+    ----------
+    message : str
+        message to print
+    order : int, optional
+        order to tabulate the message print, can take values between 1 and 3. The default is 1.
+    verbose : bool, optional
+        Flag to print or not print message.
+
+    Returns
+    -------
+    None.
+
+    '''
+    if not verbose:
+        return
+    if order == 0:
+        print('-'*70)
+        print(f'{message}')
+        print('-'*70)
+    if order == 1:
+        print(f'\n - {message}')
+    if order == 2:
+        print(f'   . {message}')
+    if order == 3:
+        print(f'   .. {message}')
+    if order == 4:
+        print(f'   ... {message}')
+        
+# TEMP ========================================================================
+# CHANGE TO THE BELOW
+#from verstack.tools import pretty_print
+
+
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -14,14 +53,12 @@ from sklearn.model_selection import KFold, StratifiedKFold
 # from verstack.stacking.supporting.generate_default_layers import generate_default_layers
 from supporting.optimise_params import optimise_params
 from supporting.generate_default_layers import generate_default_layers
+from supporting.args_validators import *
 # from verstack.tools import pretty_print
 
 
 # PRETTY PRINT
     # SURPASS OUTPUTS FROM KERAS IN VERBOSE 0
-# DOCUMENT OTHER SCRIPTS
-# ARGS VALIDATORS
-# SETTERS/GETTERS
 # INTEGRATE TO VERSTACK
 
 '''
@@ -112,13 +149,98 @@ class Stacker:
         self.meta_feats = meta_feats
         self.layers = {}
         self.trained_models = {}
-        self.trained_models_list_buffer = None
-        self.extra_layers_for_test_set_application = []
+        self._trained_models_list_buffer = None
+        self._extra_layers_for_test_set_application = []
         self.epochs = epochs
         self.gridsearch_iterations = gridsearch_iterations
         self.verbose = verbose
-        
+        self.stacked_features = {} #lists of stacked features by layers
+
         self._set_default_layers()
+
+    # print init parameters when calling the class instance
+    def __repr__(self):
+        return f'Stacker(objective: {self.objective}\
+            \n        auto: {self.auto}\
+            \n        num_auto_layers: {self.num_auto_layers}\
+            \n        meta_feats: {self.meta_feats}\
+            \n        epochs : {self.epochs}\
+            \n        gridsearch_iterations: {self.gridsearch_iterations}\
+            \n        verbose : {self.verbose})'
+
+    
+    # VALIDATE INIT ARGUMENTS
+    # -------------------------------------------------------------------------
+    # objective
+    @property
+    def objective(self):
+        return self._objective
+
+    @objective.setter
+    def objective(self, value):
+        validate_objective(value)
+        self._objective = value
+    # -------------------------------------------------------------------------
+    # auto
+    @property
+    def auto(self):
+        return self._auto
+
+    @auto.setter
+    def auto(self, value):
+        validate_bool_arg(value)
+        self._auto = value
+    # -------------------------------------------------------------------------
+    # num_auto_layers
+    @property
+    def num_auto_layers(self):
+        return self._num_auto_layers
+
+    @num_auto_layers.setter
+    def num_auto_layers(self, value):
+        validate_num_auto_layers(value)
+        self._num_auto_layers = value
+    # -------------------------------------------------------------------------
+    # meta_feats
+    @property
+    def meta_feats(self):
+        return self._meta_feats
+
+    @meta_feats.setter
+    def meta_feats(self, value):
+        validate_bool_arg(value)
+        self._meta_feats = value
+    # -------------------------------------------------------------------------
+    # epochs
+    @property
+    def epochs(self):
+        return self._epochs
+
+    @epochs.setter
+    def epochs(self, value):
+        validate_epochs(value)
+        self._epochs = value
+    # -------------------------------------------------------------------------
+    # gridsearch_iterations
+    @property
+    def gridsearch_iterations(self):
+        return self._gridsearch_iterations
+
+    @gridsearch_iterations.setter
+    def gridsearch_iterations(self, value):
+        validate_gridsearch_iterations(value)
+        self._gridsearch_iterations = value
+    # -------------------------------------------------------------------------
+    # verbose
+    @property
+    def verbose(self):
+        return self._verbose
+
+    @verbose.setter
+    def verbose(self, value):
+        validate_bool_arg(value)
+        self._verbose = value
+    # =========================================================================
 
     def _set_default_layers(self):
         '''Enable or not enable default layers based on self.auto init attribute'''
@@ -132,7 +254,7 @@ class Stacker:
     def _get_default_layers(self):
         '''Configure 1 or 2 default layers'''
         layers = []        
-        layer_1, layer_2 = generate_default_layers(self.objective, self.epochs)
+        layer_1, layer_2 = generate_default_layers(self.objective, self.epochs, self.verbose)
         layers.append(layer_1)
         if self.num_auto_layers == 2:
             layers.append(layer_2)
@@ -177,7 +299,7 @@ class Stacker:
     def _train_predict_by_model(self, model, X, y):
         '''Train/predict by model on folds, create prediction series from each fold prediction
             Optimize model hyperparameters if self.auto
-            Save list of trained model instances into self.trained_models_list_buffer
+            Save list of trained model instances into self._trained_models_list_buffer
             for moving them into self.trained_models storage.
                 
         '''
@@ -187,7 +309,7 @@ class Stacker:
         kfold = self._configure_kfold_splitter()
 
         if self.auto:
-            model = optimise_params(model, X, y, self.objective, self.gridsearch_iterations)
+            model = optimise_params(model, X, y, self.objective, self.gridsearch_iterations, self.verbose)
 
         fold = 0
         for train_ix, test_ix in kfold.split(X,y):
@@ -200,8 +322,9 @@ class Stacker:
             pred_series.loc[test_ix] = pred.flatten()
             trained_models_list.append(fold_model)            
             fold+=1
-            print(f' .fold {fold} trained/predicted')
-        self.trained_models_list_buffer = trained_models_list
+            if fold%2 == 0:
+                pretty_print(f'fold {fold} trained/predicted', 3, self.verbose)
+        self._trained_models_list_buffer = trained_models_list
         return pred_series
     
     def _predict_by_model(self, model, X):
@@ -236,6 +359,7 @@ class Stacker:
             
     def add_layer(self, models_list):
         '''User facing method for adding layer to Stacker, requires list of models instances as argument'''
+        validate_models_list(models_list)
         self._increment_layer(models_list)
     # -------------------------------------------------------------------------
 
@@ -293,7 +417,7 @@ class Stacker:
     def _create_new_feats_in_test(self, X, y, layer, applicable_feats):
         '''Header function to create stacking feats in train set by models in layer'''
         new_feats = []
-        print(f'Predicting with {layer}')
+
         for feat_name in self.trained_models[layer].keys():                      
             models_list = self.trained_models[layer][feat_name]
             # create placeholder for predicting with all models for feat
@@ -306,7 +430,7 @@ class Stacker:
             preds_from_models = self._average_predictions(preds_from_models, models_cnt)
             preds_from_models.name = feat_name
             new_feats.append(preds_from_models)                
-            print(f' .predicted with model {len(new_feats)}')
+            pretty_print(f'predicted with model {len(new_feats)}', 3, self.verbose)
         return new_feats
     
     def _create_new_feats_in_train(self, X, y, layer, applicable_feats):
@@ -316,9 +440,9 @@ class Stacker:
             feat_name = self._create_feat_name(layer)
             new_feat = self._get_stack_feat(model, X[applicable_feats], y)
             # append trained models from buffer to self.trained_models_list for layer/feature
-            self.trained_models[layer][feat_name] = self.trained_models_list_buffer
+            self.trained_models[layer][feat_name] = self._trained_models_list_buffer
             # clean up
-            self.trained_models_list_buffer = None
+            self._trained_models_list_buffer = None
             new_feats.append(pd.Series(new_feat, name = feat_name))
         return new_feats
     # -------------------------------------------------------------------------
@@ -328,6 +452,11 @@ class Stacker:
             train and test set is distinguished by y being None or not
 
         '''
+        if y is None:
+            pretty_print(f'Predicting with {layer} models', 2, self.verbose)
+        else:
+            pretty_print(f'Training/predicting with {layer} models', 2, self.verbose)            
+        cols_before_layer_stacking = X.columns.tolist()
         # create layer placeholder in self.trained_models list
         if layer not in self.trained_models.keys():
             self.trained_models[layer] = {}
@@ -346,9 +475,12 @@ class Stacker:
         # ---------------------------------------------------------------------            
         # add meta_feats to layer
         if self.meta_feats:
-            X = self._create_stacking_meta_features(X, layer)
-        return X
+            X = self._create_stacking_meta_features(X, layer)            
 
+        cols_after_layer_stacking = [col for col in X if col not in cols_before_layer_stacking]
+        if layer not in self.stacked_features.keys():
+            self.stacked_features[layer] = cols_after_layer_stacking
+        return X
     # -------------------------------------------------------------------------
     def _get_features_pairs_recursive(self, layer):
         '''Create list of all possible pairs combination in list'''
@@ -398,7 +530,7 @@ class Stacker:
         # search for layers added after fit_transform()
         layers_added_after_fit_transform = [x for x in self.layers.keys() if x not in self.trained_models.keys()]
         # append layers added after fit transform to buffer for test set transform()
-        self.extra_layers_for_test_set_application += layers_added_after_fit_transform
+        self._extra_layers_for_test_set_application += layers_added_after_fit_transform
 
         # apply extra layers on train set
         if layers_added_after_fit_transform:
@@ -414,14 +546,14 @@ class Stacker:
             after calling fit_transform()/transform() methods on initially predefined layers
         
         '''
-        # iterate over self.extra_layers_for_test_set_application list
-        if self.extra_layers_for_test_set_application:
-            for ix in range(len(self.extra_layers_for_test_set_application)):
-                layer = self.extra_layers_for_test_set_application.pop(0)
+        # iterate over self._extra_layers_for_test_set_application list
+        if self._extra_layers_for_test_set_application:
+            for ix in range(len(self._extra_layers_for_test_set_application)):
+                layer = self._extra_layers_for_test_set_application.pop(0)
                 X = self._apply_single_layer(layer, X)
         else:
             # if no extra layers apply all layers on test set
-            X = self._apply_all_layers(X)            
+            X = self._apply_all_layers(X)          
         return X
 
     def fit_transform(self, X, y):
@@ -439,6 +571,7 @@ class Stacker:
             train featues with appended stacking features.
 
         '''
+        validate_fit_transform_args(X, y)
         X_with_stacked_feats = X.copy()
         X_with_stacked_feats = self._apply_all_or_extra_layers_to_train(X_with_stacked_feats, y)
         return X_with_stacked_feats
@@ -455,6 +588,9 @@ class Stacker:
             test featues with appended stacking features.
 
         '''
+        validate_transform_args(X)
         X_with_stacked_feats = X.copy()
         X_with_stacked_feats = self._apply_all_or_extra_layers_to_test(X_with_stacked_feats)
         return X_with_stacked_feats
+
+
