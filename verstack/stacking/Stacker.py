@@ -86,13 +86,15 @@ class Stacker:
                  metafeats = True, 
                  epochs = 200, 
                  gridsearch_iterations = 10,
-                 stacking_feats_depth = True,
+                 stacking_feats_depth = 1,
                  include_X = True,
                  verbose = True):
         '''
         Automatic stacking ensemble configuration, training, and features population to train/test sets.
         
-        If stacking more than 1 layer, subsequent layers will be trained on the predictions of the previous layer.
+        If stacking more than 1 layer, subsequent layers will can be trained either 
+            on the predictions of the previous layer/layers including/not including 
+                metafeats and/or original X features; based on the init settings.
         
         Additional statistical meta features can be created from the stacked predictions:
             - pairwise differences between the stacked predictions are created for all pairs (recursively)
@@ -148,6 +150,16 @@ class Stacker:
             Number of epochs for the 3 neural networks defined in the auto mode. The default is 200.
         gridsearch_iteration : int
             Number of gridsearch iterations for optimising hyperparameters of models in auto mode. The default is 10.
+        stacking_feats_depth : int, optinal
+            Defines the features used by subsequent layers to train the stacking models. 
+            Can take values between 1 and 4 where:
+                1 = use predictions from one previous layer
+                2 = use predictions from one previous layer and meta features
+                3 = use predictions from all previous layers
+                4 = use predictions from all previous layers and meta features
+                The default is 1.
+        gridsearch_iteration : int
+            Number of gridsearch iterations for optimising hyperparameters of models in auto mode. The default is 10.
         verbose : bool
             Flag to print stacking progress to the console. The default is True.
 
@@ -166,9 +178,9 @@ class Stacker:
         self._extra_layers_for_test_set_application = []
         self.epochs = epochs
         self.gridsearch_iterations = gridsearch_iterations
-        self.verbose = verbose
         self.stacking_feats_depth = stacking_feats_depth
         self.include_X = include_X
+        self.verbose = verbose
         self.stacked_features = {} #lists of stacked features by layers
 
         self._set_default_layers()
@@ -181,6 +193,8 @@ class Stacker:
             \n        metafeats: {self.metafeats}\
             \n        epochs : {self.epochs}\
             \n        gridsearch_iterations: {self.gridsearch_iterations}\
+            \n        stacking_feats_depth: {self.stacking_feats_depth}\
+            \n        include_X: {self.include_X}\
             \n        verbose : {self.verbose})'
 
     
@@ -245,6 +259,16 @@ class Stacker:
     def gridsearch_iterations(self, value):
         validate_gridsearch_iterations(value)
         self._gridsearch_iterations = value
+    # -------------------------------------------------------------------------
+    # include_X
+    @property
+    def include_X(self):
+        return self._include_X
+
+    @include_X.setter
+    def include_X(self, value):
+        validate_bool_arg(value)
+        self._include_X = value
     # -------------------------------------------------------------------------
     # verbose
     @property
@@ -378,6 +402,7 @@ class Stacker:
         self._increment_layer(models_list)
     # -------------------------------------------------------------------------
     def _get_stacked_layer_feats(self, X, layer, metafeats):
+        '''Get list of features names created within layer'''
         if metafeats:
             layer_feats = self.stacked_features[layer]
         else:
@@ -385,7 +410,7 @@ class Stacker:
         return layer_feats
             
     def _get_original_feats(self, X):
-
+        '''Get list of original X feats (without any created stacking features)'''
 
         stacked_feats = list(self.stacked_features.values())
         if type(stacked_feats[0]) == list: # flatten nested list
@@ -397,57 +422,41 @@ class Stacker:
         '''Get list of applicable features for trainin/prediction:
             - for layer_1  : all featues in X
             - for layer_2+ : preceeding layer outputs
+                or preceeding layers outputs 
+                    can include metafeats if configures
+                    can include original X features if configured
             
         '''
 
         layer_number = int(layer.split('_')[1])
+        
         if layer_number > 1:          
-            
-            
+            # get last layer for creating applicable_feats based on a single preceeding layer
             preceeding_layers_list = list(self.stacked_features.keys())
-
-
-            
             if layer in preceeding_layers_list:
                 preceeding_layers_list = preceeding_layers_list[: preceeding_layers_list.index(layer)]
- 
-
-            # if len(self._extra_layers_for_test_set_application) > 1:
-            #     preceeding_layers_list = [l for l in preceeding_layers_list if l not in self._extra_layers_for_test_set_application]
             last_layer = [l for l in preceeding_layers_list if l != layer][-1]
-
-
-
-
+            
+            generate_metafeats_flag = self.metafeats
+            
             if self.stacking_feats_depth == 1:
-                applicable_feats = self._get_stacked_layer_feats(X, last_layer, metafeats = False)
+                applicable_feats = self._get_stacked_layer_feats(X, last_layer, metafeats = generate_metafeats_flag)
             elif self.stacking_feats_depth == 2:
-                applicable_feats = self._get_stacked_layer_feats(X, last_layer, metafeats = True)
+                applicable_feats = self._get_stacked_layer_feats(X, last_layer, metafeats = generate_metafeats_flag)
             elif self.stacking_feats_depth == 3:
                 applicable_feats = []
                 for l in preceeding_layers_list:
-                    applicable_feats += self._get_stacked_layer_feats(X, l, metafeats = False)
+                    applicable_feats += self._get_stacked_layer_feats(X, l, metafeats = generate_metafeats_flag)
             else: # self.stacking_feats_depth == 4:
                 applicable_feats = []
                 for l in preceeding_layers_list:
-                    applicable_feats += self._get_stacked_layer_feats(X, l, metafeats = True)
-            
-
-
+                    applicable_feats += self._get_stacked_layer_feats(X, l, metafeats = generate_metafeats_flag)
 
             if self.include_X:
+                # include original X features
                 applicable_feats = applicable_feats + self._get_original_feats(X)
-                                    
-
-
         else:
             applicable_feats = X.columns.tolist()
-
-
-
-        print(f'!!!!! applicable_feats {applicable_feats}')
-
-
         return applicable_feats
     # -------------------------------------------------------------------------
 
@@ -497,11 +506,6 @@ class Stacker:
             preds_from_models = []
             models_cnt = 0
             for model in models_list:
-
-
-                print(applicable_feats)
-
-
                 pred = self._get_stack_feat(model, X[applicable_feats], y)
                 preds_from_models = self._store_preds_together(preds_from_models, pred)
                 models_cnt+=1
@@ -555,17 +559,9 @@ class Stacker:
         # add metafeats to layer
         if self.metafeats:
             X = self._create_stacking_meta_features(X, layer)            
-
         cols_after_layer_stacking = [col for col in X if col not in cols_before_layer_stacking]
-
-
         if layer not in self.stacked_features.keys():
-            
-            
-            
             self.stacked_features[layer] = cols_after_layer_stacking
-            
-
         return X
     # -------------------------------------------------------------------------
     def _get_features_pairs_recursive(self, layer):
@@ -576,7 +572,6 @@ class Stacker:
             feat = feats.pop(0)
             for feat2 in feats:
                 pairs.append([feat, feat2])
-
         return pairs
     
     def _get_diff(self, feat1, feat2):
