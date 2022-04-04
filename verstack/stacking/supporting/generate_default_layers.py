@@ -20,7 +20,7 @@ from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
 from sklearn.svm import SVR
 # internal import
-from supporting.kerasModel import kerasModel
+from verstack.stacking.supporting.kerasModel import kerasModel
 
 def generate_default_layers(objective, epochs = 200, verbose = True):
     '''Initialize two layers with 14 and 2 models
