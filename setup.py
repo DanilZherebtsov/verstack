@@ -21,6 +21,8 @@ if not rtd_build_env:
     dependencies.append('python-dateutil==2.8.1')
     dependencies.append('holidays==0.11.3.1')
     dependencies.append('mlxtend')
+    dependencies.append('tensorflow==2.7.0')
+    dependencies.append('keras==2.7.0')
 
 setup(
   name = 'verstack',

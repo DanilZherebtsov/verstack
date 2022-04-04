@@ -1,76 +1,16 @@
-# TEMP
-def pretty_print(message, order = 1, verbose = True):
-    '''Output messages to the console based on seniority level (order).
-
-    Parameters
-    ----------
-    message : str
-        message to print
-    order : int, optional
-        order to tabulate the message print, can take values between 1 and 3. The default is 1.
-    verbose : bool, optional
-        Flag to print or not print message.
-
-    Returns
-    -------
-    None.
-
-    '''
-    if not verbose:
-        return
-    if order == 0:
-        print('-'*70)
-        print(f'{message}')
-        print('-'*70)
-    if order == 1:
-        print(f'\n - {message}')
-    if order == 2:
-        print(f'   . {message}')
-    if order == 3:
-        print(f'   .. {message}')
-    if order == 4:
-        print(f'   ... {message}')
-        
-# TEMP ========================================================================
-# CHANGE TO THE BELOW
-#from verstack.tools import pretty_print
-
-
-
-
-
-
-
-
-
-
-
-
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Thu Mar 24 19:55:32 2022
-
-@author: danil
+@author: danil zherebtsov
 """
 
 import pandas as pd
 import copy
 from sklearn.model_selection import KFold, StratifiedKFold
+from verstack.stacking.supporting.optimise_params import optimise_params
+from verstack.stacking.supporting.generate_default_layers import generate_default_layers
+from verstack.stacking.supporting.args_validators import *
+from verstack.tools import pretty_print
 from verstack.tools import timer
-
-# from verstack.stacking.supporting.optimise_params import optimise_params
-# from verstack.stacking.supporting.generate_default_layers import generate_default_layers
-from supporting.optimise_params import optimise_params
-from supporting.generate_default_layers import generate_default_layers
-from supporting.args_validators import *
-# from verstack.tools import pretty_print
-
-
-# PRETTY PRINT
-    # SURPASS OUTPUTS FROM KERAS IN VERBOSE 0
-# INTEGRATE TO VERSTACK
 
 '''
 TODO: 
@@ -78,6 +18,8 @@ TODO:
 '''
 
 class Stacker:
+    
+    __version__ = '0.0.1'
     
     def __init__(self, 
                  objective, 
@@ -87,7 +29,7 @@ class Stacker:
                  epochs = 200, 
                  gridsearch_iterations = 10,
                  stacking_feats_depth = 1,
-                 include_X = True,
+                 include_X = False,
                  verbose = True):
         '''
         Automatic stacking ensemble configuration, training, and features population to train/test sets.
@@ -158,8 +100,8 @@ class Stacker:
                 3 = use predictions from all previous layers
                 4 = use predictions from all previous layers and meta features
                 The default is 1.
-        gridsearch_iteration : int
-            Number of gridsearch iterations for optimising hyperparameters of models in auto mode. The default is 10.
+        include_X : bool
+            Flag to use original X features for subsequent layer training. The default is False.
         verbose : bool
             Flag to print stacking progress to the console. The default is True.
 
@@ -305,6 +247,7 @@ class Stacker:
         feat_name = '_'.join([layer, str(feat_count_in_layer)])
         return feat_name
 
+    # -------------------------------------------------------------------------   
     def _predict_class_proba_or_value(self, model, X):
         '''Create single vector with predictions: 
             - classes for multiclass
@@ -320,7 +263,12 @@ class Stacker:
         else:
             pred = model.predict(X).flatten()
         return pred
-        
+    def _predict_by_model(self, model, X):
+        '''Create predictions by passed model.'''
+        pred = self._predict_class_proba_or_value(model, X)
+        pred_series = pd.Series(pred)
+        return pred_series
+    # -------------------------------------------------------------------------            
     def _train_predict(self, model, X_train, y_train, X_test):
         '''Fit configured model, predict outputs by _predict_class_proba_or_value() method'''
         model.fit(X_train, y_train)
@@ -339,7 +287,7 @@ class Stacker:
         '''Train/predict by model on folds, create prediction series from each fold prediction
             Optimize model hyperparameters if self.auto
             Save list of trained model instances into self._trained_models_list_buffer
-            for moving them into self.trained_models storage.
+            for latter moving them into self.trained_models storage.
                 
         '''
         # create placeholder for stacked feat
@@ -347,7 +295,7 @@ class Stacker:
         trained_models_list = []
         kfold = self._configure_kfold_splitter()
 
-        if self.auto:
+        if self.gridsearch_iterations > 0:
             model = optimise_params(model, X, y, self.objective, self.gridsearch_iterations, self.verbose)
 
         fold = 0
@@ -365,15 +313,9 @@ class Stacker:
                 pretty_print(f'fold {fold} trained/predicted', 3, self.verbose)
         self._trained_models_list_buffer = trained_models_list
         return pred_series
-    
-    def _predict_by_model(self, model, X):
-        '''Create predictions by passed model.'''
-        pred = self._predict_class_proba_or_value(model, X)
-        pred_series = pd.Series(pred)
-        return pred_series
 
     def _get_stack_feat(self, model, X, y = None):
-        '''Create stacked featrue for train/test depending on y being None or not'''
+        '''Apply stacking features creatin to either train or test set'''
         if isinstance(y, pd.Series):
             new_feat = self._train_predict_by_model(model, X, y)
         else:
@@ -397,7 +339,24 @@ class Stacker:
             self.layers[new_layer] = models_list
             
     def add_layer(self, models_list):
-        '''User facing method for adding layer to Stacker, requires list of models instances as argument'''
+        '''
+        Add layer to Stacker, requires list of models instances as argument.
+
+        Models list is added to Stacker.layers
+        
+        Parameters
+        ----------
+        models_list : list
+            list of models instances each of which must contain methods:
+                - fit()
+                - predict()
+                - predict_proba() for classification tasks
+
+        Returns
+        -------
+        None.
+
+        '''        
         validate_models_list(models_list)
         self._increment_layer(models_list)
     # -------------------------------------------------------------------------
@@ -410,8 +369,7 @@ class Stacker:
         return layer_feats
             
     def _get_original_feats(self, X):
-        '''Get list of original X feats (without any created stacking features)'''
-
+        '''Get names of original X feats (without any created stacking features)'''
         stacked_feats = list(self.stacked_features.values())
         if type(stacked_feats[0]) == list: # flatten nested list
             stacked_feats = sum(stacked_feats, [])
@@ -423,8 +381,8 @@ class Stacker:
             - for layer_1  : all featues in X
             - for layer_2+ : preceeding layer outputs
                 or preceeding layers outputs 
-                    can include metafeats if configures
-                    can include original X features if configured
+                    can include metafeats self.metafeats
+                    can include original X features if self.include_X
             
         '''
 
@@ -461,7 +419,7 @@ class Stacker:
     # -------------------------------------------------------------------------
 
     def _extract_most_common_multiclass_pred(self, preds_lists):
-        '''Ectract single (most) common prediction from list of lists with predictions from multiple models
+        '''Extract single (most) common prediction from list of lists with predictions from multiple models
             applicable for multiclass predictions
             
         '''
@@ -495,6 +453,7 @@ class Stacker:
             else:
                 preds_from_models += pred
         return preds_from_models
+    # -------------------------------------------------------------------------
 
     def _create_new_feats_in_test(self, X, y, layer, applicable_feats):
         '''Header function to create stacking feats in train set by models in layer'''
@@ -659,7 +618,7 @@ class Stacker:
         return X_with_stacked_feats
     
     def transform(self, X):
-        '''Create stacking features on test set from models saved in self.trained_models
+        '''Create stacking features on the test set from models saved in self.trained_models
         Parameters
         ----------
         X : pd.DataFrame - test features

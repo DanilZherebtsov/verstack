@@ -1,10 +1,11 @@
 ############################
-verstack 2.0.12 Documentation
+verstack 3.0.0 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
 veratack package contains the following tools:
 
+* **Stacker** automated stacking ensemble configuration/train/features creation in train/test sets
 * **DateParser** automated date columns finder and parser
 * **LGBMTuner** automated lightgbm models tuner with optuna
 * **NaNImputer** impute all missing values in a pandas dataframe using advanced machine learning with 1 line of code
@@ -19,6 +20,7 @@ veratack package contains the following tools:
  * **MeanTargetEncoder** encode categoric variable by mean of the target variable
  * **WeightOfEvidenceEncoder** encode categoric variable as a weight of evidence of a binary target variable
 * **timer** convenient timer decorator to quickly measure and display time of any function execution
+* **pretty_print** a convenient function to set up and execute print statements based on the 'global' verbosity setting within large projects
 
 
 .. note:: 
@@ -28,6 +30,223 @@ veratack package contains the following tools:
   $ ``pip install verstack``
 
   $ ``pip install --upgrade verstack``
+
+******************
+Stacker
+******************
+
+Fully automated highly configurable stacking ensemble creation class. Can create single or multiple layers of stacked features. Applicable for train/test set features creation. Any number of layers and models within layers can be added to Stacker instance (models in layers must contain fit / predict / predict_proba `if classification` methods for the Stacker to properly create features using these models). 
+
+Additional metafeatures can be created from stacked features if metafeats parameter is set to True.
+
+Subsequent (>1) layers can be trained either on predictions from one previous layer / or predictions from one previous layer and meta features / or predictions from all previous layers / or predictions from all previous layers and meta features `subject to stacking_feats_depth parameter configuration`; original X features can also be used for training the subsequent layers `subjuect to include_X parameter configuration`.
+
+Stacker includes auto mode which will create two layers of stacked features with layer 1 consisting of 14 diverse models and layer 2 consisting of a linear and boosed model
+
+Models' ``RandomizedSearchCV`` hyperparameters tuning is enabled if gridsearch_iteration parameter is > 0 `subject to model being supported by built in parameters optimization function`.
+
+Stacked feats creation on the train set is perfromed by train/predict operations on 4 folds. Each stacked feature in the test set is created by predicting with 4 models `fitted on train set` and averaging predictions. When averaging for regression tasks - mean of predicted values is computed; for binary - mean of positive class probabilities is computed; for multiclass - the most commonly predicted class from the 4 predictions is selected.
+
+ ... the output of fit_transfrom() / transform() methods will return the dataframe with original features and stacked features.
+
+**auto mode models**
+
+ layer_1: 14 models
+
+ - LGBM(max_depth = 12)
+ - XGB(max_depth = 10, n_jobs = -1)
+ - GradientBoosting(max_depth = 7)
+ - kerasModel(num_layers = 3)
+ - kerasModel(num_layers = 2)
+ - kerasModel(num_layers = 1)
+ - ExtraTree(max_depth = 12)
+ - RandomForest(max_depth = 7)
+ - Linear/LogisticRegression()
+ - KNeighbors(n_neighbors=15)
+ - KNeighbors(n_neighbors=10)
+ - SVR(kernel = 'rbf')
+ - DecisionTree(max_depth = 15)
+ - DecisionTree(max_depth = 8)
+
+ layer_2: two models
+
+ - LGBM(max_depth = 3)
+ - Ridge()
+
+**Initialize Stacker**
+
+.. code-block:: python
+
+  from verstack import Stacker
+  
+  # initialize with default parameters
+  stacker = Stacker(objective = 'regression')
+  
+  # initialize with selected parameters
+  stacker = Stacker(objective = 'regression',
+                    auto = True,
+                    auto_num_layers = 2,
+                    metafeats = True,
+                    epochs = 500,
+                    gridsearch_iterations = 20,
+                    stacking_feats_depth = 1,
+                    include_X = False,
+                    verbose = True)
+
+
+Parameters
+===========================
+
+  parameters ``metafeats``, ``gridsearch_iterations``, ``stacking_feats_depth``, ``include_X`` can be configured independently for any layer in the follwoing manner: E.g. If need to optimize the models' hyperparameters only in layer_2: 
+   - ``stacker = Stacker('regression', gridsearch_iterations = 0)``
+   - ``stacker.add_layer([model_1, model_2, model_3])`` 
+   - ``X_transformed = stacker.fit_transform(X, y)``
+   - ``stacker.add_layer([model_4, model_5])``
+   - ``stacker.gridsearch_iterations = 20``
+   - ``X_transformed = stacker.fit_transform(X_transformed, y)``
+
+* ``objective`` [default=None]
+
+  Training objective. Can take values: 'regression', 'binary', 'multiclass'
+
+* ``auto`` [default=False]
+
+  Enable/disable automatic configuration of 1 or 2 layers of models to create stacked features. If True will automatically populate the self.layers with 1 or 2 lists of preconfigured diverse models.
+
+* ``auto_num_layers`` [default=2]
+
+  Number of automatically generated layers. Can take values 1 and 2
+
+* ``metafeats`` [default=True]
+
+  Additional statistical meta features creation from the stacked predictions:
+   - pairwise differences between the stacked predictions are created for  all pairs (recursively)
+   - mean and std for all the stacked features in a layer are created as two extra meta feats
+
+* ``epochs`` [default=200]
+
+  Number of neural networks epochs. Applicable for the three automatically configured neural networks in the auto mode
+
+* ``gridsearch_iterations`` [default=10]
+
+  Number of hyperparameters optimization iterations. If set to 0, hyperparameters will not be optimized. If > 0, hyperparameters in all layers will be optimized. E.g. Supported models for optimization:
+
+    - lightgbm.sklearn.LGBMRegressor / lightgbm.sklearn.LGBMClassifier
+    - xgboost.sklearn.XGBRegressor / xgboost.sklearn.XGBClassifier
+    - sklearn.ensemble.GradientBoostingRegressor / sklearn.ensemble.GradientBoostingClassifier
+    - sklearn.tree._classes.ExtraTreeRegressor / sklearn.tree._classes.ExtraTreeClassifier
+    - sklearn.ensemble._forest.RandomForestRegressor / sklearn.ensemble._forest.RandomForestClassifier
+    - sklearn.linear_model._logistic.LogisticRegression
+    - sklearn.linear_model._ridge.Ridge
+    - sklearn.neighbors._regression.KNeighborsRegressor / sklearn.neighbors._classification.KNeighborsClassifier
+    - sklearn.svm._classes.SVR / sklearn.svm._classes.SVC
+    - sklearn.tree._classes.DecisionTreeRegressor / sklearn.tree._classes.DecisionTreeClassifier
+
+* ``stacking_feats_depth`` [default=1]
+
+  Defines the features used by subsequent (>1) layers to train the stacking models. Can take values between 1 and 4 where:
+   - 1 = use predictions from one previous layer
+   - 2 = use predictions from one previous layer and meta features
+   - 3 = use predictions from all previous layers
+   - 4 = use predictions from all previous layers and meta features
+
+* ``include_X`` [default=False]
+
+  Flag to use original X features for subsequent layer training
+
+* ``verbose`` [default=True]
+
+  Print progress outputs or silent
+
+Methods
+===========================
+* ``add_layer([model_1, model_2(), model_3])``
+
+  Add layer with models to Stacker instance.
+
+    Parameters
+
+    - ``models_list`` [list]
+
+      List containing initiated models instances. Each model must contain fit() / predict() / predict_proba() `if classification` methods
+
+  returns
+    None
+
+* ``fit_transform(X, y)``
+
+  Train/predict/append to X the stacking features from models defined in self.layers
+
+    Parameters
+
+    - ``X`` [pd.DataFrame]
+
+      train features
+
+    - ``y`` [pd.Series]
+
+      train labels
+
+  returns
+    pd.DataFrame train featues with appended stacking features
+
+* ``transform(X)``
+
+  Create stacking features on the test set from models saved in self.trained_models
+
+    Parameters
+
+    - ``X`` [pd.DataFrame]
+
+      test features
+
+  returns
+    pd.DataFrame test featues with appended stacking features
+
+**Attributes**
+
+* ``layers``
+
+  Dictionary with 'layer_n' as key and list of models in layer as value
+
+* ``trained_models``
+
+  Dictionary with 'layer_n' as key and dictionary with stacked feature name as key and list of 4 `trained on different folds` models instances for predicting on test set
+
+Examples
+================================================================
+
+Using Stacker in auto mode
+
+.. code-block:: python
+
+  from verstack import Stacker
+  stacker = Stacker(objective = 'multiclass', auto = True)
+  X_with_stacked_feats = stacker.fit_transform(X, y)
+
+Add two custom layers, for training subsequent (>1) layers use not only the predictions of the previous layer, but also metafeats in the previous layer and X original features
+Then add one more layer and disable hyperparameters optimization for this layer
+
+.. code-block:: python
+
+  # initialize Stacker
+  stacker = Stacker(objective = 'multiclass', 
+                    auto = False,
+                    stacking_feats_depth = 2,
+                    include_X = True)
+  # add layers
+  stacker.add_layer([model_1, model_2, model_3])
+  stacker.add_layer([model_4, model_5])
+  # add stacking features to train/test
+  X_with_stacked_feats = stacker.fit_transform(X, y)
+  test_with_stacked_feats = stacker.transform(test)
+  # add extra layer
+  stacker.add_layer([model_6, model_7])
+  # change the gridsearch_iteration setting
+  stacker.gridsearch_iterations = 0
+  # pass the transformed dataset if need to call .fit_transform() after adding extra layers to the fitted instance of Stacker
+  X_with_stacked_feats = stacker.fit_transform(X_with_stacked_feats, y)
+  test_with_stacked_feats = stacker.transform(test_with_stacked_feats)
 
 ******************
 DateParser
@@ -213,7 +432,7 @@ Methods
 Examples
 ================================================================
 
-Using LGBMTuner with all default parameters
+Using DateParser with all default parameters
 
 .. code-block:: python
 
@@ -1434,6 +1653,59 @@ timer is a decorator function: it must placed above the function (that needs to 
   >>>Result is: 5
   >>>Time elapsed for func execution: 0.0002 seconds
 
+******************
+pretty_print
+******************
+
+Function to execute print statements subject to verbose argument and order of printed message. 
+
+.. code-block:: python 
+
+  verstack.tools.pretty_print
+
+Examples
+================================================================
+
+Add print statements to your program with different level of indentation for different messages and have them printed subject on the global verbosity setting in your program. A convenient way to set up verbosity for large projects without having to define all the print statements with ``if verbose == True``. Just pass the verbose argument to the pretty_print function.
+
+.. code-block:: python
+
+  from verstack.tools import pretty_print
+
+  # define a function/program/code
+
+  def do_something(a, b, c, verbose):
+    pretty_print('Executing do_something() function', order = 0, verbose = verbose)
+    
+    result_1 = a + b
+    pretty_print(f'A + B result is {result_1}', order = 1, verbose = verbose)
+    
+    try:
+      a / b:
+    except ZeroDivisionError:
+      pretty_print('Argument b can not be zero', order = 2, verbose = verbose)
+    
+    result_2 = b + calculated
+    pretty_print(f'B + C result is {result_2}', order = 1, verbose = verbose)
+    
+    pretty_print('do_something() function execution completed', order = 1, verbose = verbose)
+
+  do_something(1,0,5, verbose = False)
+  # no output to the console
+
+  do_something(1,0,5, verbose = True)
+
+  >>> ----------------------------------------------------------------------
+  >>> Executing do_something() function
+  >>> ----------------------------------------------------------------------
+
+  >>> - A + B result is 1
+  >>>   . Argument b can not be zero
+
+  >>> - B + C result is 5
+
+  >>> - do_something() function execution completed
+  
 
 
 ******************

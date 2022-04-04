@@ -1,10 +1,12 @@
-verstack 2.0.12 Documentation
+verstack 3.0.0 Documentation
 ============================
 
 Machine learning tools to make a Data Scientist\'s work efficient
 
 veratack package contains the following tools:
 
+-   **Stacker** automated stacking ensemble configuration/train/features
+    creation in train/test sets
 -   **DateParser** automated date columns finder and parser
 -   **LGBMTuner** automated lightgbm models tuner with optuna
 -   **NaNImputer** impute all missing values in a pandas dataframe using
@@ -28,42 +30,302 @@ veratack package contains the following tools:
 
 -   **timer** convenient timer decorator to quickly measure and display
     time of any function execution
-
+-   **pretty_print** a convenient function to set up and execute print statements based on the 'global' verbosity setting within large projects
 
 Getting verstack
 
 \$ `pip install verstack`
 
 \$ `pip install --upgrade verstack`
-:::
+
+
+Stacker
+-------
+
+Fully automated highly configurable stacking ensemble creation class.
+Can create single or multiple layers of stacked features. Applicable for
+train/test set features creation. Any number of layers and models within
+layers can be added to Stacker instance (models in layers must contain
+fit / predict / predict\_proba [if classification]{.title-ref} methods
+for the Stacker to properly create features using these models).
+
+Additional metafeatures can be created from stacked features if
+metafeats parameter is set to True.
+
+Subsequent (\>1) layers can be trained either on predictions from one
+previous layer / or predictions from one previous layer and meta
+features / or predictions from all previous layers / or predictions from
+all previous layers and meta features [subject to stacking\_feats\_depth
+parameter configuration]{.title-ref}; original X features can also be
+used for training the subsequent layers [subjuect to include\_X
+parameter configuration]{.title-ref}.
+
+Stacker includes auto mode which will create two layers of stacked
+features with layer 1 consisting of 14 diverse models and layer 2
+consisting of a linear and boosed model
+
+Models\' `RandomizedSearchCV` hyperparameters tuning is enabled if
+gridsearch\_iteration parameter is \> 0 [subject to model being
+supported by built in parameters optimization function]{.title-ref}.
+
+Stacked feats creation on the train set is perfromed by train/predict
+operations on 4 folds. Each stacked feature in the test set is created
+by predicting with 4 models [fitted on train set]{.title-ref} and
+averaging predictions. When averaging for regression tasks - mean of
+predicted values is computed; for binary - mean of positive class
+probabilities is computed; for multiclass - the most commonly predicted
+class from the 4 predictions is selected.
+
+> \... the output of fit\_transfrom() / transform() methods will return
+> the dataframe with original features and stacked features.
+
+**auto mode models**
+
+> layer\_1: 14 models
+>
+> -   LGBM(max\_depth = 12)
+> -   XGB(max\_depth = 10, n\_jobs = -1)
+> -   GradientBoosting(max\_depth = 7)
+> -   kerasModel(num\_layers = 3)
+> -   kerasModel(num\_layers = 2)
+> -   kerasModel(num\_layers = 1)
+> -   ExtraTree(max\_depth = 12)
+> -   RandomForest(max\_depth = 7)
+> -   Linear/LogisticRegression()
+> -   KNeighbors(n\_neighbors=15)
+> -   KNeighbors(n\_neighbors=10)
+> -   SVR(kernel = \'rbf\')
+> -   DecisionTree(max\_depth = 15)
+> -   DecisionTree(max\_depth = 8)
+>
+> layer\_2: two models
+>
+> -   LGBM(max\_depth = 3)
+> -   Ridge()
+
+**Initialize Stacker**
+
+``` {.python}
+from verstack import Stacker
+
+# initialize with default parameters
+stacker = Stacker(objective = 'regression')
+
+# initialize with selected parameters
+stacker = Stacker(objective = 'regression',
+                  auto = True,
+                  auto_num_layers = 2,
+                  metafeats = True,
+                  epochs = 500,
+                  gridsearch_iterations = 20,
+                  stacking_feats_depth = 1,
+                  include_X = False,
+                  verbose = True)
+```
+
+### Parameters
+
+> parameters `metafeats`, `gridsearch_iterations`, `stacking_feats_depth`, `include_X` can be configured independently for any layer in the follwoing manner: E.g. If need to optimize the models\' hyperparameters only in layer\_2:
+>
+> :   -   `stacker = Stacker('regression', gridsearch_iterations = 0)`
+>     -   `stacker.add_layer([model_1, model_2, model_3])`
+>     -   `X_transformed = stacker.fit_transform(X, y)`
+>     -   `stacker.add_layer([model_4, model_5])`
+>     -   `stacker.gridsearch_iterations = 20`
+>     -   `X_transformed = stacker.fit_transform(X_transformed, y)`
+
+-   `objective` \[default=None\]
+
+    Training objective. Can take values: \'regression\', \'binary\',
+    \'multiclass\'
+
+-   `auto` \[default=False\]
+
+    Enable/disable automatic configuration of 1 or 2 layers of models to
+    create stacked features. If True will automatically populate the
+    self.layers with 1 or 2 lists of preconfigured diverse models.
+
+-   `auto_num_layers` \[default=2\]
+
+    Number of automatically generated layers. Can take values 1 and 2
+
+-   `metafeats` \[default=True\]
+
+    Additional statistical meta features creation from the stacked predictions:
+
+    :   -   pairwise differences between the stacked predictions are
+            created for all pairs (recursively)
+        -   mean and std for all the stacked features in a layer are
+            created as two extra meta feats
+
+-   `epochs` \[default=200\]
+
+    Number of neural networks epochs. Applicable for the three
+    automatically configured neural networks in the auto mode
+
+-   `gridsearch_iterations` \[default=10\]
+
+    Number of hyperparameters optimization iterations. If set to 0,
+    hyperparameters will not be optimized. If \> 0, hyperparameters in
+    all layers will be optimized. E.g. Supported models for
+    optimization:
+
+    > -   lightgbm.sklearn.LGBMRegressor /
+    >     lightgbm.sklearn.LGBMClassifier
+    > -   xgboost.sklearn.XGBRegressor / xgboost.sklearn.XGBClassifier
+    > -   sklearn.ensemble.GradientBoostingRegressor /
+    >     sklearn.ensemble.GradientBoostingClassifier
+    > -   sklearn.tree.\_classes.ExtraTreeRegressor /
+    >     sklearn.tree.\_classes.ExtraTreeClassifier
+    > -   sklearn.ensemble.\_forest.RandomForestRegressor /
+    >     sklearn.ensemble.\_forest.RandomForestClassifier
+    > -   sklearn.linear\_model.\_logistic.LogisticRegression
+    > -   sklearn.linear\_model.\_ridge.Ridge
+    > -   sklearn.neighbors.\_regression.KNeighborsRegressor /
+    >     sklearn.neighbors.\_classification.KNeighborsClassifier
+    > -   sklearn.svm.\_classes.SVR / sklearn.svm.\_classes.SVC
+    > -   sklearn.tree.\_classes.DecisionTreeRegressor /
+    >     sklearn.tree.\_classes.DecisionTreeClassifier
+
+-   `stacking_feats_depth` \[default=1\]
+
+    Defines the features used by subsequent (\>1) layers to train the stacking models. Can take values between 1 and 4 where:
+
+    :   -   1 = use predictions from one previous layer
+        -   2 = use predictions from one previous layer and meta
+            features
+        -   3 = use predictions from all previous layers
+        -   4 = use predictions from all previous layers and meta
+            features
+
+-   `include_X` \[default=False\]
+
+    Flag to use original X features for subsequent layer training
+
+-   `verbose` \[default=True\]
+
+    Print progress outputs or silent
+
+### Methods
+
+-   `add_layer([model_1, model_2(), model_3])`
+
+    Add layer with models to Stacker instance.
+
+    > Parameters
+    >
+    > -   `models_list` \[list\]
+    >
+    >     List containing initiated models instances. Each model must
+    >     contain fit() / predict() / predict\_proba() [if
+    >     classification]{.title-ref} methods
+
+    returns
+
+       None
+
+-   `fit_transform(X, y)`
+
+    Train/predict/append to X the stacking features from models defined
+    in self.layers
+
+    > Parameters
+    >
+    > -   `X` \[pd.DataFrame\]
+    >
+    >     train features
+    >
+    > -   `y` \[pd.Series\]
+    >
+    >     train labels
+
+    returns
+
+       pd.DataFrame train featues with appended stacking features
+
+-   `transform(X)`
+
+    Create stacking features on the test set from models saved in
+    self.trained\_models
+
+    > Parameters
+    >
+    > -   `X` \[pd.DataFrame\]
+    >
+    >     test features
+
+    returns
+
+       pd.DataFrame test featues with appended stacking features
+
+**Attributes**
+
+-   `layers`
+
+    Dictionary with \'layer\_n\' as key and list of models in layer as
+    value
+
+-   `trained_models`
+
+    Dictionary with \'layer\_n\' as key and dictionary with stacked
+    feature name as key and list of 4 [trained on different
+    folds]{.title-ref} models instances for predicting on test set
+
+### Examples
+
+Using Stacker in auto mode
+
+``` {.python}
+from verstack import Stacker
+stacker = Stacker(objective = 'multiclass', auto = True)
+X_with_stacked_feats = stacker.fit_transform(X, y)
+```
+
+Add two custom layers, for training subsequent (\>1) layers use not only
+the predictions of the previous layer, but also metafeats in the
+previous layer and X original features Then add one more layer and
+disable hyperparameters optimization for this layer
+
+``` {.python}
+# initialize Stacker
+stacker = Stacker(objective = 'multiclass', 
+                  auto = False,
+                  stacking_feats_depth = 2,
+                  include_X = True)
+# add layers
+stacker.add_layer([model_1, model_2, model_3])
+stacker.add_layer([model_4, model_5])
+# add stacking features to train/test
+X_with_stacked_feats = stacker.fit_transform(X, y)
+test_with_stacked_feats = stacker.transform(test)
+# add extra layer
+stacker.add_layer([model_6, model_7])
+# change the gridsearch_iteration setting
+stacker.gridsearch_iterations = 0
+# pass the transformed dataset if need to call .fit_transform() after adding extra layers to the fitted instance of Stacker
+X_with_stacked_feats = stacker.fit_transform(X_with_stacked_feats, y)
+test_with_stacked_feats = stacker.transform(test_with_stacked_feats)
+```
 
 DateParser
 ----------
 
-Fully automated DateParser tool that takes as input a pandas.DataFrame and returns a pandas.DataFrame with parsed datetime features. 
+Fully automated DateParser tool that takes as input a pandas.DataFrame
+and returns a pandas.DataFrame with parsed datetime features. Holidays
+flags and names are created as features subject to user passing the
+country argument (E.g. country = \'US\'). Holiday features extraction
+are based on utilizing the [holidays]{.title-ref} package. Datetime
+columns will be found automatically, transformed to pd.Timestamp format,
+new columns with the follwing features (if applicable to the specific
+datetime format) will be created: - year - month - day (monthday) -
+quarter - week - weekday - dayofyear - hour - minute - second -
+part\_of\_day - timediff (if two datetime columns are found) -
+is\_holiday (if country argument is passed) - holiday\_name (if country
+argument is passed) - is\_payday (if payday argument is passed) -
+days\_from\_epoch (1970/01/01)
 
-Holidays flags and names are created as features subject to user passing the country argument (E.g. country = \'US\'). 
-
-Holiday features extraction are based on utilizing the `holidays` package. Datetime columns will be found automatically, transformed to pd.Timestamp format, new columns with the follwing features (if applicable to the specific
-datetime format) will be created:
- - year
- - month 
- - day (monthday) 
- - quarter 
- - week 
- - weekday 
- - dayofyear 
- - hour 
- - minute 
- - second 
- - part_of_day
- - timediff (if two datetime columns are found) 
- - is_holiday (if country argument is passed) 
- - holiday_name (if country argument is passed) 
- - is_payday (if payday argument is passed)
- - days_from_epoch (1970/01/01)x
-
-> \... same set of features will be created (with column name prefix) for each of the datetime columns DateParser detects.
+> \... same set of features will be created (with column name prefix)
+> for each of the datetime columns DateParser detects.
 
 **Supported datetime formats**
 
@@ -146,7 +408,7 @@ parser = DateParser(country = 'US',
 
     returns
 
-    :   pd.DataFrame with new features
+       pd.DataFrame with new features
 
 -   `transform(df)`
 
@@ -165,7 +427,7 @@ parser = DateParser(country = 'US',
 
     returns
 
-    :   pd.DataFrame with new features
+       pd.DataFrame with new features
 
 -   `parse_holidays(datetime_col_series, country, state, province, holiday_names)`
 
@@ -199,7 +461,7 @@ parser = DateParser(country = 'US',
 
     returns
 
-    :   pd.Series with holidays binary flags or holidays string names
+       pd.Series with holidays binary flags or holidays string names
 
 -   `get_holidays_calendar(country, years, state = None, prov = None)`
 
@@ -223,7 +485,7 @@ parser = DateParser(country = 'US',
 
     returns
 
-    :   dictionary with holidays dates and names
+       dictionary with holidays dates and names
 
 -   `list_supported_countries()`
 
@@ -246,7 +508,7 @@ parser = DateParser(country = 'US',
 
 ### Examples
 
-Using LGBMTuner with all default parameters
+Using DateParser with all default parameters
 
 ``` {.python}
 parser = DateParser()
@@ -424,7 +686,7 @@ tuner = LGBMTuner(metric = 'rmse',
 
     returns
 
-    :   array of int
+       array of int
 
 -   `predict_proba(test)`
 
@@ -436,7 +698,7 @@ tuner = LGBMTuner(metric = 'rmse',
 
     returns
 
-    :   array of float
+       array of float
 
 -   `plot_importances(n_features = 15, figsize = (10,6), interactive = False)`
 
@@ -1564,6 +1826,57 @@ func(2,3)
 
 >>>Result is: 5
 >>>Time elapsed for func execution: 0.0002 seconds
+```
+
+pretty_print
+------------
+
+Function to execute print statements subject to verbose argument and order of printed message. 
+
+``` {.python}
+verstack.tools.pretty_print
+```
+
+## Examples
+
+Add print statements to your program with different level of indentation for different messages and have them printed subject on the global verbosity setting in your program. A convenient way to set up verbosity for large projects without having to define all the print statements with ``if verbose == True``. Just pass the verbose argument to the pretty_print function.
+
+``` {.python}
+from verstack.tools import pretty_print
+
+# define a function/program/code
+
+def do_something(a, b, c, verbose):
+pretty_print('Executing do_something() function', order = 0, verbose = verbose)
+
+result_1 = a + b
+pretty_print(f'A + B result is {result_1}', order = 1, verbose = verbose)
+
+try:
+    a / b:
+except ZeroDivisionError:
+    pretty_print('Argument b can not be zero', order = 2, verbose = verbose)
+
+result_2 = b + calculated
+pretty_print(f'B + C result is {result_2}', order = 1, verbose = verbose)
+
+pretty_print('do_something() function execution completed', order = 1, verbose = verbose)
+
+do_something(1,0,5, verbose = False)
+# no output to the console
+
+do_something(1,0,5, verbose = True)
+
+>>> ----------------------------------------------------------------------
+>>> Executing do_something() function
+>>> ----------------------------------------------------------------------
+
+>>> - A + B result is 1
+>>>   . Argument b can not be zero
+
+>>> - B + C result is 5
+
+>>> - do_something() function execution completed
 ```
 
 Links
