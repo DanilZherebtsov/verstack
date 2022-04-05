@@ -6,9 +6,9 @@ Created on Thu Mar 24 19:55:32 2022
 import pandas as pd
 import copy
 from sklearn.model_selection import KFold, StratifiedKFold
-from verstack.stacking.supporting.optimise_params import optimise_params
-from verstack.stacking.supporting.generate_default_layers import generate_default_layers
-from verstack.stacking.supporting.args_validators import *
+from verstack.stacking.optimise_params import optimise_params
+from verstack.stacking.generate_default_layers import generate_default_layers
+from verstack.stacking.args_validators import *
 from verstack.tools import pretty_print
 from verstack.tools import timer
 

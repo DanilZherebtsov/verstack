@@ -35,7 +35,7 @@ veratack package contains the following tools:
 Stacker
 ******************
 
-Fully automated highly configurable stacking ensemble creation class. Can create single or multiple layers of stacked features. Applicable for train/test set features creation. Any number of layers and models within layers can be added to Stacker instance (models in layers must contain fit / predict / predict_proba `if classification` methods for the Stacker to properly create features using these models). 
+Fully automated highly configurable stacking ensemble creation class. Can create single or multiple layers of stacked features. Applicable for train/test set features creation. Any number of layers and models within layers can be added to Stacker instance (models in layers must contain fit / predict / predict_proba (`if classification`) methods for the Stacker to properly create features using these models). 
 
 Additional metafeatures can be created from stacked features if metafeats parameter is set to True.
 
@@ -168,7 +168,7 @@ Methods
 
     - ``models_list`` [list]
 
-      List containing initiated models instances. Each model must contain fit() / predict() / predict_proba() `if classification` methods
+      List containing initiated models instances. Each model must contain fit() / predict() / predict_proba() (`if classification`) methods
 
   returns
     None
