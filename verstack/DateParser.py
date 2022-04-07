@@ -569,19 +569,21 @@ class DateParser():
             created_datetime_cols (list): list of created datetie cols.
 
         """
-
         for col in self._datetime_cols:
-            if np.any(X[col].dt.microsecond):
-                # Divides and returns the integer value of the quotient. It dumps the digits after the decimal.
-                X[col] = X[col].values.astype(np.int64) // 10 ** 6
-            else:
-                self._extract_default_feats(X, col, train, prefix=col+'_')
-                if col+'_hour' in X:
-                    X[col+'_part_of_day'] = 0
-                    for i in range(len(X)):
-                        X[col + '_part_of_day'].iat[i] = self.extract_time_of_day(X[col+'_hour'].iat[i])
-                    if train: # do not append when parsing test
-                        self._created_datetime_cols.append(col+'_part_of_day')
+            try:
+                if np.any(X[col].dt.microsecond):
+                    # Divides and returns the integer value of the quotient. It dumps the digits after the decimal.
+                    X[col] = X[col].values.astype(np.int64) // 10 ** 6
+                else:
+                    self._extract_default_feats(X, col, train, prefix=col+'_')
+                    if col+'_hour' in X:
+                        X[col+'_part_of_day'] = 0
+                        X[col + '_part_of_day'] = X[col + '_part_of_day'].apply(self.extract_time_of_day)    
+                        if train: # do not append when parsing test
+                            self._created_datetime_cols.append(col+'_part_of_day')
+            except Exception as e:
+                print(f'!DateParser._extract_default_feats error on {col}')
+                print(e)
 
         if len(self._datetime_cols) == 2:
             try:
@@ -591,15 +593,21 @@ class DateParser():
                 X[timediff_colname] = X[timediff_colname] / np.timedelta64(1, 'D')
                 if train: # do not append when parsing test
                     self._created_datetime_cols.append(timediff_colname)
-            except:
-                pass
+            except Exception as e:
+                print('!DateParser timediff calculation error')
+                print(e)
+
         if self.country:
             for col in self._datetime_cols:
-                X[f'{col}_holidays_flag'] = self.parse_holidays(X[col], self.country, self.state, self.prov, holiday_names = False)
-                X[f'{col}_holidays_name'] = self.parse_holidays(X[col], self.country, self.state, self.prov, holiday_names = True)
-                if train: # do not append when parsing test
-                    self._created_datetime_cols.append(f'{col}_holidays_flag')
-                    self._created_datetime_cols.append(f'{col}_holidays_name')
+                try:
+                    X[f'{col}_holidays_flag'] = self.parse_holidays(X[col], self.country, self.state, self.prov, holiday_names = False)
+                    X[f'{col}_holidays_name'] = self.parse_holidays(X[col], self.country, self.state, self.prov, holiday_names = True)
+                    if train: # do not append when parsing test
+                        self._created_datetime_cols.append(f'{col}_holidays_flag')
+                        self._created_datetime_cols.append(f'{col}_holidays_name')
+                except Exception as e:
+                    print(f'!DateParser._parse_holidays error on {col}')
+                    print(e)
 
         if self.payday:
             if f'{col}_day' in X:
@@ -608,10 +616,14 @@ class DateParser():
                     self._created_datetime_cols.append(f'{col}_is_payday')
                 
         for col in self._datetime_cols:
-            X[f'{col}_days_from_epoch'] = X[col].apply(self._get_days_from_epoch)
-            if train: # do not append when parsing test
-                self._created_datetime_cols.append(f'{col}_days_from_epoch')
- 
+            try:
+                X[f'{col}_days_from_epoch'] = X[col].apply(self._get_days_from_epoch)
+                if train: # do not append when parsing test
+                    self._created_datetime_cols.append(f'{col}_days_from_epoch')
+            except Exception as e:
+                print(f'!DateParser._get_days_from_epoch error on {col}')
+                print(e)
+
         X.drop(self._datetime_cols, axis=1, inplace=True)
         return X
 
@@ -659,8 +671,8 @@ class DateParser():
             try:            
                 num_non_nan_vals_in_col = len(sample[col].dropna())
                 num_parsed_dates_in_col = len(sample[col].dropna().apply(parser.parse, default = DEFAULT))                
-                if num_non_nan_vals_in_col == num_parsed_dates_in_col:
-                    datetime_cols.append(col)                
+                if (num_non_nan_vals_in_col > 0) & (num_non_nan_vals_in_col == num_parsed_dates_in_col):
+                    datetime_cols.append(col)
             except:
                 continue
         # grab the actual datetime cols that can come from xlsx metadata
@@ -848,7 +860,6 @@ class DateParser():
                         # convert back the unlucky pd.to_datetime attempt to original format
                         X[col] = df[col]
                         self._datetime_cols = [x for x in self._datetime_cols if x != col]
-                        
                 #if len(self._datetime_cols) == 1:
                 X = self._extract_all_feats(X)
                 if self.verbose:
