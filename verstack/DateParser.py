@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Feb 10 16:28:55 2022
-
-@author: danil
-"""
-
 """
 Created on Wed Feb 09 15:01:43 2022
 
@@ -25,6 +17,7 @@ import gc
 import holidays
 from datetime import date, datetime
 import dateutil.parser as parser
+from verstack.tools import pretty_print
 
 # -----------------------------------------------------------------------------
 formats = [
@@ -170,7 +163,7 @@ class DateParser():
         supported_countries = holidays.list_supported_countries()
         def print_warning():
             for country in supported_countries:
-                print(country)
+                pretty_print(country, order=5, verbose=True)
         if value:
             if not isinstance(value, str):
                 print_warning()
@@ -254,7 +247,7 @@ class DateParser():
     @verbose.setter
     def verbose(self, verbose):
         if not isinstance(verbose, bool):
-            print('verbose argument must be bool (True/False). Setting default True')
+            pretty_print('verbose argument must be bool (True/False). Setting default True', order='error', verbose=self.verbose)
             self._verbose = True
         else:
             self._verbose = verbose
@@ -264,7 +257,7 @@ class DateParser():
         supported_countries = holidays.list_supported_countries()
         def print_warning():
             for country in supported_countries:
-                print(country)
+                pretty_print(f'{country}', order=5, verbose=True)
         if not isinstance(value, str):
             print_warning()
             raise TypeError('country name must be a string')
@@ -582,8 +575,7 @@ class DateParser():
                         if train: # do not append when parsing test
                             self._created_datetime_cols.append(col+'_part_of_day')
             except Exception as e:
-                print(f'!DateParser._extract_default_feats error on {col}')
-                print(e)
+                pretty_print(f'DateParser._extract_default_feats error on {col}\n{e}', order='error', verbose=self.verbose)
 
         if len(self._datetime_cols) == 2:
             try:
@@ -594,8 +586,7 @@ class DateParser():
                 if train: # do not append when parsing test
                     self._created_datetime_cols.append(timediff_colname)
             except Exception as e:
-                print('!DateParser timediff calculation error')
-                print(e)
+                pretty_print(f'DateParser timediff calculation error\n{e}', order='error', verbose=self.verbose)
 
         if self.country:
             for col in self._datetime_cols:
@@ -606,8 +597,7 @@ class DateParser():
                         self._created_datetime_cols.append(f'{col}_holidays_flag')
                         self._created_datetime_cols.append(f'{col}_holidays_name')
                 except Exception as e:
-                    print(f'!DateParser._parse_holidays error on {col}')
-                    print(e)
+                    pretty_print(f'DateParser._parse_holidays error on {col}\{e}', order='error', verbose=self.verbose)
 
         if self.payday:
             if f'{col}_day' in X:
@@ -621,8 +611,7 @@ class DateParser():
                 if train: # do not append when parsing test
                     self._created_datetime_cols.append(f'{col}_days_from_epoch')
             except Exception as e:
-                print(f'!DateParser._get_days_from_epoch error on {col}')
-                print(e)
+                pretty_print(f'DateParser._get_days_from_epoch error on {col}\n{e}', order='error', verbose=self.verbose)
 
         X.drop(self._datetime_cols, axis=1, inplace=True)
         return X
@@ -841,7 +830,7 @@ class DateParser():
 
         """
         if self.verbose:
-            print('\n   - Parsing dates')
+            pretty_print('Parsing dates', order=1, verbose=self.verbose)
         try:
             # try parsing month strings to month numbers on original data
             # first unconditional transformation
@@ -863,22 +852,20 @@ class DateParser():
                 #if len(self._datetime_cols) == 1:
                 X = self._extract_all_feats(X)
                 if self.verbose:
-                    print(f'      - Found and processed {len(self._datetime_cols)} date related columns')
-                    print(f'      - Created {len(self._created_datetime_cols)} new date related features')
+                    pretty_print(f'Found and processed {len(self._datetime_cols)} date related columns', order=3, verbose=self.verbose)
+                    pretty_print(f'Created {len(self._created_datetime_cols)} new date related features', order=3, verbose=self.verbose)
                     if len(self._datetime_cols) == 2:
-                        print('      - Introduced date/time difference feature')
-                    print('     ', '-'*50)
+                        pretty_print('Introduced date/time difference feature', order=3, verbose=self.verbose)
                     gc.collect()
                 return X
             else:               
                 if self.verbose:
-                    print('   - No datetime cols found')
+                    pretty_print('No datetime cols found', order=2, verbose=self.verbose)
                 return df_copy
         except Exception as e:
             self._datetime_cols = None
             self._created_datetime_cols = None
-            print('!!!Parse dates error')
-            print(e)
+            pretty_print(f'Parse dates error\{e}', order='error', verbose=True)
             return df_copy
 
     def _align_test_columns_after_transform(self, X, original_test_cols):
@@ -937,15 +924,15 @@ class DateParser():
                     X[col] = pd.to_datetime(X[col], errors='coerce')
             X = self._extract_all_feats(X, train=False)
             if self.verbose:
-                print(f'      - Found and processed {len(self._datetime_cols)} date related columns')
-                print(f'      - Created {len(self._created_datetime_cols)} new date related features')
+                pretty_print(f'Found and processed {len(self._datetime_cols)} date related columns', order=3, verbose=self.verbose)
+                pretty_print(f'Created {len(self._created_datetime_cols)} new date related features', order=3, verbose=self.verbose)
                 if len(self._datetime_cols) == 2:
-                    print('      - Introduced date/time difference feature')
-            X = self._align_test_columns_after_transform(X, original_test_cols)
+                    pretty_print('Introduced date/time difference feature')
+            X = self._align_test_columns_after_transform(X, original_test_cols, order=2, verbose=self.verbose)
             return X
         else:
             if self.verbose:
-                print('   - No datetime cols found')
+                pretty_print('No datetime cols found', order=2, verbose=self.verbose)
             df_copy = self._align_test_columns_after_transform(df_copy, original_test_cols)
             return df_copy
 

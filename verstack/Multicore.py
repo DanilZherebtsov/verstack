@@ -1,9 +1,10 @@
 import os
 import gc
+from tabnanny import verbose
 import numpy as np
 import pandas as pd
 import concurrent.futures
-from verstack.tools import timer
+from verstack.tools import timer, pretty_print
 import operator
 
 class Multicore():
@@ -16,8 +17,9 @@ class Multicore():
     __version__ = '0.1.2'
     
     def __init__(self,
-                 workers = False,
-                 multiple_iterables = False):
+                 workers=False,
+                 multiple_iterables=False,
+                 verbose=True):
         """
         Initialize class instance.
 
@@ -35,13 +37,15 @@ class Multicore():
         """
         
         self.workers = workers
-        self.multiple_iterables = multiple_iterables           
+        self.multiple_iterables = multiple_iterables
+        self.verbose = verbose
         print(self.__repr__())
 
     # print init parameters when calling the class instance
     def __repr__(self):
         return f'Multicore(workers = {self.workers},\
-            \n          multiple_iterables = {self.multiple_iterables}'
+            \n          multiple_iterables = {self.multiple_iterables},\
+            \n          verbose = {self.verbose}'
 
     # Validate init arguments
     # =========================================================
@@ -67,6 +71,14 @@ class Multicore():
     def multiple_iterables(self, mi):
         if type(mi) != bool : raise Exception('multiple_iterables must be bool (True/False)')
         self._multiple_iterables = mi
+    # -------------------------------------------------------
+    # verbose
+    verbose = property(operator.attrgetter('_verbose'))
+
+    @verbose.setter
+    def verbose(self, val):
+        if type(val) != bool : raise Exception('verbose must be bool (True/False)')
+        self._verbose = val
     # =========================================================
 
     def _assign_workers(self, workers):
@@ -128,7 +140,7 @@ class Multicore():
     
         """
         
-        print(f'\nInitializing {self.workers} workers for {func.__name__} execution')
+        pretty_print(f'Initializing {self.workers} workers for {func.__name__} execution', order=1, verbose=self.verbose)
     
         if self.multiple_iterables:
             # create chunks
