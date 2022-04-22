@@ -43,7 +43,7 @@ def pretty_print(message=None, order=1, verbose=True, underline=None):
         order=3 - internal function first order results
         order=4 - internal function second order results
         order=5 - internal function third order results
-        order='error' - error message print
+        order='error' - error message print including traceback
     Parameters
     ----------
     message : str
@@ -60,13 +60,15 @@ def pretty_print(message=None, order=1, verbose=True, underline=None):
     None.
 
     '''
+    import traceback
+    
     message_prefix = {
         1       :"\n * ",
         2       :"\n   - ",
         3       :"     . ",
         4       :"     .. ",
         5       :"     ... ",
-        'error' : "! "
+        'error' : f"{traceback.format_exc()}\n! "
         }
     
     if not verbose:
