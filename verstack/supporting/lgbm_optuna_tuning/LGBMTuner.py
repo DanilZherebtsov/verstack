@@ -958,5 +958,5 @@ class LGBMTuner:
             pretty_print(f"Optuna hyperparameters optimization finished", order=3, verbose=True)
             pretty_print(f"Best trial number:{study.best_trial.number:>2}{break_symbol:>5}     {optimization_metric_func.__name__}:{study.best_trial.value:>29}", order=4, verbose=True, underline='-')
             pretty_print(f'n_estimators optimization finished', order=3, verbose=True)
-            pretty_print(f'best iteration:{iteration:>5}{break_symbol:>4}     {n_rounds_eval_metric}:{best_score:>29}', order=4, verbose=True, underline='=')
+            pretty_print(f'best iteration:{iteration:>5}{break_symbol:>5}     {n_rounds_eval_metric}:{best_score:>19}', order=4, verbose=True, underline='=')
 

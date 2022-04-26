@@ -23,6 +23,7 @@ if not rtd_build_env:
     dependencies.append('mlxtend')
     dependencies.append('tensorflow==2.7.0')
     dependencies.append('keras==2.7.0')
+    dependencies.append('category_encoders==2.4.0')
 
 setup(
   name = 'verstack',
