@@ -541,11 +541,12 @@ class LGBMTuner:
 
         if trial.number/5 % 1 == 0:
             self.printer.print(f'Trial number: {trial.number} finished', order=3)
-            self.printer.print(f'Optimization score ({optimization_direction:<4}): {optimization_metric_func.__name__}: {result}', order=4, breakline='.')
+            self.printer.print(f'Optimization score ({optimization_direction:<4}): {optimization_metric_func.__name__}: {result}', order=4)
             # calculate & print eval_metric only if eval_metric != optimization_metric
             if self.metric != optimization_metric_func.__name__:
                 eval_score = get_eval_score(valid_y, pred, self.metric, params['objective'])
-                self.printer.print(f'Evaluation score ({print_lower_greater_better(self.metric):<4}): {self.metric}: {eval_score}', order=4, breakline='.')
+                self.printer.print(f'Evaluation score ({print_lower_greater_better(self.metric):<4}): {self.metric}: {eval_score}', order=4)
+            self.printer.print(breakline='.')
         return result
 
     # ------------------------------------------------------------------------------------------
