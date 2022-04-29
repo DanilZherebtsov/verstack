@@ -94,7 +94,7 @@ class Factorizer():
     def transform(self, df):
         '''
         Factorize data column saved in self._colname using saved patterns
-        Unseen categories will be represented as NaN.
+        Unseen categories will be represented as self.na_sentinel.
 
         Parameters
         ----------
@@ -111,6 +111,7 @@ class Factorizer():
         result = data.map(self._pattern).tolist()
         # convert back to int because mapping will make all float if nan was present
         result = [int(x) if x==x else x for x in result]
+        result = [x if x==x else self.na_sentinel for x in result]
         transformed_df = df.copy()
         transformed_df[self._colname] = result
         # align column type to that of fit_transform(). May be necessary if train had NaNs and test does not.
