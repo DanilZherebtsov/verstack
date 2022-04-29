@@ -1,15 +1,10 @@
-"""
-Created on Thu Mar 24 19:55:32 2022
-@author: danil zherebtsov
-"""
-
 import pandas as pd
 import copy
 from sklearn.model_selection import KFold, StratifiedKFold
 from verstack.stacking.optimise_params import optimise_params
 from verstack.stacking.generate_default_layers import generate_default_layers
 from verstack.stacking.args_validators import *
-from verstack.tools import timer, pretty_print
+from verstack.tools import timer, Printer
 
 '''
 TODO: 
@@ -18,7 +13,7 @@ TODO:
 
 class Stacker:
     
-    __version__ = '0.0.2'
+    __version__ = '0.0.3'
     
     def __init__(self, 
                  objective, 
@@ -109,6 +104,8 @@ class Stacker:
         None.
 
         '''
+        self.verbose = verbose
+        self.printer = Printer(verbose=self.verbose)
         self.objective = objective
         self.auto = auto
         self.num_auto_layers = num_auto_layers
@@ -121,7 +118,6 @@ class Stacker:
         self.gridsearch_iterations = gridsearch_iterations
         self.stacking_feats_depth = stacking_feats_depth
         self.include_X = include_X
-        self.verbose = verbose
         self.stacked_features = {} #lists of stacked features by layers
 
         self._set_default_layers()
@@ -309,7 +305,7 @@ class Stacker:
             trained_models_list.append(fold_model)            
             fold+=1
             if fold%2 == 0:
-                pretty_print(f'fold {fold} trained/predicted', 3, self.verbose)
+                self.printer.print(f'fold {fold} trained/predicted', 4)
         self._trained_models_list_buffer = trained_models_list
         return pred_series
 
@@ -470,7 +466,7 @@ class Stacker:
             preds_from_models = self._average_predictions(preds_from_models, models_cnt)
             preds_from_models.name = feat_name
             new_feats.append(preds_from_models)                
-            pretty_print(f'predicted with model {len(new_feats)}', 3, self.verbose)
+            self.printer.print(f'predicted with model {len(new_feats)}', 3)
         return new_feats
     
     def _create_new_feats_in_train(self, X, y, layer, applicable_feats):
@@ -493,9 +489,9 @@ class Stacker:
 
         '''
         if y is None:
-            pretty_print(f'Predicting with {layer} models', 2, self.verbose)
+            self.printer.print(f'Predicting with {layer} models', 2)
         else:
-            pretty_print(f'Training/predicting with {layer} models', 2, self.verbose)            
+            self.printer.print(f'Training/predicting with {layer} models', 2)
         cols_before_layer_stacking = X.columns.tolist()
         # create layer placeholder in self.trained_models list
         if layer not in self.trained_models.keys():
@@ -611,7 +607,7 @@ class Stacker:
             train featues with appended stacking features.
 
         '''
-        pretty_print('Initiating Stacker.fit_transform', order=1, verbose=self.verbose)
+        self.printer.print('Initiating Stacker.fit_transform', order=1)
         validate_fit_transform_args(X, y)
         X_with_stacked_feats = X.copy()
         X_with_stacked_feats = self._apply_all_or_extra_layers_to_train(X_with_stacked_feats, y)
@@ -629,10 +625,8 @@ class Stacker:
             test featues with appended stacking features.
 
         '''
-        pretty_print('Initiating Stacker.transform', order=1, verbose=self.verbose)
+        self.printer.print('Initiating Stacker.transform', order=1)
         validate_transform_args(X)
         X_with_stacked_feats = X.copy()
         X_with_stacked_feats = self._apply_all_or_extra_layers_to_test(X_with_stacked_feats)
         return X_with_stacked_feats
-
-

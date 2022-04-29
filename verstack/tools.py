@@ -33,69 +33,73 @@ def timer(func):
         return result
     return wrapped
 
-def pretty_print(message=None, order=1, verbose=True, underline=None):
-    '''Output messages to the console based on seniority level (order).
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Apr 27 17:51:24 2022
 
-    Logic:
-        order=0 - program title print
-        order=1 - major function title print
-        order=2 - minor function title print
-        order=3 - internal function first order results
-        order=4 - internal function second order results
-        order=5 - internal function third order results
-        order='error' - error message print including traceback
-    Parameters
-    ----------
-    message : str
-        message to print
-    order : int, optional
-        order to tabulate the message print, can take values between 1 and 4. The default is 1.
-    verbose : bool, optional
-        Flag to print or not print message.
-    underline : str, optional
-        String symbol to create an underline below the message
+@author: danil
+"""
 
-    Returns
-    -------
-    None.
-
-    '''
-    import traceback
+class Printer:
     
-    message_prefix = {
-        1       :"\n * ",
-        2       :"\n   - ",
-        3       :"     . ",
-        4       :"     .. ",
-        5       :"     ... ",
-        'error' : f"{traceback.format_exc()}\n! "
-        }
+    __version__ = '0.1.1'
     
-    if not verbose:
-        return
+    def __init__(self, verbose=True):
+        self.verbose=verbose
 
-    if not message:
-        if underline:
-            print(f' {underline*75}')
-    else:
-        if order == 0:
-            print('\n')
-            print('-'*75)
-            print(f'{message}')
-            print('-'*75)
+    def print(self, message=None, order=1, breakline=None, force_print=False):
+        '''Output messages to the console based on seniority level (order).
+
+        Logic:
+            order=0 - program title print
+            order=1 - major function title print
+            order=2 - minor function title print
+            order=3 - internal function first order results
+            order=4 - internal function second order results
+            order=5 - internal function third order results
+            order='error' - error message print including traceback
+        Parameters
+        ----------
+        message : str
+            message to print
+        order : int, optional
+            order to tabulate the message print, can take values between 1 and 4. The default is 1.
+        breakline : str, optional
+            String symbol to print a breakline
+        force_print : bool, optional
+            If True will print message even if self.verbose == False. 
+                Applicable for non-error important messages that need to be printed.
+
+        Returns
+        -------
+        None.
+
+        '''
+        import traceback
+        
+        message_prefix = {
+            1       :"\n * ",
+            2       :"\n   - ",
+            3       :"     . ",
+            4       :"     .. ",
+            5       :"     ... ",
+            'error' : f"{traceback.format_exc()}\n! "
+            }
+        
+        if order!='error' and not self.verbose and not force_print:
+            return
+
+        if not message:
+            if breakline:
+                print(f' {breakline*75}')
         else:
-            print(f'{message_prefix[order]}{message}')
-            if underline: 
-                print(f' {underline*75}')
-
-def verbosity_decorator(func, verbose):
-    '''Decorator for pretty_print to set verbosity globaly.
-
-    Useful for large projects to inherit the verbosity level
-    with a single setting'''
-    from functools import wraps
-    @wraps(func)
-    def decorated(*args, **kwargs):
-        kwargs['verbose'] = verbose
-        func(*args, **kwargs)
-    return decorated
+            if order == 0:
+                print('\n')
+                print('-'*75)
+                print(f'{message}')
+                print('-'*75)
+            else:
+                print(f'{message_prefix[order]}{message}')
+                if breakline: 
+                    print(f' {breakline*75}')

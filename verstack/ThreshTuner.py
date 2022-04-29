@@ -4,6 +4,9 @@ import pandas as pd
 from collections import Counter
 
 class ThreshTuner():
+    
+    __version__ = '0.0.2'
+    
     ''' Tune threshold for binary classificaiton models output. '''
     
     def __init__(self, n_thresholds = 200, min_threshold = None, max_threshold = None):

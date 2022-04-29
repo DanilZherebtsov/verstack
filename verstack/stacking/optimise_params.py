@@ -1,4 +1,4 @@
-from verstack.tools import pretty_print
+from verstack.tools import Printer
 from sklearn.model_selection import RandomizedSearchCV
 
 def get_grid_search_instance(model, params, objective, gridsearch_iterations):
@@ -52,7 +52,8 @@ def optimise_params(model, X, y, objective, gridsearch_iterations, verbose):
     import sklearn
     import lightgbm
     import xgboost
-    pretty_print(f'Optimising model hyperparameters', 3, verbose)
+    printer = Printer(verbose=verbose)
+    printer.print(f'Optimising model hyperparameters', 3)
     try:
         # LGBM OPTIMIZATION
         if type(model) in [lightgbm.sklearn.LGBMRegressor, lightgbm.sklearn.LGBMClassifier]:
@@ -126,8 +127,8 @@ def optimise_params(model, X, y, objective, gridsearch_iterations, verbose):
         rand_gridsearch.fit(X, y)
         model.set_params(**rand_gridsearch.best_params_)
 
-    except Exception as e:
-        pretty_print(f'Model not in optimisation list {model}', order = 4, verbose = verbose)
+    except:
+        printer.print(f'Model not in optimisation list {model}', order = 4)
     
     return model
 # -----------------------------------------------------------------------------

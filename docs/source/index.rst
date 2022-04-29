@@ -20,7 +20,7 @@ veratack package contains the following tools:
  * **MeanTargetEncoder** encode categoric variable by mean of the target variable
  * **WeightOfEvidenceEncoder** encode categoric variable as a weight of evidence of a binary target variable
 * **timer** convenient timer decorator to quickly measure and display time of any function execution
-* **pretty_print** a convenient function to set up and execute print statements based on the 'global' verbosity setting within large projects
+* **Printer** a convenient function to set up and execute print statements based on the 'global' verbosity setting within large projects
 
 
 .. note:: 
@@ -869,6 +869,10 @@ Parameters
 
   Multiple iterables must be passed as a list (see examples below).
 
+* ``verbose`` bool [default=True]
+
+  Enable function execution progress print to the console
+
 Methods
 ===========================
 * ``execute(func, iterable)``
@@ -1654,59 +1658,125 @@ timer is a decorator function: it must placed above the function (that needs to 
   >>>Time elapsed for func execution: 0.0002 seconds
 
 ******************
-pretty_print
+Printer
 ******************
 
-Function to execute print statements subject to verbose argument and order of printed message. 
+Class to execute print statements subject to verbose argument and order of printed message.
+Includes errors stack trace if order == 'error'.
+Add print statements to your program with different level of indentation for different messages and have them printed subject on the global verbosity setting in your program. A convenient way to set up verbosity for large projects without having to define all the print statements with ``if verbose == True``. Just pass the verbose argument to the Printer class instance at initialisation, devine all the print messages with Printer.print() instaed of builtin print() and if ``verbose==True`` the messages will be printed, else only the messages with ``order=='error'`` will be printed. Also includes the force_print argument, which will print the selected messages even if ``verbose==False``. Applicable for non-error important messages that need to be printed.
 
 .. code-block:: python 
 
-  verstack.tools.pretty_print
+  from verstack.tools import Printer
 
 Examples
 ================================================================
 
-Add print statements to your program with different level of indentation for different messages and have them printed subject on the global verbosity setting in your program. A convenient way to set up verbosity for large projects without having to define all the print statements with ``if verbose == True``. Just pass the verbose argument to the pretty_print function.
+Abstract example
 
 .. code-block:: python
 
-  from verstack.tools import pretty_print
+  from verstack.tools import Printer
+  def long_program_with_multiple_modules(verbose):
+      printer = Printer(verbose=verbose)
+      
+      printer.print('Program header', order = 0)
+      printer.print('Module/major step/epoch name', order = 1)
+      printer.print('Function inside module name', order = 2)
+      printer.print('func first order result 1', order = 3)
+      printer.print('func first order result 2', order = 3)
+      printer.print('func second order result 1', order = 4)
+      printer.print('func second order result 2', order = 4)
+      printer.print('func third order result 1', order = 5)
+      printer.print('func third order result 2', order = 5)
+      printer.print(breakline = '=')
+
+      printer.print('message with breakline below', order = 1, breakline='.')
+      
+      try:
+          5/0
+      except:
+          printer.print('5/0 division not executed', order='error')
+      
+  long_program_with_multiple_modules(verbose=True)
+
+  >>> ---------------------------------------------------------------------------
+  >>> Program header
+  >>> ---------------------------------------------------------------------------
+  >>> 
+  >>>  * Module/major step/epoch name
+  >>> 
+  >>>    - Function inside module name
+  >>>      . func first order result 1
+  >>>      . func first order result 2
+  >>>      .. func second order result 1
+  >>>      .. func second order result 2
+  >>>      ... func third order result 1
+  >>>      ... func third order result 2
+  >>>  ===========================================================================
+  >>> 
+  >>>  * message with breakline below
+  >>>  ...........................................................................
+  >>> Traceback (most recent call last):
+  >>>   File "<ipython-input-37-f1aa2de68f72>", line 18, in long_program_with_multiple_modules
+  >>>     5/0
+  >>> ZeroDivisionError: division by zero
+  >>> 
+  >>> ! 5/0 division not executed
+
+Applied example 
+
+.. code-block:: python
+
+  from verstack.tools import Printer
 
   # define a function/program/code
 
   def do_something(a, b, c, verbose):
-    pretty_print('Executing do_something() function', order = 0, verbose = verbose)
-    
-    result_1 = a + b
-    pretty_print(f'A + B result is {result_1}', order = 1, verbose = verbose)
-    
-    try:
-      a / b:
-    except ZeroDivisionError:
-      pretty_print('Argument b can not be zero', order = 2, verbose = verbose)
-    
-    result_2 = b + calculated
-    pretty_print(f'B + C result is {result_2}', order = 1, verbose = verbose)
-    
-    pretty_print('do_something() function execution completed', order = 1, verbose = verbose)
-
+      printer = Printer(verbose=verbose)
+      printer.print('Executing do_something() function', order = 0)
+      printer.print('Running addition operations', order = 1)
+      printer.print('adding a+b and b+c', order = 2)
+      result_1 = a + b
+      result_2 = b + c
+      printer.print(f'a + b result is {result_1}', order = 3)
+      printer.print(f'b + c result is {result_2}', order = 3)
+      
+      printer.print('Trying to make an error', order = 1)
+      try:
+          a / b
+      except ZeroDivisionError:
+          printer.print('Argument b can not be zero', order = 'error')      
+  
   do_something(1,0,5, verbose = False)
-  # no output to the console
+  
+  >>> Traceback (most recent call last):
+  >>> File "<ipython-input-17-bb8dafd4f34d>", line 9, in do_something
+  >>>   a / b
+  >>> ZeroDivisionError: division by zero
+
+  >>> ! Argument b can not be zero
+  # only error message gets printed
 
   do_something(1,0,5, verbose = True)
 
-  >>> ----------------------------------------------------------------------
+  >>> ---------------------------------------------------------------------------
   >>> Executing do_something() function
-  >>> ----------------------------------------------------------------------
-
-  >>> - A + B result is 1
-  >>>   . Argument b can not be zero
-
-  >>> - B + C result is 5
-
-  >>> - do_something() function execution completed
-  
-
+  >>> ---------------------------------------------------------------------------
+  >>> 
+  >>>  * Running addition operations
+  >>> 
+  >>>    - adding a+b and b+c
+  >>>      . a + b result is 4
+  >>>      . b + c result is 8
+  >>> 
+  >>>  * Trying to make an error
+  >>>   Traceback (most recent call last):
+  >>>     File "<ipython-input-38-050165db3ba2>", line 13, in do_something
+  >>>       a / b
+  >>>   ZeroDivisionError: division by zero
+  >>> 
+  >>> ! Argument b can not be zero
 
 ******************
 Links

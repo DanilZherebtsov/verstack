@@ -17,7 +17,7 @@ import gc
 import holidays
 from datetime import date, datetime
 import dateutil.parser as parser
-from verstack.tools import pretty_print
+from verstack.tools import Printer
 
 # -----------------------------------------------------------------------------
 formats = [
@@ -105,6 +105,8 @@ states_provinces_dict = {
     }
 # -----------------------------------------------------------------------------
 class DateParser():
+    
+    __version__ = '0.0.5'
 
     def __init__(self, country = None, state = None, prov = None, payday = None, verbose = True):
         '''
@@ -129,16 +131,16 @@ class DateParser():
         None.
 
         '''
+        self.verbose = verbose
+        self.printer = Printer(verbose=self.verbose)
         self.country = country
         self.state = state
         self.prov = prov
         self.payday = payday
-        self.verbose = verbose
         self._datetime_cols = []
         self._created_datetime_cols = []
         self.supported_formats = formats
 
-    __version__ = '0.0.4'
     
     # -----------------------------------------------------------------------------
     # print init parameters when calling the class instance
@@ -153,6 +155,11 @@ class DateParser():
 
     # Validate init arguments
     # =========================================================================
+    def _print_warning(self):
+        supported_countries = holidays.list_supported_countries()
+        for country in supported_countries:
+            self.printer.print(country, order=5, force_print=True)
+
     # country
     @property
     def country(self):
@@ -161,15 +168,12 @@ class DateParser():
     @country.setter
     def country(self, value):
         supported_countries = holidays.list_supported_countries()
-        def print_warning():
-            for country in supported_countries:
-                pretty_print(country, order=5, verbose=True)
         if value:
             if not isinstance(value, str):
-                print_warning()
+                self._print_warning()
                 raise TypeError('country name must be a string')
             if value not in supported_countries:
-                print_warning()
+                self._print_warning()
                 raise ValueError(f'{value} is not a valid country name\nPlease enter a valid country name from the above list\nSupported countries list can be obtained by date_parser_instance.list_supported_countries() function')
             self._country = value
         else:
@@ -247,7 +251,7 @@ class DateParser():
     @verbose.setter
     def verbose(self, verbose):
         if not isinstance(verbose, bool):
-            pretty_print('verbose argument must be bool (True/False). Setting default True', order='error', verbose=self.verbose)
+            self.printer.print('verbose argument must be bool (True/False). Setting default True', order='error')
             self._verbose = True
         else:
             self._verbose = verbose
@@ -255,14 +259,11 @@ class DateParser():
     # Validate methods arguments
     def _validate_country(self, value):
         supported_countries = holidays.list_supported_countries()
-        def print_warning():
-            for country in supported_countries:
-                pretty_print(f'{country}', order=5, verbose=True)
         if not isinstance(value, str):
-            print_warning()
+            self._print_warning()
             raise TypeError('country name must be a string')
         if value not in supported_countries:
-            print_warning()
+            self._print_warning()
             raise ValueError(f'{value} is not a valid country name\nPlease enter a valid country name from the above list\nSupported countries list can be obtained by date_parser_instance.list_supported_countries() function')
         return value
     # -------------------------------------------------------------------------
@@ -574,8 +575,8 @@ class DateParser():
                         X[col + '_part_of_day'] = X[col + '_part_of_day'].apply(self.extract_time_of_day)    
                         if train: # do not append when parsing test
                             self._created_datetime_cols.append(col+'_part_of_day')
-            except Exception as e:
-                pretty_print(f'DateParser._extract_default_feats error on {col}\n{e}', order='error', verbose=self.verbose)
+            except:
+                self.printer.print(f'DateParser._extract_default_feats error on {col}', order='error')
 
         if len(self._datetime_cols) == 2:
             try:
@@ -585,8 +586,8 @@ class DateParser():
                 X[timediff_colname] = X[timediff_colname] / np.timedelta64(1, 'D')
                 if train: # do not append when parsing test
                     self._created_datetime_cols.append(timediff_colname)
-            except Exception as e:
-                pretty_print(f'DateParser timediff calculation error\n{e}', order='error', verbose=self.verbose)
+            except:
+                self.printer.print(f'DateParser timediff calculation error', order='error')
 
         if self.country:
             for col in self._datetime_cols:
@@ -596,8 +597,8 @@ class DateParser():
                     if train: # do not append when parsing test
                         self._created_datetime_cols.append(f'{col}_holidays_flag')
                         self._created_datetime_cols.append(f'{col}_holidays_name')
-                except Exception as e:
-                    pretty_print(f'DateParser._parse_holidays error on {col}\{e}', order='error', verbose=self.verbose)
+                except:
+                    self.printer.print(f'DateParser._parse_holidays error on {col}', order='error')
 
         if self.payday:
             if f'{col}_day' in X:
@@ -610,8 +611,8 @@ class DateParser():
                 X[f'{col}_days_from_epoch'] = X[col].apply(self._get_days_from_epoch)
                 if train: # do not append when parsing test
                     self._created_datetime_cols.append(f'{col}_days_from_epoch')
-            except Exception as e:
-                pretty_print(f'DateParser._get_days_from_epoch error on {col}\n{e}', order='error', verbose=self.verbose)
+            except:
+                self.printer.print(f'DateParser._get_days_from_epoch error on {col}', order='error')
 
         X.drop(self._datetime_cols, axis=1, inplace=True)
         return X
@@ -829,8 +830,7 @@ class DateParser():
             df (pd.DataFrame): data with new features parsed from datetime columns.
 
         """
-        if self.verbose:
-            pretty_print('Parsing dates', order=1, verbose=self.verbose)
+        self.printer.print('Parsing dates', order=1)
         try:
             # try parsing month strings to month numbers on original data
             # first unconditional transformation
@@ -851,21 +851,19 @@ class DateParser():
                         self._datetime_cols = [x for x in self._datetime_cols if x != col]
                 #if len(self._datetime_cols) == 1:
                 X = self._extract_all_feats(X)
-                if self.verbose:
-                    pretty_print(f'Found and processed {len(self._datetime_cols)} date related columns', order=3, verbose=self.verbose)
-                    pretty_print(f'Created {len(self._created_datetime_cols)} new date related features', order=3, verbose=self.verbose)
-                    if len(self._datetime_cols) == 2:
-                        pretty_print('Introduced date/time difference feature', order=3, verbose=self.verbose)
-                    gc.collect()
+                self.printer.print(f'Found and processed {len(self._datetime_cols)} date related columns', order=3)
+                self.printer.print(f'Created {len(self._created_datetime_cols)} new date related features', order=3)
+                if len(self._datetime_cols) == 2:
+                    self.printer.print('Introduced date/time difference feature', order=3)
+                gc.collect()
                 return X
             else:               
-                if self.verbose:
-                    pretty_print('No datetime cols found', order=2, verbose=self.verbose)
+                self.printer.print('No datetime cols found', order=2)
                 return df_copy
-        except Exception as e:
+        except:
             self._datetime_cols = None
             self._created_datetime_cols = None
-            pretty_print(f'Parse dates error\{e}', order='error', verbose=True)
+            self.printer.print(f'Parse dates error', order='error')
             return df_copy
 
     def _align_test_columns_after_transform(self, X, original_test_cols):
@@ -923,16 +921,13 @@ class DateParser():
                 if col in X:
                     X[col] = pd.to_datetime(X[col], errors='coerce')
             X = self._extract_all_feats(X, train=False)
-            if self.verbose:
-                pretty_print(f'Found and processed {len(self._datetime_cols)} date related columns', order=3, verbose=self.verbose)
-                pretty_print(f'Created {len(self._created_datetime_cols)} new date related features', order=3, verbose=self.verbose)
-                if len(self._datetime_cols) == 2:
-                    pretty_print('Introduced date/time difference feature')
+            self.printer.print(f'Found and processed {len(self._datetime_cols)} date related columns', order=3)
+            self.printer.print(f'Created {len(self._created_datetime_cols)} new date related features', order=3)
+            if len(self._datetime_cols) == 2:
+                self.printer.print('Introduced date/time difference feature', order=4)
             X = self._align_test_columns_after_transform(X, original_test_cols, order=2, verbose=self.verbose)
             return X
         else:
-            if self.verbose:
-                pretty_print('No datetime cols found', order=2, verbose=self.verbose)
+            self.printer.print('No datetime cols found', order=2)
             df_copy = self._align_test_columns_after_transform(df_copy, original_test_cols)
             return df_copy
-

@@ -1,0 +1,35 @@
+1. cd to unittest folder
+
+2. create/activate virtual environment
+$ source verstack_testing_env/bin/activate
+
+3. install requirements.txt
+$ pip install -r requirements.txt
+
+4. run tests 
+$ python -m unittest discover
+
+5. deactivate virtual environment
+$ deactivate
+
+-----------------------------------------------------
+unittest options
+-----------------------------------------------------
+Video: https://www.youtube.com/watch?v=6tNS--WetLI
+Docs: https://docs.python.org/3/library/unittest.html#unittest.TestCase.debug
+
+Method                          Checks that
+-----------------------------------------------------
+assertEqual(a, b)               a == b
+assertNotEqual(a, b)            a != b
+assertTrue(x)                   bool(x) is True
+assertFalse(x)                  bool(x) is False
+assertIs(a, b)                  a is b
+assertIsNot(a, b)               a is not b
+assertIsNone(x)                 x is None
+assertIsNotNone(x)              x is not None
+assertIn(a, b)                  a in b
+assertNotIn(a, b)               a not in b
+assertIsInstance(a, b)          isinstance(a, b)
+assertNotIsInstance(a, b)       not isinstance(a, b)
+-----------------------------------------------------

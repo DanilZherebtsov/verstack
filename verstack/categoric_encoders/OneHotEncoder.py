@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from verstack.categoric_encoders.args_validators import is_bool_na_sentinel, assert_fit_transform_args, assert_transform_args
-from verstack.tools import pretty_print
+from verstack.tools import Printer
 
 class OneHotEncoder():
     '''
@@ -25,7 +25,7 @@ class OneHotEncoder():
         -------
         None.
         '''
-
+        self.printer = Printer(verbose=True)
         self._categories = None # save for inverse_transform()
         self._colname = None
         self._na_sentinel = is_bool_na_sentinel(na_sentinel)
@@ -120,7 +120,7 @@ class OneHotEncoder():
         else:
             for col in self.__one_hot_cols_sequence:
                 if col not in transformed:
-                    pretty_print(f'added empty one_hot column {col}', order=3, verbose=True)
+                    self.printer.print(f'added empty one_hot column {col}', order=3)
                     transformed[col] = 0
             transformed = transformed[self.__one_hot_cols_sequence]
         return transformed
@@ -166,7 +166,7 @@ class OneHotEncoder():
         try: # check if the one-hot-encoded columns are present in df
             assert np.all([col in df for col in self.__one_hot_cols_sequence]) 
         except AssertionError:
-            pretty_print('Passed data does not contain the ohe-hot-encoded columns sequence', order='error', verbose=True)
+            self.printer.print('Passed data does not contain the ohe-hot-encoded columns sequence', order='error')
             return df        
         inverse_transform_map = dict(zip(self.__one_hot_cols_sequence, self._categories))
         inverse_transformed_col = df[self.__one_hot_cols_sequence].replace(0, np.nan).idxmax(axis=1)

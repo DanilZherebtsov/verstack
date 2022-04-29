@@ -10,6 +10,9 @@ import concurrent.futures
 import operator
 
 class NaNImputer():
+    
+    __version__ = '0.1.2'
+
     """Missing values (NaNs) imputation program.
 
     Performs various operations on a dataset including:
@@ -36,7 +39,6 @@ class NaNImputer():
         check the __init__ docstring for details.
 
     """
-    __version__ = '0.1.1'
 
     def __init__(self,
                  conservative = False,

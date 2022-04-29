@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from verstack.categoric_encoders.args_validators import is_bool_na_sentinel, assert_fit_transform_args, assert_transform_args, assert_binary_target
-from verstack.tools import pretty_print
+from verstack.tools import Printer
 
 class WeightOfEvidenceEncoder():
     '''
@@ -30,6 +30,7 @@ class WeightOfEvidenceEncoder():
         -------
         None.
         '''
+        self.printer = Printer(verbose=True)
         self._na_sentinel = is_bool_na_sentinel(na_sentinel)
         self._colname = None
         self._params = {'randomized':True, 'random_state':42, 'handle_missing':'return_nan' if not na_sentinel else 'value'} if not kwargs else kwargs
@@ -154,7 +155,7 @@ class WeightOfEvidenceEncoder():
         assert_transform_args(df)
         # first check for inverse_transform without noize
         if np.all([x in list(self.__pattern.keys()) for x in df[self._colname].unique()]):
-            pretty_print('Inverse transforming without noize', order=3, verbose=True)
+            self.printer.print('Inverse transforming without noize', order=3)
             inverse_encoded_col = df[self._colname].map(self.__pattern)
             inverse_encoded_df = df.copy()
             inverse_encoded_df[self._colname] = inverse_encoded_col

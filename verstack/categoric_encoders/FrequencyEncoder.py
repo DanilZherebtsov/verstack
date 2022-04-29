@@ -1,7 +1,15 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Apr 28 11:35:49 2022
+
+@author: danil
+"""
+
 import pandas as pd
 import numpy as np
 from verstack.categoric_encoders.args_validators import is_bool_na_sentinel, assert_fit_transform_args, assert_transform_args
-from verstack.tools import pretty_print
+from verstack.tools import Printer
 
 class FrequencyEncoder():
     '''
@@ -9,10 +17,8 @@ class FrequencyEncoder():
     
     Can handle missing values - encode NaN by NaN frequency or leave NaN values untransformed.
     Resulting frequencies are normalized as a percentage.
-
     
     '''
-
     __version__ = '0.1.1'
     
     def __init__(self, na_sentinel = True):
@@ -48,7 +54,6 @@ class FrequencyEncoder():
     @property 
     def na_sentinel(self): 
         return self._na_sentinel
-
         
     def fit_transform(self, df, colname):
         '''
@@ -76,13 +81,6 @@ class FrequencyEncoder():
             encoding[np.nan] = na_count
         else:
             pass
-        # check if some categories have the same frequency, if so, add 0.1 to
-        # such categories in order to distinguish them
-
-        # encoding_nunique = encoding.nunique()
-        # df_colname_nunique = df[colname].nunique() if df[colname].isnull().sum() == 0 else df[colname].nunique()+1
-        # while encoding_nunique != df_colname_nunique:
-        #    encoding[encoding.duplicated()] += .1
 
         encoding[encoding.duplicated()] += .1
         # represent encoding as a percent from dataset length
@@ -114,6 +112,7 @@ class FrequencyEncoder():
         df : pd.DataFrame
             Data containing the transformed column.
         '''
+        printer = Printer(verbose=True)
 
         assert_transform_args(df)
         self._check_data_for_transformation_colname_content(df)
@@ -121,7 +120,7 @@ class FrequencyEncoder():
         encoded_df[self._colname] = encoded_df[self._colname].map(self._pattern)
         if self._na_sentinel:
             if encoded_df[self._colname].isnull().sum() > 0:
-                pretty_print('Filling unknown categories with most common frequency', order=3, verbose=True)
+                printer.print('Filling unknown categories with most common frequency', order=3)
                 encoded_df[self._colname].fillna(max(self._pattern.values()), inplace = True)
         return encoded_df      
 

@@ -4,17 +4,16 @@ from tabnanny import verbose
 import numpy as np
 import pandas as pd
 import concurrent.futures
-from verstack.tools import timer, pretty_print
+from verstack.tools import timer, Printer
 import operator
 
 class Multicore():
     """
     Parallelize any function execution program.
-    
     Use any function and iterable(s) to perform computation using all of the available cpu cores.
 
     """    
-    __version__ = '0.1.2'
+    __version__ = '0.1.3'
     
     def __init__(self,
                  workers=False,
@@ -26,9 +25,11 @@ class Multicore():
         Parameters
         ----------
         workers : int/bool, optional
-            Number of workers if passed by. The default is False.
+            Number of workers. The default is False.
         multiple_iterables : bool, optional
             If func needs to iterate over multiple iterables, set to True. The default is False.
+        verbose : bool, optional
+            Enable function execution progress print to the console
 
         Returns
         -------
@@ -36,9 +37,10 @@ class Multicore():
 
         """
         
+        self.verbose = verbose
+        self.printer = Printer(verbose=self.verbose)
         self.workers = workers
         self.multiple_iterables = multiple_iterables
-        self.verbose = verbose
         print(self.__repr__())
 
     # print init parameters when calling the class instance
@@ -140,7 +142,7 @@ class Multicore():
     
         """
         
-        pretty_print(f'Initializing {self.workers} workers for {func.__name__} execution', order=1, verbose=self.verbose)
+        self.printer.print(f'Initializing {self.workers} workers for {func.__name__} execution', order=1)
     
         if self.multiple_iterables:
             # create chunks

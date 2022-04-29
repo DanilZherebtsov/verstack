@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from verstack.categoric_encoders.args_validators import is_bool_na_sentinel, assert_fit_transform_args, assert_transform_args
-from verstack.tools import pretty_print
+from verstack.tools import Printer
 
 class MeanTargetEncoder():
     '''
@@ -31,7 +31,7 @@ class MeanTargetEncoder():
         -------
         None.
         '''
-
+        self.printer = Printer(verbose=True)
         self._pattern = None
         self._colname = None 
         self._na_sentinel = is_bool_na_sentinel(na_sentinel)
@@ -133,7 +133,7 @@ class MeanTargetEncoder():
         
     def _inverse_transform_without_smoothing(self, df):
         '''Inverse transform the data encoded without noize (test set).'''
-        pretty_print('\nInverse transforming without noize', order=2, verbose=True)
+        self.printer.print('\nInverse transforming without noize', order=2)
         inverse_encoded = df.copy()
         inverse_pattern = {val:key for key, val in self._pattern.items()}
         inverse_encoded[self._colname] = inverse_encoded[self._colname].map(inverse_pattern)
@@ -174,8 +174,8 @@ class MeanTargetEncoder():
             return self._inverse_transform_without_smoothing(df)
         else:
             if not self._save_inverse_transform:
-                pretty_print('"InstanceError: save_inverse_transform == True" option had not been enabled during initial data encoding.', order='error', verbose=True)
+                self.printer.print('"InstanceError: save_inverse_transform == True" option had not been enabled during initial data encoding.', order='error')
                 return df
             else:
-                pretty_print('Inverse transforming with smoothing', order=3, verbose=True)
+                self.printer.print('Inverse transforming with smoothing', order=3)
                 return self._inverse_transform_with_somoothing(df)

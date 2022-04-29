@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from copy import copy
 from functools import partial
 import warnings
-from verstack.tools import timer, pretty_print
+from verstack.tools import timer, Printer
 warnings.filterwarnings("ignore")
 from verstack.lgbm_optuna_tuning.lgb_metrics import get_pruning_metric, get_optimization_metric_func, define_objective, classification_metrics, regression_metrics, get_eval_score, print_lower_greater_better, supported_metrics, get_n_rounds_optimization_metric
 from verstack.lgbm_optuna_tuning.args_validators import *
@@ -19,7 +19,7 @@ from verstack.lgbm_optuna_tuning.optuna_tools import Distribution, OPTUNA_DISTRI
 
 class LGBMTuner:
 
-    __version__ = '0.0.8'
+    __version__ = '0.0.9'
 
     def __init__(self, metric, trials = 100, refit = True, verbosity = 1, visualization = True, seed = 42):
         '''
@@ -50,10 +50,11 @@ class LGBMTuner:
         None.
 
         '''
+        self.verbosity = verbosity
+        self.printer = Printer(verbose=True if self.verbosity > 0 else False)
         self.metric = metric
         self.trials = trials
         self.refit = refit        
-        self.verbosity = verbosity
         self.visualization = visualization
         self.seed = seed
         self.target_minimum = None
@@ -129,7 +130,7 @@ class LGBMTuner:
     def visualization(self):
         return self._visualization
 
-    @refit.setter
+    @visualization.setter
     def visualization(self, value):
         if not self._is_bool(value) : raise TypeError('acceptable visualization options are True/False')
         self._visualization = value
@@ -427,8 +428,8 @@ class LGBMTuner:
         validate_params_argument(params)
         validate_verbose_eval_argument(verbose_eval)
 
-        if self.verbosity > 0:
-            pretty_print('Tune n_estimators with early_stopping', order=2, verbose=True)
+        self.printer.print('Tune n_estimators with early_stopping', order=2)
+        if self.verbosity>0:
             verbose_eval_rounds = verbose_eval
         else:
             verbose_eval_rounds = None
@@ -487,10 +488,9 @@ class LGBMTuner:
         validate_numpy_ndarray_arguments(y)
         
         import lightgbm as lgb
-        if self.verbosity > 0:
-            pretty_print('Fitting optimized model with the follwing params:', order=2, verbose=True)
-            for key, value in self._best_params.items():
-                print(f'{key:<33}: {value}')
+        self.printer.print('Fitting optimized model with the follwing params:', order=2)
+        for key, value in self._best_params.items():
+            print(f'{key:<33}: {value}')
         self._fitted_model = lgb.train(self._best_params, lgb.Dataset(X,y))
 
     # ------------------------------------------------------------------------------------------
@@ -540,14 +540,12 @@ class LGBMTuner:
         optimization_direction = 'lower-better'
 
         if trial.number/5 % 1 == 0:
-            if self.verbosity > 0:
-                pretty_print(f'Trial number: {trial.number} finished', order=3, verbose=True)
-                pretty_print(f'Optimization score ({optimization_direction:<4}): {optimization_metric_func.__name__}: {result}', order=4, verbose=True, underline='.')
-            #!!!!!  TEST THIS LINE BELOW ON ALL EVAL & OPTIMIZATION METRICS
-                # calculate & print eval_metric only if eval_metric != optimization_metric
-                if self.metric != optimization_metric_func.__name__:
-                    eval_score = get_eval_score(valid_y, pred, self.metric, params['objective'])
-                    pretty_print(f'Evaluation score ({print_lower_greater_better(self.metric):<4}): {self.metric}: {eval_score}', order=4, verbose=True, underline='.')
+            self.printer.print(f'Trial number: {trial.number} finished', order=3)
+            self.printer.print(f'Optimization score ({optimization_direction:<4}): {optimization_metric_func.__name__}: {result}', order=4, breakline='.')
+            # calculate & print eval_metric only if eval_metric != optimization_metric
+            if self.metric != optimization_metric_func.__name__:
+                eval_score = get_eval_score(valid_y, pred, self.metric, params['objective'])
+                self.printer.print(f'Evaluation score ({print_lower_greater_better(self.metric):<4}): {self.metric}: {eval_score}', order=4, breakline='.')
         return result
 
     # ------------------------------------------------------------------------------------------
@@ -904,13 +902,12 @@ class LGBMTuner:
 
         optimization_metric_func = get_optimization_metric_func(self.metric)
         
-        if self.verbosity > 0:
-            pretty_print('Initiating LGBMTuner.fit', order=1, verbose=True)
-            pretty_print('Settings:', order=3, verbose=True)
-            pretty_print(f'Trying {self.trials} trials', order=4, verbose=True)
-            pretty_print(f'Evaluation metric: {self.metric} ', order=4, verbose=True)
-            pretty_print(f'Study direction: minimize {optimization_metric_func.__name__}', order=4, verbose=True)#{get_study_direction(metric)} {optimization_metric_func.__name__})
-            print()
+        self.printer.print('Initiating LGBMTuner.fit', order=1)
+        self.printer.print('Settings:', order=3)
+        self.printer.print(f'Trying {self.trials} trials', order=4)
+        self.printer.print(f'Evaluation metric: {self.metric} ', order=4)
+        self.printer.print(f'Study direction: minimize {optimization_metric_func.__name__}', order=4)#{get_study_direction(metric)} {optimization_metric_func.__name__})
+        print()
             
         self.target_classes = y.unique().tolist()
         self._get_target_minimum(y)
@@ -946,17 +943,14 @@ class LGBMTuner:
             if self.refit:
                 self.plot_importances()
         
-        if self.verbosity > 0:
-            
-            if self.best_params['objective'] == 'multiclass':
-                n_rounds_eval_metric = 'multi_logloss'
-            else:
-                n_rounds_eval_metric = self.metric
-            
-            break_symbol = '|'
-            print()
-            pretty_print(f"Optuna hyperparameters optimization finished", order=3, verbose=True)
-            pretty_print(f"Best trial number:{study.best_trial.number:>2}{break_symbol:>5}     {optimization_metric_func.__name__}:{study.best_trial.value:>29}", order=4, verbose=True, underline='-')
-            pretty_print(f'n_estimators optimization finished', order=3, verbose=True)
-            pretty_print(f'best iteration:{iteration:>5}{break_symbol:>4}     {n_rounds_eval_metric}:{best_score:>29}', order=4, verbose=True, underline='=')
-
+        if self.best_params['objective'] == 'multiclass':
+            n_rounds_eval_metric = 'multi_logloss'
+        else:
+            n_rounds_eval_metric = self.metric
+        
+        break_symbol = '|'
+        print()
+        self.printer.print(f"Optuna hyperparameters optimization finished", order=3)
+        self.printer.print(f"Best trial number:{study.best_trial.number:>2}{break_symbol:>5}     {optimization_metric_func.__name__}:{study.best_trial.value:>29}", order=4, breakline='-')
+        self.printer.print(f'n_estimators optimization finished', order=3)
+        self.printer.print(f'best iteration:{iteration:>5}{break_symbol:>4}     {n_rounds_eval_metric}:{best_score:>29}', order=4, breakline='=')
