@@ -925,7 +925,7 @@ class DateParser():
             self.printer.print(f'Created {len(self._created_datetime_cols)} new date related features', order=3)
             if len(self._datetime_cols) == 2:
                 self.printer.print('Introduced date/time difference feature', order=4)
-            X = self._align_test_columns_after_transform(X, original_test_cols, order=2, verbose=self.verbose)
+            X = self._align_test_columns_after_transform(X, original_test_cols)
             return X
         else:
             self.printer.print('No datetime cols found', order=2)
