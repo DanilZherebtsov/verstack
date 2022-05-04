@@ -26,8 +26,8 @@ def validate_epochs(value):
 def validate_gridsearch_iterations(value):
     if not isinstance(value, int): 
         raise TypeError('gridsearch_iterations must be an integer')
-    if value < 2:
-        raise ValueError('epochs must be >= 2')
+    if value < 0:
+        raise ValueError('gridsearch_iterations must be >=0')
 
 def validate_stacking_feats_depth(value):
     if not isinstance(value, int): 

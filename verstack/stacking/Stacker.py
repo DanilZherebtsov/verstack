@@ -13,7 +13,7 @@ TODO:
 
 class Stacker:
     
-    __version__ = '0.0.3'
+    __version__ = '0.0.4'
     
     def __init__(self, 
                  objective, 
