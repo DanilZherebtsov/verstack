@@ -19,7 +19,7 @@ from verstack.lgbm_optuna_tuning.optuna_tools import Distribution, OPTUNA_DISTRI
 
 class LGBMTuner:
 
-    __version__ = '0.0.9'
+    __version__ = '0.0.10'
 
     def __init__(self, metric, trials = 100, refit = True, verbosity = 1, visualization = True, seed = 42):
         '''
@@ -64,6 +64,7 @@ class LGBMTuner:
         self.target_classes = None
         self._init_params = None
         self._best_params = None
+        self.eval_results = {} # evaluation metric results per each trial
 
     # print init parameters when calling the class instance
     def __repr__(self):
@@ -539,14 +540,17 @@ class LGBMTuner:
 
         optimization_direction = 'lower-better'
 
-        if trial.number/5 % 1 == 0:
-            self.printer.print(f'Trial number: {trial.number} finished', order=3)
-            self.printer.print(f'Optimization score ({optimization_direction:<4}): {optimization_metric_func.__name__}: {result}', order=4)
-            # calculate & print eval_metric only if eval_metric != optimization_metric
-            if self.metric != optimization_metric_func.__name__:
-                eval_score = get_eval_score(valid_y, pred, self.metric, params['objective'])
-                self.printer.print(f'Evaluation score ({print_lower_greater_better(self.metric):<4}): {self.metric}: {eval_score}', order=4)
-            self.printer.print(breakline='.')
+        self.printer.print(f'Trial number: {trial.number} finished', order=3)
+        self.printer.print(f'Optimization score ({optimization_direction:<4}): {optimization_metric_func.__name__}: {result}', order=4)
+        # save evaluation metric results per each trial
+        self.eval_results[f'train_trial_{trial.number}'] = result
+        # calculate & print eval_metric only if eval_metric != optimization_metric
+        if self.metric != optimization_metric_func.__name__:
+            eval_score = get_eval_score(valid_y, pred, self.metric, params['objective'])
+            self.printer.print(f'Evaluation score ({print_lower_greater_better(self.metric):<4}): {self.metric}: {eval_score}', order=4)
+            # save evaluation metric results per each trial
+            self.eval_results[f'train_trial_{trial.number}'] = eval_score
+        self.printer.print(breakline='.')
         return result
 
     # ------------------------------------------------------------------------------------------

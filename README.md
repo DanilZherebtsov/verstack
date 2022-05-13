@@ -1,4 +1,4 @@
-verstack 3.1.5 Documentation
+verstack 3.1.6 Documentation
 ============================
 
 Machine learning tools to make a Data Scientist\'s work efficient
@@ -791,6 +791,10 @@ tuner = LGBMTuner(metric = 'rmse',
 -   `best_params`
 
     learned optimized parameters
+
+-   `eval_results`
+
+    dictionary with evaluation results per each of non-pruned trials measured by a function derived from the `metric` argument
 
 ### Examples
 
