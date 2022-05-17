@@ -19,9 +19,9 @@ from verstack.lgbm_optuna_tuning.optuna_tools import Distribution, OPTUNA_DISTRI
 
 class LGBMTuner:
 
-    __version__ = '0.0.10'
+    __version__ = '0.0.11'
 
-    def __init__(self, metric, trials = 100, refit = True, verbosity = 1, visualization = True, seed = 42):
+    def __init__(self, metric, trials = 100, refit = True, verbosity = 1, visualization = True, seed = 42, eval_results_callback = None):
         '''
         Class to automatically tune LGBM model with optuna.
         
@@ -43,7 +43,10 @@ class LGBMTuner:
         visualization : bool, optional
             flag to print optimization & feature importance plots. The default is True.
         seed : int
-            random_state.            
+            random_state.
+        eval_results_callback : func
+            callback function to be applied on the eval_results dictionary that is being populated
+            with evaluation metric score upon completion of each training trial.
 
         Returns
         -------
@@ -64,7 +67,8 @@ class LGBMTuner:
         self.target_classes = None
         self._init_params = None
         self._best_params = None
-        self.eval_results = {} # evaluation metric results per each trial
+        self.eval_results = {} # evaluation metric results per each trial storage
+        self.eval_results_callback = eval_results_callback
 
     # print init parameters when calling the class instance
     def __repr__(self):
@@ -174,7 +178,17 @@ class LGBMTuner:
     @property
     def study(self):
         return self._study
-    
+    # -------------------------------------------------------------------------
+    # eval_results_callback
+    @property
+    def eval_results_callback(self):
+        return self._eval_results_callback
+
+    @eval_results_callback.setter
+    def eval_results_callback(self, value):
+        if not value is None:
+            if not hasattr(value, '__call__') : raise TypeError('eval_results_callback must be a function')
+        self._eval_results_callback = value
     # -------------------------------------------------------------------------    
     def _init_params_on_input(self, rows_num, y):
         '''
@@ -551,6 +565,10 @@ class LGBMTuner:
             # save evaluation metric results per each trial
             self.eval_results[f'train_trial_{trial.number}'] = eval_score
         self.printer.print(breakline='.')
+
+        if self.eval_results_callback:
+            self.eval_results_callback(self.eval_results)
+
         return result
 
     # ------------------------------------------------------------------------------------------
@@ -952,7 +970,9 @@ class LGBMTuner:
             n_rounds_eval_metric = 'multi_logloss'
         else:
             n_rounds_eval_metric = self.metric
-        
+        # clean up
+        self.eval_results_callback = None
+        # --------------------------------
         break_symbol = '|'
         print()
         self.printer.print(f"Optuna hyperparameters optimization finished", order=3)

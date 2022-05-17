@@ -1,4 +1,4 @@
-verstack 3.1.6 Documentation
+verstack 3.1.7 Documentation
 ============================
 
 Machine learning tools to make a Data Scientist\'s work efficient
@@ -618,6 +618,10 @@ tuner = LGBMTuner(metric = 'rmse',
 -   `seed` \[default=42\]
 
     Random state parameter
+
+-   `eval_results_callback` \[default=None\]
+
+    Callback function to be applied on the eval_results dictionary that is being populated with evaluation metric score upon completion of each training trial.
 
 ### Methods
 
