@@ -1,4 +1,4 @@
-verstack 3.1.7 Documentation
+verstack 3.1.8 Documentation
 ============================
 
 Machine learning tools to make a Data Scientist\'s work efficient
@@ -704,7 +704,7 @@ tuner = LGBMTuner(metric = 'rmse',
 
        array of float
 
--   `plot_importances(n_features = 15, figsize = (10,6), interactive = False)`
+-   `plot_importances(n_features = 15, figsize = (10,6), interactive = False, display = True, plotly_fig_update_layout_kwargs = {})`
 
     Plot feature importance
 
@@ -720,6 +720,14 @@ tuner = LGBMTuner(metric = 'rmse',
     >
     >     Create & display with the default browser the interactive html
     >     plot or (if browser disply is unavailable) save to current wd.
+    >
+    > -   `display` \[default=True\]
+    >
+    >     Display plot in browser. If False, plot will be saved in cwd.
+    >
+    > -   `plotly_fig_update_layout_kwargs` \[default={}\]
+    >
+    >     kwargs for plotly.fig.update_layout() function. The default is empty dict and default_plotly_fig_update_layout_kwargs configured inside the plot_importances() will be used.
 
 -   `plot_optimization_history(interactive = False)`
 
@@ -729,6 +737,10 @@ tuner = LGBMTuner(metric = 'rmse',
     >
     >     Create & display with the default browser the interactive html
     >     plot or (if browser disply is unavailable) save to current wd.
+    >
+    > -   `display` \[default=True\]
+    >
+    >     Display plot in browser. If False, plot will be saved in cwd.
 
 -   `plot_param_importances(interactive = False)`
 
@@ -738,6 +750,10 @@ tuner = LGBMTuner(metric = 'rmse',
     >
     >     Create & display with the default browser the interactive html
     >     plot or (if browser disply is unavailable) save to current wd.
+    >
+    > -   `display` \[default=True\]
+    >
+    >     Display plot in browser. If False, plot will be saved in cwd.
 
 -   `plot_intermediate_values(interactive = False, legend = False)`
 
@@ -753,6 +769,10 @@ tuner = LGBMTuner(metric = 'rmse',
     > -   `legend` \[default=False\]
     >
     >     Plot legen on a static plot
+    >
+    > -   `display` \[default=True\]
+    >
+    >     Display plot in browser. If False, plot will be saved in cwd.
 
 **Attributes**
 

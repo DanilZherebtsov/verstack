@@ -19,7 +19,7 @@ from verstack.lgbm_optuna_tuning.optuna_tools import Distribution, OPTUNA_DISTRI
 
 class LGBMTuner:
 
-    __version__ = '0.0.11'
+    __version__ = '0.0.12'
 
     def __init__(self, metric, trials = 100, refit = True, verbosity = 1, visualization = True, seed = 42, eval_results_callback = None):
         '''
@@ -720,7 +720,7 @@ class LGBMTuner:
         os.remove(html_file)
     # ------------------------------------------------------------------------------------------
 
-    def plot_importances(self, n_features = 15, figsize = (10,6), interactive = False):   
+    def plot_importances(self, n_features=15, figsize=(10,6), interactive=False, display=True, plotly_fig_update_layout_kwargs={}):
         '''
         Plot feature importances.
 
@@ -732,6 +732,10 @@ class LGBMTuner:
             Figure size. The default is (10,6).
         interactive : bool, optional
             Create & save to current wd interactive html plot. The default is False.
+        display: bool, optional
+            Display plot in browser. If False, plot will be saved in cwd. The default is True.
+        plotly_fig_update_layout_kwargs: dict, optional
+            kwargs for plotly.fig.update_layout() function. The default is empty dict and default_plotly_fig_update_layout_kwargs will be used
 
         Returns
         -------
@@ -750,18 +754,43 @@ class LGBMTuner:
             plot_df.reset_index(drop = True, inplace = True)
             plot_df['importance_percent'] = [str(np.round(val*100,3))+'%' for val in plot_df['importance']]
             
-            fig = px.bar(plot_df, x = 'importance', y = 'feature', 
-                         orientation='h', 
-                         color = 'importance', 
-                         color_continuous_scale = 'ice_r',  #_r for reversing color map
-                         title = 'Interactive Feature Importance Plot',
+            BAR_COLOR = '#F99245'
+            
+            fig = px.bar(plot_df, 
+                         x = 'importance', 
+                         y = 'feature', 
+                         orientation = 'h',
+                         color_discrete_sequence = [BAR_COLOR]*len(plot_df),
                          text = 'importance_percent')
-            fig.write_html('feature_importance_plot.html')
-            try:
-                self._display_html('feature_importance_plot.html')
-            except Exception as e:
-                print(f'Display html error: {e}')
-                print(f'Optimization History Plot is saved to {os.path.join(os.getcwd(), "feature_importance_plot.html")}')
+
+            default_plotly_fig_update_layout_kwargs = {'plot_bgcolor':'#20253c', # plot color
+                                                       'paper_bgcolor':'#2d3250', # html color
+                                                       'font_color':'white',
+                                                       'title_font_color':'lightgrey',
+                                                       'xaxis':{'visible':False,
+                                                                'showticklabels':False,
+                                                                'showgrid':False},
+                                                       'yaxis':{'showticklabels':True,
+                                                                'title':''}}
+
+            # set plotly update_layout kwargs            
+            if plotly_fig_update_layout_kwargs:
+                kwargs = plotly_fig_update_layout_kwargs
+            else:
+                kwargs = default_plotly_fig_update_layout_kwargs
+
+            fig.update_layout(**kwargs)
+
+            fig.update_traces(textposition='inside',
+                              marker_line_color=BAR_COLOR)
+
+            fig.write_html('feature_importance_plot.html', config={'displaylogo': False})
+            if display:
+                try:
+                    self._display_html('feature_importance_plot.html')
+                except Exception as e:
+                    print(f'Display html error: {e}')
+                    print(f'Optimization History Plot is saved to {os.path.join(os.getcwd(), "feature_importance_plot.html")}')
         else:
             import matplotlib.pyplot as plt
             importances_for_plot = self._feature_importances.nlargest(n_features).sort_values()
@@ -772,7 +801,7 @@ class LGBMTuner:
             plt.show()
     # ------------------------------------------------------------------------------------------
     
-    def plot_optimization_history(self, interactive = False):
+    def plot_optimization_history(self, interactive=False, display=True):
         '''
         Plot parameters optimization history.
 
@@ -780,6 +809,8 @@ class LGBMTuner:
         ----------
         interactive : bool, optional
             Create & save to current wd interactive html plot. The default is False.
+        display: bool, optional
+            Display plot in browser. If False, plot will be saved in cwd. The default is True.
 
         Returns
         -------
@@ -793,11 +824,12 @@ class LGBMTuner:
             from optuna.visualization import plot_optimization_history
             fig = plot_optimization_history(self._study)
             fig.write_html("optimization_history_plot.html")
-            try:
-                self._display_html("optimization_history_plot.html")
-            except Exception as e:
-                print(f'Display html error: {e}')
-                print(f'Optimization History Plot is saved to {os.path.join(os.getcwd(), "optimization_history_plot.html")}')
+            if display:
+                try:
+                    self._display_html("optimization_history_plot.html")
+                except Exception as e:
+                    print(f'Display html error: {e}')
+                    print(f'Optimization History Plot is saved to {os.path.join(os.getcwd(), "optimization_history_plot.html")}')
         else:
             from optuna.visualization.matplotlib import plot_optimization_history
             import matplotlib.pyplot as plt
@@ -805,7 +837,7 @@ class LGBMTuner:
             plt.show()
     # ------------------------------------------------------------------------------------------
     
-    def plot_param_importances(self, interactive = False):
+    def plot_param_importances(self, interactive=False, display=True):
         '''
         Plot parameters importance.
 
@@ -813,6 +845,8 @@ class LGBMTuner:
         ----------
         interactive : bool, optional
             Create & save to current wd interactive html plot. The default is False.
+        display: bool, optional
+            Display plot in browser. If False, plot will be saved in cwd. The default is True.
 
         Returns
         -------
@@ -826,11 +860,12 @@ class LGBMTuner:
             from optuna.visualization import plot_param_importances
             fig = plot_param_importances(self._study)
             fig.write_html("param_importances_plot.html")
-            try:
-                self._display_html('param_importances_plot.html')
-            except Exception as e:
-                print(f'Display html error: {e}')
-                print(f'Param Importances Plot is saved to {os.path.join(os.getcwd(), "param_importances_plot.html")}')
+            if display:
+                try:
+                    self._display_html('param_importances_plot.html')
+                except Exception as e:
+                    print(f'Display html error: {e}')
+                    print(f'Param Importances Plot is saved to {os.path.join(os.getcwd(), "param_importances_plot.html")}')
         else:
             from optuna.visualization.matplotlib import plot_param_importances
             import matplotlib.pyplot as plt
@@ -838,7 +873,7 @@ class LGBMTuner:
             plt.show()
     # ------------------------------------------------------------------------------------------
     
-    def plot_intermediate_values(self, interactive = False, legend = False):
+    def plot_intermediate_values(self, interactive=False, legend=False, display=True):
         '''
         Plot optimization trials history. Shows successful and terminated trials.
 
@@ -848,6 +883,8 @@ class LGBMTuner:
             Create & show in default browsersave to current wd interactive html plot. The default is False.
         legend : bool, optional
             Flag to include legend in the static (not interactive) plot. The default is False.
+        display: bool, optional
+            Display plot in browser. If False, plot will be saved in cwd. The default is True.
 
         Returns
         -------
@@ -862,11 +899,12 @@ class LGBMTuner:
             from optuna.visualization import plot_intermediate_values
             fig = plot_intermediate_values(self._study)
             fig.write_html("intermediate_values_plot.html")
-            try:
-                self._display_html('intermediate_values_plot.html')
-            except Exception as e:
-                print(f'Display html error: {e}')
-                print(f'Intermediate Values Plot is saved to {os.path.join(os.getcwd(), "intermediate_values_plot.html")}')
+            if display:
+                try:
+                    self._display_html('intermediate_values_plot.html')
+                except Exception as e:
+                    print(f'Display html error: {e}')
+                    print(f'Intermediate Values Plot is saved to {os.path.join(os.getcwd(), "intermediate_values_plot.html")}')
         else:
             from optuna.visualization.matplotlib import plot_intermediate_values
             import matplotlib.pyplot as plt
