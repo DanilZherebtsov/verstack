@@ -13,7 +13,7 @@ TODO:
 
 class Stacker:
     
-    __version__ = '0.0.4'
+    __version__ = '0.0.5'
     
     def __init__(self, 
                  objective, 
@@ -258,6 +258,7 @@ class Stacker:
         else:
             pred = model.predict(X).flatten()
         return pred
+
     def _predict_by_model(self, model, X):
         '''Create predictions by passed model.'''
         pred = self._predict_class_proba_or_value(model, X)
@@ -607,9 +608,10 @@ class Stacker:
             train featues with appended stacking features.
 
         '''
+        X.reset_index(drop=True, inplace=True)
         self.printer.print('Initiating Stacker.fit_transform', order=1)
         validate_fit_transform_args(X, y)
-        X_with_stacked_feats = X.copy()
+        X_with_stacked_feats = X.reset_index(drop=True).copy()
         X_with_stacked_feats = self._apply_all_or_extra_layers_to_train(X_with_stacked_feats, y)
         return X_with_stacked_feats
     
@@ -627,6 +629,6 @@ class Stacker:
         '''
         self.printer.print('Initiating Stacker.transform', order=1)
         validate_transform_args(X)
-        X_with_stacked_feats = X.copy()
+        X_with_stacked_feats = X.reset_index(drop=True).copy()
         X_with_stacked_feats = self._apply_all_or_extra_layers_to_test(X_with_stacked_feats)
         return X_with_stacked_feats
