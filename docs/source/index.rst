@@ -14,11 +14,12 @@ veratack package contains the following tools:
 * **ThreshTuner** tune threshold for binary classification predictions
 * **stratified_continuous_split** create train/test splits stratified on the continuous variable
 * **categoric_encoders** encode categoric variable by numeric labels
-  * **Factorizer** encode categoric variable by numeric labels
-  * **OneHotEncoder** represent categoric variable as a set of binary variables
-  * **FrequencyEncoder** encode categoric variable by class frequencies
-  * **MeanTargetEncoder** encode categoric variable by mean of the target variable
-  * **WeightOfEvidenceEncoder** encode categoric variable as a weight of evidence of a binary target variable
+
+ * **Factorizer** encode categoric variable by numeric labels
+ * **OneHotEncoder** represent categoric variable as a set of binary variables
+ * **FrequencyEncoder** encode categoric variable by class frequencies
+ * **MeanTargetEncoder** encode categoric variable by mean of the target variable
+ * **WeightOfEvidenceEncoder** encode categoric variable as a weight of evidence of a binary target variable
 * **timer** convenient timer decorator to quickly measure and display time of any function execution
 * **Printer** a convenient function to set up and execute print statements based on the 'global' verbosity setting within large projects
 
@@ -254,13 +255,13 @@ FeatureSelector
 
 Automated feature selector based on recursive feature elimination. FeatureSelector has built-in & configured models (linear/logistic regression & RandomForest) and employs logic to recursively eliminate features with one of these models taking advantage of sklearn.feature_selection.RFECV. 
 Different modes preform feature selection in different modes:
-* one of the built-in models
-* any other model, which should be passed by user at init
-* auto mode: a competition between feature selection independently by linear model and RandomForest is evaluated by a third model (LGBM by default, can be configured by user) to select a subset which yields higher accuracy
+ - one of the built-in models
+ - any other model, which should be passed by user at init
+ - auto mode: a competition between feature selection independently by linear model and RandomForest is evaluated by a third model (LGBM by default, can be configured by user) to select a subset which yields higher accuracy
 
 Additional arguments allow to:
-* reduce input data size for running experiments
-* in auto mode, allows to automatically select features from a model with smaller accuracy if number of selected features for this model is smaller and percent difference between accuracy is within the allowed_score_gap parameter
+ - reduce input data size for running experiments
+ - in auto mode, allows to automatically select features from a model with smaller accuracy if number of selected features for this model is smaller and percent difference between accuracy is within the allowed_score_gap parameter
 
 **Initialize FeatureSelector**
 
