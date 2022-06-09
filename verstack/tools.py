@@ -43,12 +43,18 @@ Created on Wed Apr 27 17:51:24 2022
 
 class Printer:
     
-    __version__ = '0.1.1'
+    __version__ = '0.1.2'
     
     def __init__(self, verbose=True):
         self.verbose=verbose
 
-    def print(self, message=None, order=1, breakline=None, force_print=False):
+    def print(self, 
+              message=None, 
+              order=1, 
+              breakline=None, 
+              force_print=False, 
+              leading_blank_paragraph=False, 
+              trailing_blank_paragraph=False):
         '''Output messages to the console based on seniority level (order).
 
         Logic:
@@ -78,6 +84,9 @@ class Printer:
         '''
         import traceback
         
+        leading_blank = '\n' if leading_blank_paragraph else ''
+        trailing_blank = '\n' if trailing_blank_paragraph else ''
+
         message_prefix = {
             1       :"\n * ",
             2       :"\n   - ",
@@ -100,6 +109,6 @@ class Printer:
                 print(f'{message}')
                 print('-'*75)
             else:
-                print(f'{message_prefix[order]}{message}')
+                print(f'{leading_blank}{message_prefix[order]}{message}{trailing_blank}')
                 if breakline: 
                     print(f' {breakline*75}')

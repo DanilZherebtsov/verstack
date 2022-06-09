@@ -1,7 +1,9 @@
+# standalone classes
 from verstack.NaNImputer import NaNImputer
 from verstack.Multicore import Multicore
 from verstack.ThreshTuner import ThreshTuner
 from verstack.DateParser import DateParser
+from verstack.FeatureSelector import FeatureSelector
 # categoric_encoders imports
 from verstack.categoric_encoders.Factorizer import Factorizer
 from verstack.categoric_encoders.OneHotEncoder import OneHotEncoder

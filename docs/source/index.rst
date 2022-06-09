@@ -1,11 +1,12 @@
 ############################
-verstack 3.1.9 Documentation
+verstack 3.2.0 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
 veratack package contains the following tools:
 
 * **Stacker** automated stacking ensemble configuration/train/features creation in train/test sets
+* **FeatureSelector** automated feature selection class based on recursive feature elimination
 * **DateParser** automated date columns finder and parser
 * **LGBMTuner** automated lightgbm models tuner with optuna
 * **NaNImputer** impute all missing values in a pandas dataframe using advanced machine learning with 1 line of code
@@ -247,6 +248,151 @@ Then add one more layer and disable hyperparameters optimization for this layer
   # pass the transformed dataset if need to call .fit_transform() after adding extra layers to the fitted instance of Stacker
   X_with_stacked_feats = stacker.fit_transform(X_with_stacked_feats, y)
   test_with_stacked_feats = stacker.transform(test_with_stacked_feats)
+
+******************
+FeatureSelector
+******************
+
+Automated feature selector based on recursive feature elimination. FeatureSelector has built-in & configured models (linear/logistic regression & RandomForest) and employs logic to recursively eliminate features with one of these models taking advantage of sklearn.feature_selection.RFECV. 
+Different modes preform feature selection in different modes:
+ - one of the built-in models
+ - any other model, which should be passed by user at init
+ - auto mode: a competition between feature selection independently by linear model and RandomForest is evaluated by a third model (LGBM by default, can be configured by user) to select a subset which yields higher accuracy
+
+ Additional arguments allow to:
+ - reduce input data size for running experiments
+ - in auto mode, allows to automatically select features from a model with smaller accuracy if number of selected features for this model is smaller and percent difference between accuracy is within the allowed_score_gap parameter
+
+**Initialize FeatureSelector**
+
+.. code-block:: python
+
+  from verstack import FeatureSelector
+  
+  # initialize with default parameters
+  FS = FeatureSelector(objective = 'regression')
+  
+  # initialize with custom model
+  from lightgbm import LGBMRegressor
+  model_for_feature_selection = LGBMRegressor()
+  FS = FeatureSelector(objective = 'regression',
+                       custom_model = model_for_feature_selection)
+  
+  # initialize with selected parameters
+  stacker = Stacker(objective = 'regression',
+                    auto = True,
+                    subset_size_mb = 50,
+                    allowed_score_gap = 0.05,
+                    verbose = True)
+
+Parameters
+===========================
+
+* ``objective`` [default='regression']
+
+  Training objective. Can take values: 'regression' and any other string which will be interpreted as 'classification'
+
+* ``auto`` [default=False]
+
+  Enable/disable automatic feature selection comparison between linear model and RandomForest. FeatureSelector will select two independent sets of features by LR/RF and score with a third model (LGBM by default). Features that yield a higher accuracy are returned
+
+* ``allowed_score_gap`` [default=0.0]
+
+  (If ``auto``==True) If a user requires a smaller set of features and can compromise a controlled value of accuracy, the ``allowed_score_gap`` parameter can take values between 0.0 and 1.0 to control the allowance for potential model lower validation score if model has a smaller number of selected features. E.g. ``allowed_score_gap`` = 0.05 will allow to return selected features from one of the two models if
+    - its accuracy is up to 5% worse than the competing model
+    - it has selected a smaller number of features
+
+* ``auto_final_scoring_model`` [default=None]
+
+  (If ``auto``==True) Pass model instance to compare scores between features selected by linear model and by RandomForest model. The default value is None, in this case lightgbm model is used
+
+* ``default_model_linear`` [default=False]
+
+  Flag to deploy linear model or RandomForest model for feature selection
+
+* ``custom_model`` [default=None]
+
+  Pass model instance to be used for feature selection instead of built-in linear/RandomForest models
+
+* ``subset_size_mb`` [default=20]
+
+  Value to reduce data dimensionality (row-wise) for running feature selection experiments
+
+* ``verbose`` [default=True]
+
+  Verbosity setting
+
+Methods
+===========================
+* ``fit_transform(X, y, kwargs)``
+
+  Apply feature selection on features and target
+
+    Parameters
+
+    - ``X`` [pd.DataFrame]
+
+      Train features
+
+    - ``y`` [pd.Series]
+
+      Train labels
+
+    - ``kwargs`` [keyword arguments]
+
+      Arguments for `sklearn.feature_selection.RFECV <https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFECV.html>`_
+
+  returns
+    pd.DataFrame selected features
+
+* ``transform(X)``
+
+  Apply trained FeatureSelector instance to transform another dataset by subsetting it to the selected features
+
+    Parameters
+
+    - ``X`` [pd.DataFrame]
+
+      Features
+
+  returns
+    pd.DataFrame selected features
+
+**Attributes**
+
+* ``layers``
+
+  Dictionary with 'layer_n' as key and list of models in layer as value
+
+* ``trained_models``
+
+  Dictionary with 'layer_n' as key and dictionary with stacked feature name as key and list of 4 `trained on different folds` models instances for predicting on test set
+
+Examples
+================================================================
+
+Using FeatureSelector in auto mode
+
+.. code-block:: python
+
+  from verstack import FeatureSelector
+  FS = FeatureSelector(objective = 'regression', auto = True)
+  selected_feats = FS.fit_transform(X, y)
+
+Use built-in RandomForest model for feature selection
+
+.. code-block:: python
+  
+  FS = FeatureSelector(objective = 'regression', default_model_linear=False)
+  selected_feats = FS.fit_transform(X, y)
+
+Pass custom model for feature selection
+
+.. code-block:: python
+  from lightgbm import LGBMRegressor
+  model = LGBMRegressor()
+  FS = FeatureSelector(objective = 'regression', custom_model=model)
+  selected_feats = FS.fit_transform(X, y)
 
 ******************
 DateParser
