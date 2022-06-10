@@ -1,5 +1,5 @@
 ############################
-verstack 3.2.0 Documentation
+verstack 3.2.1 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -302,7 +302,7 @@ Parameters
     - its accuracy is up to 5% worse than the competing model
     - it has selected a smaller number of features
 
-* ``auto_final_scoring_model`` [default=None]
+* ``final_scoring_model`` [default=None]
 
   (If ``auto``==True) Pass model instance to compare scores between features selected by linear model and by RandomForest model. The default value is None, in this case lightgbm model is used
 

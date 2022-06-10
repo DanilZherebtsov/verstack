@@ -7,17 +7,17 @@ from verstack.tools import timer
 
 class FeatureSelector:  
 
-    __version__ = '0.0.1'
+    __version__ = '0.0.2'
 
-    def __init__(self, 
-                 objective = 'regression', 
-                 auto = False,
-                 allowed_score_gap = 0.0,
-                 auto_final_scoring_model = None,
-                 default_model_linear = False,
-                 custom_model = None, 
-                 subset_size_mb = 20,
-                 verbose = True):
+    def __init__(self, **kwargs):
+                 # objective = 'regression', 
+                 # auto = False,
+                 # allowed_score_gap = 0.0,
+                 # final_scoring_model = None,
+                 # default_model_linear = False,
+                 # custom_model = None, 
+                 # subset_size_mb = 20,
+                 # verbose = True):
 
         '''
         Initialize FeatureSelectorRFE instance.
@@ -37,7 +37,7 @@ class FeatureSelector:
             difference in scores (E.g. 0.03) is lower than allowed_score_gap (E.g. 0.05),
             then a smaller final set of features is chosen even if the scoring result is
             marginally lower.
-        auto_final_scoring_model : class instance, optional
+        final_scoring_model : class instance, optional
             Model for cross_val_score of the two sets of features that were indepently
             selected by RFECV with linear model and with RF model. The default is None.
             If None, Lightgbm model will be applied.
@@ -60,16 +60,16 @@ class FeatureSelector:
         None.
 
         '''       
-        self.objective = objective
-        self.auto = auto
-        self.allowed_score_gap = allowed_score_gap
-        self.auto_final_scoring_model = auto_final_scoring_model
-        self.default_model_linear = default_model_linear
-        self.custom_model = custom_model
+        self.objective = kwargs.get('objective')
+        self.auto = kwargs.get('auto', False)
+        self.allowed_score_gap = kwargs.get('allowed_score_gap', 0.0)
+        self.final_scoring_model = kwargs.get('final_scoring_model', None)
+        self.default_model_linear = kwargs.get('default_model_linear', False)
+        self.custom_model = kwargs.get('custom_model', None)
+        self.subset_size_mb = kwargs.get('subset_size_mb', 20)
+        self.verbose = kwargs.get('verbose', True)
         self._model = self._initialise_model(self.custom_model, self.default_model_linear)
         self.selected_features = None
-        self.subset_size_mb = subset_size_mb
-        self.verbose = verbose
         self._score_diff_percent = None # placeholder for print results in the console 
         self.printer = Printer(verbose=self.verbose)
 
@@ -169,17 +169,17 @@ class FeatureSelector:
         else:
             self._auto = value
     # -------------------------------------------------------------------------
-    # auto_final_scoring_model
+    # final_scoring_model
     @property
-    def auto_final_scoring_model(self):
-        return self._auto_final_scoring_model
+    def final_scoring_model(self):
+        return self._final_scoring_model
     
-    @auto.setter
-    def auto_final_scoring_model(self, value):
+    @final_scoring_model.setter
+    def final_scoring_model(self, value):
         if value is not None and not hasattr(value, '__dict__'):
             print(f'{value} is not a valid model, it must be a class instance, setting default model, setting to default LGBM')
         else:
-            self._auto_final_scoring_model = value
+            self._final_scoring_model = value
     # -------------------------------------------------------------------------
     # allowed_score_gap
     @property
@@ -264,7 +264,7 @@ class FeatureSelector:
         
         Both types of models are run independently with RFECV, the resulting sets of features
         are then scored with 2-fold CV by an independent model. Final scoring model can
-        be configured at init by passing the model instance to auto_final_scoring_model argument (Lightgbm by default).
+        be configured at init by passing the model instance to final_scoring_model argument (Lightgbm by default).
         Resulting features are selected taking into account the validation score and 
         allowed_score_gap argument.
 
@@ -327,7 +327,7 @@ class FeatureSelector:
     
     def _get_final_scoring_model(self, y):
         '''Set up the default LGBM (regressor or classifier) or use the user defined model'''
-        if self.auto_final_scoring_model is None:
+        if self.final_scoring_model is None:
             from lightgbm import LGBMClassifier, LGBMRegressor
             if self.objective == 'regression':
                 model = LGBMRegressor()
@@ -337,7 +337,7 @@ class FeatureSelector:
                 else:
                     model = LGBMClassifier(objective = 'multiclass')                
         else:
-            model = self.auto_final_scoring_model
+            model = self.final_scoring_model
         return model
         
     # -------------------------------------------------------------------------
