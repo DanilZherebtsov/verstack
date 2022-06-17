@@ -10,7 +10,6 @@ import numpy as np
 from sklearn.metrics import mean_absolute_error as mae
 from sklearn.metrics import mean_squared_error as mse
 from sklearn.metrics import mean_squared_log_error as msle
-from sklearn.metrics import mean_absolute_percentage_error as mape
 from sklearn.metrics import r2_score as r2
 from sklearn.metrics import roc_auc_score as auc
 from sklearn.metrics import accuracy_score as accuracy
@@ -20,6 +19,13 @@ from sklearn.metrics import recall_score as recall
 from sklearn.metrics import f1_score as f1
 from mlxtend.evaluate import lift_score as lift
 from sklearn.metrics import log_loss
+# define mape manually for users without sklearn==1.0.1 (mape not included in prior versions)
+try:
+    from sklearn.metrics import mean_absolute_percentage_error as mape
+except:
+    def mape(y_true, y_pred): 
+        y_true, y_pred = np.array(y_true), np.array(y_pred)
+        return np.mean(np.abs((y_true - y_pred) / y_true))
 
 EPSILON = 1e-10
 

@@ -1,4 +1,4 @@
-verstack 3.2.1 Documentation
+verstack 3.2.2 Documentation
 ============================
 
 Machine learning tools to make a Data Scientist\'s work efficient

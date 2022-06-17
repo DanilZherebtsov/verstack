@@ -7,7 +7,7 @@ from verstack.tools import timer
 
 class FeatureSelector:  
 
-    __version__ = '0.0.2'
+    __version__ = '0.0.3'
 
     def __init__(self, **kwargs):
                  # objective = 'regression', 
@@ -407,21 +407,46 @@ class FeatureSelector:
         else:
             final_model[higher_score_model] = selected_model[higher_score_model]
         return final_model
+    
     # -------------------------------------------------------------------------
-
-
     def _get_selector(self, model, y, kwargs):
         '''Configure sklearn.feature_selection.RFECV based on target variable and kwargs'''
-        selector = RFECV(model,
-                         step=kwargs.get('step', 1),
-                         min_features_to_select=kwargs.get('min_features_to_select', 5),
-                         cv=kwargs.get('cv', 2),
-                         scoring=kwargs.get('scoring', self._get_sklearn_scoring_func_name(y)),
-                         n_jobs=kwargs.get('n_jobs', -1),
-                         importance_getter = kwargs.get('importance_getter', 'auto'),
-                         verbose=kwargs.get('verbose', 0))
+        final_kwargs = self._set_RFECV_kwargs_from_user_input_and_defaults(kwargs, y)
+        selector = RFECV(model, **final_kwargs)
         return selector
+
+    def _set_RFECV_kwargs_from_user_input_and_defaults(self, kwargs, y):
+        '''Use user input kwargs for RFECV along with available kwargs for current version of sklearn
+        and FeatureSelector default values for kwargs based on sklearn 1.0.1 version to define
+        final set of arguments for RFECV. (used to set up RFECV for sklearn 1.0.1 and earlier versions)
         
+        '''
+        # define defaults for all available kwargs for RFECV in 1.0.1 sklearn version
+        sklearn_101_default_kwargs = { 
+            'step':1,
+            'min_features_to_select':5,
+            'cv':2,
+            'n_jobs':-1,
+            'importance_getter':'auto',
+            'scoring':self._get_sklearn_scoring_func_name(y),
+            'verbose':0
+            }
+        available_kwargs = self._get_available_RFECV_params()
+        final_kwargs = {}
+        for arg in available_kwargs:
+            final_kwargs[arg] = kwargs.get(arg, sklearn_101_default_kwargs[arg])
+        return final_kwargs
+
+    def _get_available_RFECV_params(self):
+        '''Get names of keyword arguments for the user's sklearn.feature_selection.RFECV version'''
+        import inspect
+        available_args = str(inspect.signature(RFECV)).strip('(').strip(')').split(',')
+        available_args = [x for x in available_args if '=' in x]
+        available_args = [x.split('=')[0] for x in available_args]
+        available_args = [x.replace(' ','') for x in available_args]
+        return available_args    
+    
+    # -------------------------------------------------------------------------
     def _get_linear_model(self):
         '''Return Ridge() or LogisticRegression() from sklearn'''
         if self.objective == 'regression':

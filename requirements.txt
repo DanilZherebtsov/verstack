@@ -1,7 +1,7 @@
 numpy
 pandas
 xgboost
-scikit-learn==1.0.1
+scikit-learn>=0.23.2,<=1.0.1
 lightgbm==3.3.0
 optuna==2.10.0
 plotly==5.3.1
