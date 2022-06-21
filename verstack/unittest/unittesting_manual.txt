@@ -1,7 +1,7 @@
 1. cd to unittest folder
 
 2. create/activate virtual environment
-$ source verstack_testing_env/bin/activate
+$ source venv/bin/activate
 
 3. install requirements.txt
 $ pip install -r requirements.txt

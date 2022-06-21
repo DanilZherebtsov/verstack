@@ -7,7 +7,7 @@ from verstack.tools import timer
 
 class FeatureSelector:  
 
-    __version__ = '0.0.3'
+    __version__ = '0.0.4'
 
     def __init__(self, **kwargs):
                  # objective = 'regression', 
@@ -397,6 +397,8 @@ class FeatureSelector:
         for key, value in temp_comparison_dict.items():
             if True in value.values():
                 lower_score_model = key
+            else:
+                lower_score_model = self._get_model_with_less_feats_if_scores_are_equal(selected_model)                
         higher_score_model = [key for key in selected_model.keys() if key != lower_score_model][0]
         score_diff_percent = abs(selected_model[lower_score_model]['score'] / selected_model[higher_score_model]['score'] - 1)
 
@@ -407,6 +409,12 @@ class FeatureSelector:
         else:
             final_model[higher_score_model] = selected_model[higher_score_model]
         return final_model
+
+    def _get_model_with_less_feats_if_scores_are_equal(self, selected_model):
+        '''Return model name with less n_feats if scores are identical'''
+        min_n_feats = min(k['n_feats'] for k in selected_model.values()) 
+        model_with_min_n_feats = [k for k in selected_model if selected_model[k]['n_feats'] == min_n_feats]
+        return model_with_min_n_feats[0]
     
     # -------------------------------------------------------------------------
     def _get_selector(self, model, y, kwargs):
