@@ -1,4 +1,5 @@
 {
     "esbonio.server.enabled": true,
-    "esbonio.sphinx.confDir": ""
+    "esbonio.sphinx.confDir": "",
+    "restructuredtext.preview.name": "docutils"
 }

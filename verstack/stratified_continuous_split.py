@@ -21,6 +21,41 @@ def estimate_nbins(y):
     bins = np.linspace(min(y), max(y), nbins)
     return bins
 
+
+def find_neighbors_in_two_lists(keys_with_single_value, list_to_find_neighbors_in):
+    '''Iterate over each item in first list to find a pair in the second list'''
+    neighbors = []
+    for i in keys_with_single_value:
+        for j in [x for x in list_to_find_neighbors_in if x != i]:
+            if i+1 == j:
+                neighbors.append(i)
+                neighbors.append(j)
+            if i-1 == j:
+                neighbors.append(i)
+                neighbors.append(j)
+    return neighbors
+
+def no_neighbors_found(neighbors):
+    '''Check if list is empty'''
+    return not neighbors
+
+def find_keys_without_neighbor(neighbors):
+    '''Find integers in list without pair (consecutive increment of + or - 1 value) in the same list'''
+    no_pair = []
+    for i in neighbors:
+        if i + 1 in neighbors:
+            continue
+        elif i - 1 in neighbors:
+            continue
+        else:
+            no_pair.append(i)
+    return no_pair
+
+def not_need_further_execution(y_binned_count):
+    '''Check if there are bins with single value counts'''
+    return 1 not in y_binned_count.values()
+
+
 def combine_single_valued_bins(y_binned):
     """
     Correct the assigned bins if some bins include a single value (can not be split).
@@ -39,23 +74,26 @@ def combine_single_valued_bins(y_binned):
     """
     # count number of records in each bin
     y_binned_count = dict(Counter(y_binned))
+
+    if not_need_further_execution(y_binned_count):
+        return y_binned
+
     # combine the single-valued-bins with nearest neighbors
     keys_with_single_value = []
     for key, value in y_binned_count.items():
         if value == 1:
             keys_with_single_value.append(key)
 
-    # first combine nearest neighbors (bins that are next to each other with a diff of 1)
-    neighbors = []
-    for i in keys_with_single_value:
-        for j in [x for x in keys_with_single_value if x != i]:
-            if i+1 == j:
-                neighbors.append(i)
-                neighbors.append(j)
-            if i-1 == j:
-                neighbors.append(i)
-                neighbors.append(j)
-    neighbors = sorted(list(set(neighbors)))
+    # first look for neighbors among other sinle keys
+    neighbors1 = find_neighbors_in_two_lists(keys_with_single_value, keys_with_single_value)
+    if no_neighbors_found(neighbors1):
+        # then look for neighbors among other available keys
+        neighbors1 = find_neighbors_in_two_lists(keys_with_single_value, y_binned_count.keys())
+    # now process keys for which no neighbor was found
+    leftover_keys_to_find_neighbors = find_keys_without_neighbor(neighbors1)
+    neighbors2 = find_neighbors_in_two_lists(leftover_keys_to_find_neighbors, y_binned_count.keys())
+    neighbors = sorted(list(set(neighbors1 + neighbors2)))
+    
     # split neighbors into groups for combining
     splits = int(len(neighbors)/2)
     neighbors = np.array_split(neighbors, splits)
