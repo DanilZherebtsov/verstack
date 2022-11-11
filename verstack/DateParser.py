@@ -19,6 +19,7 @@ from datetime import date, datetime
 import dateutil.parser as parser
 from verstack.tools import Printer
 
+DATE_DELIMITERS = ['.', '-', '/']
 # -----------------------------------------------------------------------------
 formats = [
     '28-OCT-90',
@@ -106,7 +107,7 @@ states_provinces_dict = {
 # -----------------------------------------------------------------------------
 class DateParser():
     
-    __version__ = '0.0.5'
+    __version__ = '0.0.6'
 
     def __init__(self, country = None, state = None, prov = None, payday = None, verbose = True):
         '''
@@ -472,6 +473,30 @@ class DateParser():
         else:
             return 0
     # -----------------------------------------------------------------------------
+    def _get_unit_contents(self, datetime_series, unit):
+        '''Extract year / month / day array from datetime_series'''
+        if unit == 'year':
+            unit_contents = datetime_series.dt.year
+        elif unit == 'quarter':
+            unit_contents = datetime_series.dt.quarter
+        elif unit == 'month':
+            unit_contents = datetime_series.dt.month
+        elif unit == 'week':
+            unit_contents = datetime_series.dt.week
+        elif unit == 'day':
+            unit_contents = datetime_series.dt.day
+        elif unit == 'dayofyear':
+            unit_contents = datetime_series.dt.dayofyear
+        elif unit == 'weekday':
+            unit_contents = datetime_series.dt.weekday
+        elif unit == 'hour':
+            unit_contents = datetime_series.dt.hour
+        elif unit == 'minute':
+            unit_contents = datetime_series.dt.minute
+        elif unit == 'second':
+            unit_contents = datetime_series.dt.second
+        return unit_contents
+    # -----------------------------------------------------------------------------
     def _extract_default_feats(self, X, col, train, prefix=''):
         """
         Create new features based on datetime column.
@@ -496,13 +521,12 @@ class DateParser():
         time_units = ['quarter', 'month', 'weekday', 'dayofyear', 'hour', 
                       'minute', 'second']
 
-
         temp = X.sample(100 if len(X) >= 100 else len(X))
 
         for unit in calendar_units:
-            unit_contents = getattr(X[col].dt.isocalendar(), unit)
+            unit_contents = self._get_unit_contents(X[col], unit)
             if np.any(unit_contents):
-                X[prefix+unit] = getattr(X[col].dt.isocalendar(), unit)
+                X[prefix+unit] = unit_contents
                 try:
                     X[prefix+unit] = X[prefix+unit].astype(int)
                 except ValueError: # handle NaN
@@ -511,9 +535,9 @@ class DateParser():
                     self._created_datetime_cols.append(prefix+unit)
 
         for unit in time_units:
-            unit_contents = getattr(temp[col].dt, unit)
+            unit_contents = self._get_unit_contents(X[col], unit)
             if np.any(unit_contents):
-                X[prefix+unit] = getattr(X[col].dt, unit)
+                X[prefix+unit] = unit_contents
                 if train:
                     self._created_datetime_cols.append(prefix+unit)
         return 0
@@ -565,6 +589,7 @@ class DateParser():
         """
         for col in self._datetime_cols:
             try:
+
                 if np.any(X[col].dt.microsecond):
                     # Divides and returns the integer value of the quotient. It dumps the digits after the decimal.
                     X[col] = X[col].values.astype(np.int64) // 10 ** 6
@@ -811,6 +836,41 @@ class DateParser():
             except:
                 continue
         return X
+    # -------------------------------------------------------------------------
+    # determine dayfirst argument
+    def _get_date_delimiter(self, date):
+        '''Find delimiter from constant DEFAULT_DELIMITERA with max occurances in date string.'''
+        heat_dict = {i: len(date.split(i)) for i in DATE_DELIMITERS}
+        return max(heat_dict, key=heat_dict.get)
+    # .........................................................................        
+    def _is_numeric_date(self, date):
+        '''Check if date can be split by delimiter in multiple components'''
+        delimiter = self._get_date_delimiter(date)
+        num_date_components = len(date.split(delimiter))
+        if num_date_components > 1:
+            return True
+        else:
+            return False
+    # .........................................................................            
+    def _need_determine_dayfirst_argument(self, datetime_col_series):
+        '''Check if need dayfirst afgument for pd.to_datetime based on date format'''
+        sample_date = datetime_col_series.dropna()[0]
+        return self._is_numeric_date(sample_date)
+    # .........................................................................            
+    def _is_dayfirst(self, datetime_col_series):
+        '''Determine dayfirst argument for pd.to_datetime based on maximum of date components'''
+        clean_series = datetime_col_series.dropna()
+        delimiter = self._get_date_delimiter(clean_series[0])
+        date_components = clean_series.str.split(delimiter, expand = True)
+        max_values_in_date_components = {}
+        for col in date_components:
+            date_components[col] = date_components[col].astype(int)
+            max_values_in_date_components[col] = date_components[col].max()
+        if 12 < max_values_in_date_components[0] <= 31:
+            dayfirst_arg = True
+        else:
+            dayfirst_arg = False
+        return dayfirst_arg
     # =============================================================================
     def fit_transform(self, df):
         """
@@ -843,7 +903,16 @@ class DateParser():
             if self._datetime_cols:
                 # convert to datetime
                 for col in self._datetime_cols:
-                    X[col] = pd.to_datetime(X[col], errors='coerce', infer_datetime_format = True) # errors = 'coerse' allows to parse columns even if any value in datetime column is a mistake. coerce will set it to NaT.
+    
+                    if self._need_determine_dayfirst_argument(X[col]):
+                        dayfirst_arg = self._is_dayfirst(X[col])
+                    else:
+                        dayfirst_arg = False
+
+                    X[col] = pd.to_datetime(X[col], 
+                                            dayfirst = dayfirst_arg, 
+                                            errors='coerce', 
+                                            infer_datetime_format = True) # errors = 'coerse' allows to parse columns even if any value in datetime column is a mistake. coerce will set it to NaT.
                     # for misclassified potential datetime cols check if converted to datetime as NaN
                     if np.all(X[col].isnull()):
                         # convert back the unlucky pd.to_datetime attempt to original format
