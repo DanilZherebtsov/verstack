@@ -626,7 +626,7 @@ The only required user inputs are the X (features), y (labels) and evaluation me
   from verstack import LGBMTuner
   
   # initialize with default parameters
-  tuner = LGBMTuner('rmse')
+  tuner = LGBMTuner(metric = 'rmse')
   
   # initialize with selected parameters
   tuner = LGBMTuner(metric = 'rmse', 
@@ -634,9 +634,10 @@ The only required user inputs are the X (features), y (labels) and evaluation me
                     refit = False, 
                     verbosity = 0, 
                     visualization = False, 
-                    seed = 999)
+                    seed = 999,
+                    device_type = 'gpu')
 
-Parameters
+Parameters (keyword arguments only)
 ===========================
 * ``metric`` [default=None]
 
@@ -663,6 +664,10 @@ Parameters
 * ``seed`` [default=42]
 
   Random state parameter
+
+* ``device_type`` [default="cpu"]
+
+  Device for the tree learning, you can use GPU to achieve the faster learning. Acceptable parameters are "cpu", "gpu", "cuda", "cuda_exp"
 
 * ``eval_results_callback`` [default=None]
 
