@@ -19,9 +19,9 @@ from verstack.lgbm_optuna_tuning.optuna_tools import Distribution, OPTUNA_DISTRI
 
 class LGBMTuner:
 
-    __version__ = '0.0.12'
+    __version__ = '0.1.0'
 
-    def __init__(self, metric, trials = 100, refit = True, verbosity = 1, visualization = True, seed = 42, eval_results_callback = None):
+    def __init__(self, **kwargs):
         '''
         Class to automatically tune LGBM model with optuna.
         
@@ -44,6 +44,8 @@ class LGBMTuner:
             flag to print optimization & feature importance plots. The default is True.
         seed : int
             random_state.
+        device_type : str
+            cpu/gpu/cuda/cuda_exp.
         eval_results_callback : func
             callback function to be applied on the eval_results dictionary that is being populated
             with evaluation metric score upon completion of each training trial.
@@ -53,13 +55,14 @@ class LGBMTuner:
         None.
 
         '''
-        self.verbosity = verbosity
+        self.verbosity = kwargs.get('verbosity', 1)
         self.printer = Printer(verbose=True if self.verbosity > 0 else False)
-        self.metric = metric
-        self.trials = trials
-        self.refit = refit        
-        self.visualization = visualization
-        self.seed = seed
+        self.metric = kwargs.get('metric')
+        self.trials = kwargs.get('trials', 100)
+        self.refit = kwargs.get('refit', True)
+        self.visualization = kwargs.get('visualization', True)
+        self.seed = kwargs.get('seed', 42)
+        self.device_type = kwargs.get('device_type', 'cpu')
         self.target_minimum = None
         self._fitted_model = None
         self._feature_importances = None
@@ -68,7 +71,7 @@ class LGBMTuner:
         self._init_params = None
         self._best_params = None
         self.eval_results = {} # evaluation metric results per each trial storage
-        self.eval_results_callback = eval_results_callback
+        self.eval_results_callback = kwargs.get('eval_results_callback', None)
 
     # print init parameters when calling the class instance
     def __repr__(self):
@@ -76,7 +79,8 @@ class LGBMTuner:
             \n          trials: {self.trials}\
             \n          refit: {self.refit}\
             \n          verbosity: {self.verbosity}\
-            \n          visualization: {self.visualization})'
+            \n          visualization: {self.visualization})\
+            \n          device_type: {self.device_type})'
 
     # Validate init arguments
     # =========================================================================
@@ -139,6 +143,16 @@ class LGBMTuner:
     def visualization(self, value):
         if not self._is_bool(value) : raise TypeError('acceptable visualization options are True/False')
         self._visualization = value
+    # -------------------------------------------------------------------------
+    # device_type
+    @property
+    def device_type(self):
+        return self._device_type
+
+    @device_type.setter
+    def device_type(self, value):
+        if not value in ['cpu', 'gpu', 'cuda', 'cuda_exp'] : raise TypeError('acceptable device_type options are cpu/gpu/cuda/cuda_exp')
+        self._device_type = value
     # -------------------------------------------------------------------------    
     # seed
     @property
@@ -225,7 +239,8 @@ class LGBMTuner:
                                         "min_data_in_bin": 3,
                                         "n_estimators": 3000,
                                         "early_stopping_rounds": 100,
-                                        "random_state": 42}
+                                        "random_state": 42,
+                                        "device_type": self.device_type}
 
         default_params_regression = {"learning_rate": 0.05,
                                     "num_leaves": 32,
@@ -234,7 +249,8 @@ class LGBMTuner:
                                     "verbosity": -1,
                                     "n_estimators": 3000,
                                     "early_stopping_rounds": 100,
-                                    "random_state": 42}
+                                    "random_state": 42,
+                                    "device_type": self.device_type}
 
 
         task = define_objective(self.metric, y)
