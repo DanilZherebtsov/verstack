@@ -1,28 +1,28 @@
-import unittest
+import pytest
 import sys
 sys.path.append('../../')
 import numpy as np
 from common import generate_data
-
 from verstack import Factorizer
 
-class TestFactorizer(unittest.TestCase):
-    
-    def test_Factorizer(self):
-        df = generate_data()
-        # ---------------------
-        module = Factorizer()
-        df_train = module.fit_transform(df, 'x')
-        df_test = module.transform(df)
 
-        inverse_df_train = module.inverse_transform(df_train)
-        inverse_df_test = module.inverse_transform(df_test)
+def test_Factorizer():
+    '''Test if Factorizer will make cat_col into numeric then back to categorical'''
+    df = generate_data()
+    # ---------------------
+    module = Factorizer()
+    df_train = module.fit_transform(df, 'x')
+    df_test = module.transform(df)
 
-        result_transform = np.all(df_train['x'] == df_test['x'])
-        result_inverse_transform = np.all(inverse_df_train['x'].dropna() == df['x'].dropna())
+    inverse_df_train = module.inverse_transform(df_train)
+    inverse_df_test = module.inverse_transform(df_test)
 
-        self.assertTrue(result_transform)
-        self.assertTrue(result_inverse_transform)
-        
-if __name__ == '__main__':
-    unittest.main()
+    result_became_numeric = df_train['x'].dtype == 'int'
+    result_transform = np.all(df_train['x'] == df_test['x'])
+    result_inverse_transform = np.all(inverse_df_train['x'].dropna() == df['x'].dropna())
+    result_returned_to_categorical = inverse_df_train['x'].dtype == 'O'
+
+    assert result_became_numeric
+    assert result_transform
+    assert result_inverse_transform
+    assert result_returned_to_categorical

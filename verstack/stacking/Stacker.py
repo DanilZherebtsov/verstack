@@ -300,7 +300,10 @@ class Stacker:
             y_train = y.loc[train_ix]
             X_test = X.loc[test_ix, :]
             # create independent model instance for each fold
-            fold_model = copy.deepcopy(model)
+            try:
+                fold_model = copy.deepcopy(model)
+            except ValueError:
+                fold_model = copy.copy(model)
             pred, model = self._train_predict(fold_model, X_train, y_train, X_test)
             pred_series.loc[test_ix] = pred.flatten()
             trained_models_list.append(fold_model)            
@@ -627,7 +630,7 @@ class Stacker:
             test featues with appended stacking features.
 
         '''
-        self.printer.print('Initiating Stacker.transform', order=1)
+        self.printer.print('!!!Initiating Stacker.transform', order=1)
         validate_transform_args(X)
         X_with_stacked_feats = X.reset_index(drop=True).copy()
         X_with_stacked_feats = self._apply_all_or_extra_layers_to_test(X_with_stacked_feats)
