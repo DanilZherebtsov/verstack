@@ -11,7 +11,7 @@ import operator
 
 class NaNImputer():
     
-    __version__ = '0.1.2'
+    __version__ = '0.1.4'
 
     """Missing values (NaNs) imputation program.
 
@@ -588,9 +588,19 @@ class NaNImputer():
             model = self._select_model_conservative(self._get_objective_for_model(col))
         else:
             model = self._select_model_complex(self._get_objective_for_model(col))
-        model.fit(subset_train.drop(col, axis = 1), subset_train[col])
-
-        predicted_nans = model.predict(subset_test.drop(col, axis = 1))
+        if self._get_objective_for_model(col) in ['multi:softprob', 'binary:logistic']:
+            from verstack import Factorizer
+            # encode labels in case the numbers are not consecutive starting from zero
+            fac = Factorizer()
+            subset_train = fac.fit_transform(subset_train, col)
+            model.fit(subset_train.drop(col, axis = 1), subset_train[col])
+            predicted_nans = model.predict(subset_test.drop(col, axis = 1))
+            # reverse the encoded predictions
+            predicted_nans = fac.inverse_transform(pd.DataFrame(predicted_nans, columns=[col]))
+            predicted_nans = predicted_nans[col].tolist()
+        else:
+            model.fit(subset_train.drop(col, axis = 1), subset_train[col])
+            predicted_nans = model.predict(subset_test.drop(col, axis = 1))
         data_prepared[col][col_nan_ix] = predicted_nans
         if self.verbose:
             print(f'- {col+":":<30} imputed {len(col_nan_ix)} NaNs')

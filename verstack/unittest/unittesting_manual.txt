@@ -1,16 +1,19 @@
 1. cd to unittest folder
 
 2. create/activate virtual environment
-$ source venv/bin/activate
+    $ source venv/bin/activate
 
-3. install requirements.txt
-$ pip install -r requirements.txt
+3. make sure pytest is installed and verstack is not installed in the virtual environment (what is being tested is the local contents of verstack.git direcrtory)
+    $ pip install pytest
 
 4. run tests 
-$ python -m unittest discover
+    $ python -m pytest
+
+4.1 for one tested
+    # python -m pytest test_Stacker.py
 
 5. deactivate virtual environment
-$ deactivate
+    $ deactivate
 
 -----------------------------------------------------
 unittest options
