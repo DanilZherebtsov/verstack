@@ -1,798 +1,436 @@
 import os
-import pandas as pd
+import gc
+import math
 import numpy as np
-from xgboost import XGBRegressor, XGBClassifier
-import warnings
-warnings.filterwarnings("ignore")
-import timeit
-import multiprocessing
-import concurrent.futures
-import operator
+import pandas as pd
+import lightgbm as lgb
+from verstack import Factorizer
+from verstack.tools import timer, Printer
 
-class NaNImputer():
+params_classification = {"task": "train",
+                         "learning_rate": 0.05,
+                         "num_leaves": 128,
+                         "colsample_bytree": 0.7,
+                         "subsample": 0.7,
+                         "bagging_freq": 1,
+                         "max_depth": -1,
+                         "verbosity": -1,
+                         "reg_alpha": 1,
+                         "reg_lambda": 0.0,
+                         "min_split_gain": 0.0,
+                         "zero_as_missing": False,
+                         "max_bin": 255,
+                         "min_data_in_bin": 3,
+                         "random_state": 42,
+                         "n_jobs": -1}
+
+params_regression = {"learning_rate": 0.05,
+                     "num_leaves": 32,
+                     "colsample_bytree": 0.9,
+                     "subsample": 0.9,
+                     "verbosity": -1,
+                     "n_estimators": 100,
+                     "random_state": 42,
+                     "n_jobs": -1}
+
+
+class NaNImputer:
     
-    __version__ = '0.1.4'
+    __version__ = '2.0.0'
 
-    """Missing values (NaNs) imputation program.
+    def __init__(self, train_sample_size = 30000, verbose = True):
+        self._verbose = verbose
+        self.printer = Printer(verbose=self.verbose)
+        self._cols_to_impute = {}
+        self._transformers = []
+        self._train_sample_size = train_sample_size
+        self._to_drop = []
+        self._do_not_consider = []
+        self._cols_constants = []
+        self._fill_constants = {}
+        '''
+        NaNImputer class instance
+        
+        Parameters
+        ----------
+        train_sample_size : int, default = 30000
+            Number of rows to use for training the NaNImputer model.
+            If the dataset is smaller than train_sample_size, the whole dataset will be used.
+        verbose : bool, default = True
+            If True, prints information about the dataset, NaNImputer settings and
+            the imputation progress.
 
-    Performs various operations on a dataset including:
-        - data temporary transformation (factorization), in order to fit
-            models on top.
-        - search and replace the incorrectly named missing values.
-            E.g. ('No data'/'Missing'/'None'). Configurable.
-        - select important features for each column to speed up the
-            model training. Configurable.
-        - select an appropriate model (based on XGBoost) and parameters.
-            Configurable.
-        - subset data by rows.
-        - split into train/test, fit/predict missing values.
-        - NaNs in pure text fields are filled with 'Missing_data'
-            text. Configurable.
-        - NaNs in columns with a single constant value are not imputed.
-            Appropriate message is displayed.
-        - can impute NaNs in all of the columns containing them or
-            in user defined columns. Configurable.
-        - imputation is performed in a multiprocessing mode utilizing
-            all the available processor cores. Configurable.
-
-        All the agrumets have default values aimed at best performance, please
-        check the __init__ docstring for details.
-
-    """
-
-    def __init__(self,
-                 conservative = False,
-                 n_feats = 10,
-                 nan_cols = None,
-                 fix_string_nans = True,
-                 multiprocessing_load = 3,
-                 verbose = True,
-                 fill_nans_in_pure_text = True,
-                 drop_empty_cols = True,
-                 drop_nan_cols_with_constant = True,
-                 feature_selection = 'correlation'):
-        """Initialize class instance.
-
-        All arguments have default values and are initialized for the best performance.
-
-        Args:
-            conservative (bool, optional):
-                Model complexity level used to impute missing values.
-                If True: model will be set to less complex and much faster.
-                Default = False
-            n_feats (int, optional):
-                Number of corellated independent features to be used for
-                corresponding column (with NaN) model training and imputation.
-                Default = 10
-            nan_cols (list, optional):
-                List of columns to impute missing values in.
-                If None - all columns with missing values will be used.
-                Default = None
-            fix_string_nans (bool, optional):
-                Find possible missing values in numeric columns that had been
-                (mistakenly) encoded as strings, E.g. 'Missing'/'NaN'/'No data'
-                and replace them with np.nan
-                Default = True
-            multiprocessing_load (int, optional):
-                Levels of parallel multiprocessing computing.
-                1 = single core
-                2 = half of all available cores
-                3 = all available cores
-                Default = 3
-            verbose (bool, optional):
-                Print the imputation progress.
-                Default = True
-            fill_nans_in_pure_text (bool, optional):
-                Fill the missing values in text fields by string 'Missing_data'
-                Applicable for text fields (not categoric)
-                Default = True
-            drop_empty_cols (bool, optional):
-                Drop columns with all NaNs
-                Default = True
-            drop_nan_cols_with_constant (bool, optional):
-                Drop columns containing NaNs and all other constant values
-                Default = True
-            feature_selection (str, optional):
-                Define algorithm to select most important feats for each
-                column imputation. Options: "correlation"/"feature_importance"
-                Default = "correlation"
-        Returns:
-            None.
-
-        """
-        self.encoding_map = None
-        self.metadata = None
-        self.nan_cols = nan_cols
-        self.conservative = conservative
-        self.n_feats = n_feats
-        self.fix_string_nans = fix_string_nans
-        self.verbose = verbose
-        self.multiprocessing_load = multiprocessing_load
-        self.num_workers = self._estimate_workers()
-        self.fill_nans_in_pure_text = fill_nans_in_pure_text
-        self.drop_empty_cols = drop_empty_cols
-        self.drop_nan_cols_with_constant = drop_nan_cols_with_constant
-        self.feature_selection = feature_selection
-        self.droped_cols = []
-        print(self.__repr__())
-
-    # print init parameters when calling the class instance
+        '''
     def __repr__(self):
-        return f'NaNImputer(conservative = {self.conservative}, n_feats = {self.n_feats},\
-            \n           fix_string_nans = {self.fix_string_nans}, verbose = {self.verbose},\
-                \n           multiprocessing_load = {self.multiprocessing_load}, fill_nans_in_pure_text = {self.fill_nans_in_pure_text},\
-                    \n           drop_empty_cols = {self.drop_empty_cols}, drop_nan_cols_with_constant = {self.drop_nan_cols_with_constant}\
-                        \n           feature_selection = {self.feature_selection})'
-
-
+        return f'NaNImputer(verbose: {self._verbose}\
+            \n           train_sample_size: {self._train_sample_size}'
+    
     # Validate init arguments
-    # =========================================================
-    # nan_cols
-    def _check_nan_cols_contents(self, n):
-        elements_count = 0
-        for element in n:
-            if type(element) == str:
-                elements_count += 1
-        if elements_count == len(n):
-            return True
-        else:
-            return False
+    # =========================================================================
+    # cols_to_impute
+    @property
+    def cols_to_impute(self):
+        return self._cols_to_impute
+    # -------------------------------------------------------------------------
+    # transformers
+    @property
+    def transformers(self):
+        return self._transformers
+    # -------------------------------------------------------------------------
+    # train_sample_size
+    @property
+    def train_sample_size(self):
+        return self._train_sample_size
 
-    nan_cols = property(operator.attrgetter('_nan_cols'))
-
-    @nan_cols.setter
-    def nan_cols(self, n):
-        if n == None:
-            self._nan_cols = n
-        if n != None and type(n) != list:
-            raise Exception('nan_cols must be a list')
-        elif n != None and not self._check_nan_cols_contents(n):
-            raise Exception('nan_cols must be strings')
-        else:
-            self._nan_cols = n
-    # -------------------------------------------------------
-    # conservative
-    conservative = property(operator.attrgetter('_conservative'))
-
-    @conservative.setter
-    def conservative(self, c):
-        if type(c) != bool : raise Exception('conservative must be bool (True/False)')
-        self._conservative = c
-    # -------------------------------------------------------
-    # n_feats
-    n_feats = property(operator.attrgetter('_n_feats'))
-
-    @n_feats.setter
-    def n_feats(self, nf):
-        if type(nf) != int : raise Exception('n_feats must be int')
-        if type(nf) == int and nf < 1: raise Exception('n_feats must be a positive int greater than 0')
-        self._n_feats = nf
-    # -------------------------------------------------------
-    # fix_string_nans
-    fix_string_nans = property(operator.attrgetter('_fix_string_nans'))
-
-    @fix_string_nans.setter
-    def fix_string_nans(self, fsn):
-        if type(fsn) != bool : raise Exception('fix_string_nans must be bool (True/False)')
-        self._fix_string_nans = fsn
-    # -------------------------------------------------------
-    # vervbose
-    verbose = property(operator.attrgetter('_verbose'))
+    @train_sample_size.setter
+    def train_sample_size(self, value):
+        if type(value) != int : raise TypeError('train_sample_size must be an int')
+        self._train_sample_size = value
+    # -------------------------------------------------------------------------
+    # verbose
+    @property
+    def verbose(self):
+        return self._verbose
 
     @verbose.setter
-    def verbose(self, v):
-        if type(v) != bool : raise Exception('vervbose must be bool (True/False)')
-        self._verbose = v
-    # -------------------------------------------------------
-    # multiprocessing_load
-    multiprocessing_load = property(operator.attrgetter('_multiprocessing_load'))
+    def verbose(self, value):
+        if type(value) != bool : raise TypeError('verbose must be a bool')
+        self._verbose = value
+    # -------------------------------------------------------------------------
+    # to_drop
+    @property
+    def to_drop(self):
+        return self._to_drop
+    # -------------------------------------------------------------------------
+    # do_not_consider
+    @property
+    def do_not_consider(self):
+        return self._do_not_consider
+    # -------------------------------------------------------------------------
 
-    @multiprocessing_load.setter
-    def multiprocessing_load(self, mpl):
-        if type(mpl) != int : raise Exception('multiprocessing_load must be int')
-        if type(mpl) == int and mpl not in [1,2,3] : raise Exception('multiprocessing_load can take values 1, 2 or 3')
-        self._multiprocessing_load = mpl
-    # -------------------------------------------------------
-    # fill_nans_in_pure_text
-    fill_nans_in_pure_text = property(operator.attrgetter('_fill_nans_in_pure_text'))
+    def _dont_need_impute(self, df):
+        if not np.any(df.isnull()):
+            return True
 
-    @fill_nans_in_pure_text.setter
-    def fill_nans_in_pure_text(self, fnt):
-        if type(fnt) != bool : raise Exception('fill_nans_in_pure_text must be bool (True/False)')
-        self._fill_nans_in_pure_text = fnt
-    # -------------------------------------------------------
-    # drop_empty_cols
-    drop_empty_cols = property(operator.attrgetter('_drop_empty_cols'))
-
-    @drop_empty_cols.setter
-    def drop_empty_cols(self, dec):
-        if type(dec) != bool : raise Exception('drop_empty_cols must be bool (True/False)')
-        self._drop_empty_cols = dec
-    # -------------------------------------------------------
-    # drop_nan_cols_with_constant
-    drop_nan_cols_with_constant = property(operator.attrgetter('_drop_nan_cols_with_constant'))
-
-    @drop_nan_cols_with_constant.setter
-    def drop_nan_cols_with_constant(self, dnc):
-        if type(dnc) != bool : raise Exception('drop_nan_cols_with_constant must be bool (True/False)')
-        self._drop_nan_cols_with_constant = dnc
-    # -------------------------------------------------------
-    # feature_selection
-    feature_selection = property(operator.attrgetter('_feature_selection'))
-
-    @feature_selection.setter
-    def feature_selection(self, fs):
-        if type(fs) != str : raise Exception('feature_selection must ba of type(str)')
-        if fs not in ['correlation', 'feature_importance'] : raise Exception('feature selection can be either "correlation" or "feature_importance"')
-        self._feature_selection = fs
-
-    # =======================================================
-    def _print_data_dims(self, data):
+    def _print_data_dims(self, df):
         """Print initial information on the dataframe."""
-        data_size = np.round(data.memory_usage().sum()/(1024*1024),2)
-        if np.any(data.isnull()):
-            nan_cols_num = data.isnull().sum().astype('bool').value_counts()[True]
+        data_size = np.round(df.memory_usage().sum()/(1024*1024),2)
+        if np.any(df.isnull()):
+            nan_cols_num = df.isnull().sum().astype('bool').value_counts()[True]
         else:
             nan_cols_num = 0
-        print('\nDataset dimensions:')
-        print(f' - rows:         {data.shape[0]}')
-        print(f' - columns:      {data.shape[1]}')
-        print(f' - mb in memory: {data_size}')
-        print(f' - NaN cols num: {nan_cols_num}')
-        print('--------------------------')
+        self.printer.print('Dataset dimensions:', order=3)
+        self.printer.print(f'rows:         {df.shape[0]}', order=4)
+        self.printer.print(f'columns:      {df.shape[1]}', order=4)
+        self.printer.print(f'mb in memory: {data_size}', order=4)
+        self.printer.print(f'NaN cols num: {nan_cols_num}', order=4)
 
-    def _get_metadata(self, data):
-        """Collect each column metadata from the original dataframe.
+    def _get_cols_to_impute(self, df):
+        '''Find cols with NaN & their dtypes, save to class instance'''
+        cols = [col for col in df if np.any(df[col].isnull())]
+        types = [str(df[col].dropna().dtype) for col in df if np.any(df[col].isnull())]
+        for ix, col in enumerate(cols):
+            self._cols_to_impute[col] = {}
+            self._cols_to_impute[col]['type'] = types[ix]
 
-        To be used further for correct task type (regression/classification)
-        selection and model parameters.
-
-        Args:
-            data (pandas.DataFrame): original dataframe with missing values.
-
-        Returns:
-            None.
-
-        """
-        self.metadata = {}
-        for i in data:
-            self.metadata[i] = {}
-            self.metadata[i]['dtype'] = data[i].dtype
-            self.metadata[i]['nunique'] = data[i].nunique()
-        self.metadata['data_shape'] = data.shape
-
-    def _estimate_workers(self):
-        """Translate the init argument 'multiprocessing_load' into cpu_count.
-
-        Returns:
-            int: cpu_count for multiprocessing.
-
-        """
-        if self.multiprocessing_load == 3:
-            return os.cpu_count() # this argument will use all available cores
-        elif self.multiprocessing_load == 2:
-            return int(os.cpu_count()/2)
+    def _drop_or_keep(self, df, col, train, message, order):
+        '''Drop column if self.train == True else if col in self._to_drop and drop, else do not drop.'''
+        if train:
+            df.drop(col, axis = 1, inplace = True)
+            self.printer.print(message, order)
+            self._to_drop.append(col)
+            return df
         else:
-            return 1
+            if col in self._to_drop:
+                df.drop(col, axis = 1, inplace = True)
+                self.printer.print(message, order)
+            return df     
 
-    def _correct_string_nans(self, data):
-        """Replace the possible string values in numeric columns as a NaN.
+    def _drop_hopeless_nan_cols(self, df, train):
+        '''Drop cols with over 50% NaN or cols with constant nonNaN value'''
+        self.printer.print('Drop hopeless NaN cols', order=2)
+        for col in df:
+            if np.any(df[col].isnull()):
+                # drop nan cols with constant known values
+                if df[col].dropna().nunique() == 1:
+                    df = self._drop_or_keep(df, col, train, 
+                                            message = f'droped column {col} with NaNs and a constant non-NaN value', 
+                                            order = 2)
+                # drop nan cols with over 50% missing
+                elif df[col].isnull().sum() > int(len(df)*0.5):
+                    df = self._drop_or_keep(df, col, train, 
+                                            message = f'droped column {col} with NaNs and a constant non-NaN value', 
+                                            order = 2)
+        return df
 
-        Example: 'Missing'/'None'/'NaN'/'No data'/etc
-
-        In every 'object' type column try to represent most frequent value as
-        type(int(value)). If success, find unique values in a column that can
-        not be represented as type(int(value)) and replace them with np.nan
-
-        Args:
-            data (pandas.DataFrame):
-                data for fixing string represented nans.
-
-        Returns:
-            data (pandas.DataFrame):
-                data with string represented nans replaced by np.nan.
-
+    def _fill_object_nan_cols_with_string(self, df):
+        """Fill missing values in text column with 'Missing_data' string value.
+        Applicable to object type columns with over 500 unique values (considered as text).
         """
-        for col in data.select_dtypes(include = 'O'):
-            most_frequent_val = data[col].value_counts().index[0]
-            try:
-                float(most_frequent_val)
-                for unique in data[col].value_counts().index:
-                    try:
-                        float(unique)
-                    except ValueError:
-                        d = {unique:np.nan}
-                        data = data.replace({col:d})
-                data[col] = data[col].astype('float')
-                print(f'Changed (fixed) column {col} to type float')
-                print('Incorrectly represented values replaced by np.nan\n')
-            except ValueError:
-                continue
-        return data
+        object_nan_cols = [col for col in df.select_dtypes(include = 'O') if np.any(df[col].isnull())]
+        for col in object_nan_cols:
+            if df[col].nunique() > 200:
+                df[col].fillna('Missing_data', inplace = True)
+                self._do_not_consider.append(col)
+                self.printer.print(f'Missing values in {col} replaced by "Missing_data" string', order=3)
+        return df
 
-    def _get_objective_for_model(self, col):
-        """Define objective for a model.
+    def _factorize_col(self, df, col):
+        '''Factorize selected col, save encoder instance to NaNImputer instance'''
+        enc = Factorizer(na_sentinel=np.nan)
+        df = enc.fit_transform(df, col)
+        self._transformers.append(enc)
+        return df
 
-        Examine the column and define wether it is a regression or
-        classification task and define the objective for the
-        binary/multiclass/regression models.
-        Logic:
-            - for 'bool' and 'object' type columns possible objectives are
-                'binary:logistic'/'multi:softprob'
-            - for 'int' and 'float' type columns 'binary:logistic' if
-                col.nunique() == 2, 'multi:softprob' if 2 col.nunique() < 70,
-                else 'reg:squarederror'
+    def _process_df(self, df):
+        '''Encode all object cols and some numeric (subject to classification) cols by Factorizer'''
+        self.printer.print('Processing whole data for imputation', order = 2)
+        # first process all object type cols
+        object_cols = df.select_dtypes(include = 'O').columns
+        num_cols_to_process = len(object_cols) + len([col for col in self._cols_to_impute if col not in object_cols])
+        cnt = 0
+        for col in object_cols:
+            if col not in self._do_not_consider:
+                df = self._factorize_col(df, col)
+                cnt+=1
+                if cnt % 10 == 0:
+                    self.printer.print(f'Processed {cnt} cols; {num_cols_to_process - cnt} to go', order = 3)
+        # then process num cols that may be used as targets for classification
+            # factorise, because class numbers order and sequence may be not from [0: n]
+        for col in self._cols_to_impute:
+            if col not in object_cols:
+                objective = self._define_objective(df[col])
+                if objective in ['binary', 'multiclass']:
+                    df = self._factorize_col(df, col)
+                    cnt+=1
+                    if cnt % 10 == 0:
+                        self.printer.print(f'Processed {cnt} cols; {num_cols_to_process - cnt} to go', order = 3)
+        return df
 
-        Args:
-            col (str):
-                column in name.
-
-        Returns:
-            objective (str):
-                value for model definition:
-                "binary:logistic"/"multi:softprob"/"reg:squarederror".
-
-        """
-        if self.metadata[col]['dtype'] in ['object','bool']:
-            if self.metadata[col]['nunique'] == 2:
-                objective = 'binary:logistic'
-            else:
-                objective = 'multi:softprob'
+    def _is_proper_float(self, x):
+        '''Define if value is a float or an int represented as a float'''
+        if x%1 == 0:
+            return False
         else:
-            if self.metadata[col]['nunique'] == 2:
-                objective = 'binary:logistic'
-            elif 2 < self.metadata[col]['nunique'] <= 70:
-                objective = 'multi:softprob'
+            return True
+    
+    def _define_objective(self, y):
+        # --------------------------------------------------
+        if self._cols_to_impute[y.name]['type'] == 'bool':
+            objective = 'binary'
+        # --------------------------------------------------
+        if self._cols_to_impute[y.name]['type'] == 'object':
+            if y.nunique() == 2:
+                objective = 'binary'
             else:
-                objective = 'reg:squarederror'
+                objective = 'multiclass'
+        # -------------------------------------------------
+        if 'float' in self._cols_to_impute[y.name]['type']:
+            if y.nunique() == 2:
+               objective = 'binary'
+            else:
+                # if decimal any decimal values are different than 0
+                if np.any(y.dropna().apply(self._is_proper_float)): 
+                    objective = 'regression'
+                else:
+                    if y.nunique() < 30:
+                        objective = 'multiclass'
+                    else:
+                        objective = 'regression'
+        # -------------------------------------------------
+        if 'int' in self._cols_to_impute[y.name]['type']:
+            if y.nunique() == 2:
+                objective = 'binary'
+            else:
+                if y.nunique() < 30:
+                    objective = 'multiclass'
+                else:
+                    objective = 'regression'
         return objective
+                                  
+    def _train_predict(self, params, X_train, y_train, X_test):
+        '''Train model on provided splits, output prediction'''
+        dtrain = lgb.Dataset(np.array(X_train), label=y_train)
+        model = lgb.train(params, dtrain)
+        pred = model.predict(np.array(X_test))
+        return pred
 
-    def _select_model_complex(self, objective): # self, change conservative = False to conservative (passed from impute function)
-        """Select a complex model for a given column: XGBRegressor orXGBClassifier.
+    def _decode_prediction(self, pred, y_name, encoder):
+        '''Apply Factorizer.inverse_transform to encoded predictions'''
+        pred = pd.DataFrame(pred, columns = [y_name])
+        pred = encoder.inverse_transform(pred)
+        pred = np.array(pred[y_name])
+        return pred
 
-        Args:
-            objective (str):
-                objective for model definition:
-                "binary:logistic"/"multi:softprob"/"reg:squarederror"
-
-        Returns:
-            model (class instance):
-                XGBRegressor or XGBClassifier model with predefined parameters
-
-        """
-        params = {
-             'objective'         : objective,
-             'colsample_bytree'  : 0.7,
-             'subsample'         : 0.7,
-             'random_state'      : 42,
-             'verbosity'         : 1,
-             'n_jobs'            : -1
-             }
-        if objective in ['binary:logistic', 'multi:softprob']:
-            model = XGBClassifier(**params)
+    def _train_predict_decode(self, params, X_train, y_train, X_test):
+        '''Apply _train_predict, if necessary encode/decode labels, transform probabilities into classes'''
+        need_decoding = False
+        try:
+            pred = self._train_predict(params, X_train, y_train, X_test)
+        except:
+            enc = Factorizer()
+            y_train_encoded = enc.fit_transform(pd.DataFrame(y_train), y_train.name)
+            pred = self._train_predict(params, X_train, y_train_encoded, X_test)
+            need_decoding = True
+        # convert predictions into classes
+        if params['objective'] == 'multiclass':
+            pred = np.argmax(pred, axis = 1)
+            if need_decoding:
+                pred = self._decode_prediction(pred, y_train.name, enc)
+        if params['objective'] == 'binary':
+            pred = (pred > 0.5).astype(int)
+        return pred
+    
+    def _select_params(self, objective, y):
+        '''Select lightgbm parameters based on objective'''
+        if objective == 'regression':
+            params = params_regression.copy()
         else:
-            model = XGBRegressor(**params)
-        return model
+            params = params_classification.copy()
+        params['objective'] = objective
+        if objective == 'multiclass':
+            params['num_classes'] = y.nunique()
+        return params        
 
-    def _select_model_conservative(self, objective): # self, change conservative = False to conservative (passed from impute function)
-        """Select an appropriate model for a given column: XGBRegressor orXGBClassifier.
+    def _sample_data(self, df, col):
+        '''Stratified or random sample of data (self._train_sample_size samples)'''
+        objective = self._define_objective(df[col].dropna())
+        nan_ix = df[df[col].isnull()].index
 
-        Args:
-            objective (str):
-                objective for model definition:
-                "binary:logistic"/"multi:softprob"/"reg:squarederror"
-            conservative (bool):
-                model complexity parameter. Default = False
-        Returns:
-            model (class instance):
-                XGBRegressor or XGBClassifier model with predefined parameters
-        """
-        # this speeds up the multiclass model
-        if objective == 'multi:softprob':
-            objective = 'reg:squarederror'
-        params = {
-            'objective'         : objective,
-            'colsample_bytree'  : 0.5,
-            'subsample'         : 0.5,
-            'learning_rate'     : 0.5,
-            'n_estimators'      : 100,
-            'tree_method'       : 'hist',
-            'random_state'      : 42,
-            'verbosity'         : 1,
-            'n_jobs'            : -1
-            }
-
-        if objective in ['binary:logistic', 'multi:softprob']:
-            model = XGBClassifier(**params)
-        else:
-            model = XGBRegressor(**params)
-        return model
-
-
-    def _subset_columns(self, data_prepared, col):
-        """Subset data to a limited number of relevant columns for missing
-        data imputation in the target column.
-
-        Args:
-            data_prepared (pandas.DataFrame):
-                data prepared for modeling
-            col (str):
-                column name to be used as a target for the model
-        Returns:
-            model (class instance):
-                XGBRegressor or XGBClassifier model with predefined parameters
-
-        """
-        if self.metadata['data_shape'][1] >= 30:
-            if self.feature_selection == 'correlation':
-                top_feats = self._get_high_corr_feats(data_prepared, col)
+        df_non_nan = df[~df.index.isin(nan_ix)]
+        sample_size = self._train_sample_size
+        if objective in ['binary', 'multiclass']:
+            if sample_size < len(df_non_nan):
+                train = df_non_nan.groupby(col, group_keys=False).apply(lambda x: x.sample(min(len(x), sample_size)))
+                train_ix = train.index
             else:
-                top_feats = self._get_important_feats(data_prepared, col)
-            top_feats.append(col)
-            subset = data_prepared[top_feats]
-#            print('Ncols reduced to 10')
+                train_ix = df_non_nan.index
         else:
-            subset = data_prepared
-        return subset
+            if sample_size < len(df_non_nan):
+                train_ix = df_non_nan.sample(n = sample_size).index
+            else:
+                train_ix = df_non_nan.index
+        return train_ix, nan_ix
 
-    def _prepare_data(self, data):
-        """Transform all non numeric columns to numeric.
-
-        Perform factorization of each column and save a dict(encoding_map) to reverse transform
-        the values back to the original format after missing values imputation.
-        Updates the self.encoding_map dictionary.
-
-        Args:
-            data (pandas.DataFrame):
-                data to be transformed
-
-        Returns:
-            data_prepared (pandas.DataFrame):
-                data transformed to all numeric
-
-        """
-        if self.fix_string_nans:
-            data = self._correct_string_nans(data)
-        self._get_metadata(data)
-        if not self.nan_cols:
-            self.nan_cols = data.columns[data.isnull().any()].tolist()
-
-        self.encoding_map = {}
-        for col in data.select_dtypes(include = 'O'):
-            cat_codes = data[col].dropna().unique().tolist()
-            num_codes = [ix[0] for ix in enumerate(cat_codes)]
-            self.encoding_map[col] = dict(zip(cat_codes, num_codes))
-            data[col] = data[col].map(self.encoding_map[col])
-
-        return data
-
-    def _get_high_corr_feats(self, data_prepared, col):
-        """Get the n most important features for a given column based on
-        binary corellations with the target col.
-
-        Args:
-            data_prepared (pandas.DataFrame):
-                data prepared for modeling with all columns, including the target column
-            col (str):
-                target column name for which important features must be found
-        Returns:
-            top_feats (list):
-                list of strings with the top (self.n_feats) number of features
-
-        """
-        import math
-        corellations = data_prepared.drop(col, axis = 1).apply(lambda x: x.corr(data_prepared[col]))
+    def _get_high_corr_feats(self, df, col):
+        '''Get the 10 most important features for a given column based on the\
+            binary corellations with the target col. Do not consider cols which NaN values\
+                were filled with 'Missing_data'
+        '''                
+        exclude_from_df = self._do_not_consider
+        # catch object or datetime cols to exclude from corellations calculation
+        not_supported = df.drop(col, axis = 1).select_dtypes(include = ['O', 'datetime']).columns.tolist()
+        corellations = df.drop(exclude_from_df + [col] + not_supported, axis = 1).apply(lambda x: x.corr(df[col]))
         for i in corellations.index:
             corellations[i] = math.fabs(corellations[i])
             corellations = corellations.sort_values(ascending = False)
         feats = list(corellations[:10].index)
         return feats
 
-    def _get_important_feats(self, data_prepared, col):
-        """Get the n most important features for a given column based on feature_importance.
+    def _get_splits(self, df, col):
+        '''Split df into train/test based on NaN indexes'''
+        feats = self._get_high_corr_feats(df, col)
+        train_ix, nan_ix = self._sample_data(df, col)
+        
+        X_train = df.loc[train_ix, feats]
+        y_train = df.loc[train_ix, col]
+        X_test = df.loc[nan_ix, feats]
+        return X_train, y_train, X_test        
+    
+    def _predict_nan_in_col(self, df, col):
+        '''Execute all functions to train the model and create prediction for a col in df'''
+        try:
+            objective = self._define_objective(df[col].dropna())
+            X_train_col, y_train_col, X_test_col = self._get_splits(df, col) # already sampled and with 10 feats
+            # clean up
+            del df
+            gc.collect()
+            params = self._select_params(objective, y_train_col)
+            pred = self._train_predict_decode(params, X_train_col, y_train_col, X_test_col)
+            self.printer.print(f'Imputed ({objective:^10}) - {len(X_test_col):<8} NaN in {col}', order=3)
+        except:
+            self.printer.print(f'Error imputing col {col} ({objective})', order='error')
+        return pred
+       
+    def _impute_single_core(self, df):
+        '''Header function to trigger nan imputation in df'''
+        self.printer.print(f'Imputing single core {len(self._cols_to_impute.keys())} cols', order = 2)
+        for col in self._cols_to_impute.keys():
+            pred = self._predict_nan_in_col(df, col)
+            # insert preds into col nan_ix
+            nan_ix = df[df[col].isnull()].index
+            df.loc[nan_ix, col] = pred
+        return df      
 
-        Build a conservative (simple) XGBoost model using all columns and up to
-        5000 rows of data, extract feature importances.
+    def _inverse_transform(self, df):
+        '''Apply Factorizer.inverse_transform to all encoded cols'''
+        for enc in self._transformers:
+            df = enc.inverse_transform(df)
+        return df 
 
-        Args:
-            data_prepared (pandas.DataFrame):
-                data prepared for modeling with all columns, including the target column
-            col (str):
-                target column name for which important features must be found
-        Returns:
-            top_feats (list):
-                list of strings with the top (self.n_feats) number of features
+    def _clear_attributes_placeholders_for_test(self):
+        '''Remove list of columns to impute and fitted transformers from instance attributes'''
+        self._cols_to_impute = {}
+        self._transformers = []        
 
-        """
-        n_rows = 5000
-
-        ix = data_prepared[col].dropna().index.tolist()
-        temp_data = data_prepared.iloc[ix]
-        if len(temp_data) > n_rows:
-            # make sure that all of the column classes (if classification) will stay in subset after sample
-            if self.metadata[col]['nunique'] <= 70:
-                temp_data = temp_data.groupby(col, group_keys=False).apply(lambda x: x.sample(min(len(x), n_rows)))
-            # or just sample (if regression)
-            else:
-                temp_data = temp_data.sample(n = n_rows)
-        model = self._select_model_conservative(self._get_objective_for_model(col))
-        model.fit(temp_data.drop(col, axis = 1), temp_data[col])
-        imp_array = model.feature_importances_
-        imp_by_name = dict(zip(temp_data.drop(col, axis = 1).columns, imp_array))
-        sorted_imp = dict(sorted(imp_by_name.items(), key = lambda x: x[1],reverse = True))
-        top_feats = list(sorted_imp.keys())[:self.n_feats]
-        return top_feats
-
-    def _fill_nans_with_string(self, data_prepared, col, col_nan_ix):
-        """Fill missing values in text column with 'Missing_data' string value.
-
-        Applicable to object type columns with over 500 unique values (considered as text).
-
-        This function will fill the data_prepared (a factorized dataframe) with
-        a new integer value in the col_nan_ix locations. As this function is
-        executed within a multiprocess, it can not update the
-        dict(self.encoding_map) instance attribute with new key,value pair
-        for this column (E.g.{'Missing_data':999}).
-        The dict(self.encoding_map) will be updated after the multiprocesses
-        are finished by _update_encoding_map_with_fill_nans_with_string_result func.
-        Actual insert of 'Missing_data' string value into the column will happen
-        during final mapping of the data_prepared to the reversed(self.encoding_map)
-        finalizing the impute() func.
-
-        Args:
-            data_prepared (pandas.DataFrame):
-                factorized data including the column to fill in by 'Missing_data' value
-            col (str):
-                column to replace NaNs by 'Missing_data'
-            col_nan_ix (list):
-                list of indexes with NaNs in the column
-
-        Returns:
-            data_prepared[col] (pandas.Series):
-                column with NaNs replaced by new encoding integer
-
-        """
-        new_code_for_category = max(list(self.encoding_map[col].values())) + 1
-        data_prepared[col][col_nan_ix] = new_code_for_category
-        data_prepared[col] = data_prepared[col].astype('int')
-        print(f'Missing values in {col} replaced by "Missing_data" value')
-        print('-'*50)
-        return data_prepared[col]
-
-    def _impute_nans_by_model(self, data_prepared, col, col_nan_ix, subset_train, subset_test):
-        """Impute NaNs in column with machine learning.
-
-            - Select an appropriate model
-            - Use the self.conervative instance attribute for model selection
-            - Fit/predict
-            - Fill in the NaN indexes in col by predicted values
-
-        Args:
-            data_prepared (pandas.DataFrame):
-                factorized data including the column to fill in by 'Missing_data' value
-            col (str):
-                column to impute NaNs
-            col_nan_ix (list):
-                list of NaNs indexes in column
-            subset_train (pandas.DataFrame):
-                training sample for NaNs imputation in column
-            subset_test (pandas.DataFrame):
-                sample with missing values in the 'col' to predict on
-
-        Returns:
-            data_prepared[col] (pandas.Series):
-                column with filled/imputed NaNs
-
-        """
-        if self.conservative:
-            model = self._select_model_conservative(self._get_objective_for_model(col))
+    def _get_or_fill_constants(self, df, train):
+        '''Get cols mean/mode from train or fill test unimputable cols with constants'''
+        if train:
+            for col in df:
+                if df[col].dtype in ['O', 'bool']:
+                    self._fill_constants[col] = df[col].mode().values[0]
+                else:
+                    self._fill_constants[col] = df[col].mean()
         else:
-            model = self._select_model_complex(self._get_objective_for_model(col))
-        if self._get_objective_for_model(col) in ['multi:softprob', 'binary:logistic']:
-            from verstack import Factorizer
-            # encode labels in case the numbers are not consecutive starting from zero
-            fac = Factorizer()
-            subset_train = fac.fit_transform(subset_train, col)
-            model.fit(subset_train.drop(col, axis = 1), subset_train[col])
-            predicted_nans = model.predict(subset_test.drop(col, axis = 1))
-            # reverse the encoded predictions
-            predicted_nans = fac.inverse_transform(pd.DataFrame(predicted_nans, columns=[col]))
-            predicted_nans = predicted_nans[col].tolist()
-        else:
-            model.fit(subset_train.drop(col, axis = 1), subset_train[col])
-            predicted_nans = model.predict(subset_test.drop(col, axis = 1))
-        data_prepared[col][col_nan_ix] = predicted_nans
-        if self.verbose:
-            print(f'- {col+":":<30} imputed {len(col_nan_ix)} NaNs')
-        return data_prepared[col]
+            # fill all NaNs or a column with single unique
+            for col in df:
+                if np.any(df[col].isnull()):
+                    if df[col].nunique() in [0, 1]:
+                        df[col].fillna(self._fill_constants[col], inplace = True)
+        return df
 
-    def _fill_or_impute(self, data_prepared, col):
-        """Fill col NaNs with 'Missing_data' factorization code or impute by ML.
-
-        Logic:
-            - If original column dtype == 'O' and it has over 500 unique values:
-                this column is considered as text (not categorical).
-                NaNs in this column will be replaced with 'Missing_data'
-                factorization code
-            - Else: NaNs will be imputed by ML
-
-        Before imputing NaNs by ML subset data_prepared subset data by limiting
-        columns (self._subset_columns) and rows (up to 20000).
-
-        Args:
-            data_prepared (pandas.DataFrame):
-                factorized data including the column to fill in by 'Missing_data' value
-            col (str):
-                column to fill/impute NaNs
-
-        Returns:
-            data_prepared[col] (pandas.Series):
-                column with filled/imputed NaNs
-
-        """
-        subset = self._subset_columns(data_prepared, col)
-        col_nan_ix = subset[subset[col].isnull()].index
-        subset_test = subset[subset.index.isin(col_nan_ix)]
-        subset_train = subset.drop(col_nan_ix, axis = 0)
-
-        if len(subset_train) > 20000:
-            # make sure that all of the column classes (if classification) will stay in subset after sample
-            if self.metadata[col]['nunique'] <= 70:
-                subset_train = subset_train.groupby(col, group_keys=False).apply(lambda x: x.sample(min(len(x), 20000)))
-            # or random sample (if regression)
-            else:
-                subset_train = subset.sample(n = 20000)
-
-        if self.metadata[col]['dtype'] == 'O' and self.metadata[col]['nunique'] > 500:
-            if self.fill_nans_in_pure_text:
-                data_prepared[col] = self._fill_nans_with_string(data_prepared, col, col_nan_ix)
-        else:
-            data_prepared[col] = self._impute_nans_by_model(data_prepared, col, col_nan_ix, subset_train, subset_test)
-
-        return data_prepared[col]
-
-    def _update_encoding_map_with_fill_nans_with_string_result(self, data_prepared, col):
-        '''Update encoding_map with 'Missing_values' category if it had been
-        introduced in the 'pure text' columns.
-
-        Before mapping the data_prepared to encoding_map check if the imputed
-        cols in data_prepared include extra values that are not present in
-        the encoding_map values for this column.
-        This could be the case if _fill_nans_with_string() had been
-        utilized within one of the multoprocesses, which introduced the
-        new category "Missing_data" and could not append the class instance
-        attribute self.encoding_map for this column from a multiprocess.
-
-        Args:
-            data_prepared (pandas.DataFrame):
-                imputed data, factorized, unreverted
-            col (str):
-                column name check.
-
-        Returns:
-            None
-
+    @timer
+    def impute(self, data, train = True):
         '''
-        encoding_map_reversed = {val:key for key, val in self.encoding_map[col].items()}
-        diff = list(set(data_prepared[col].unique()) - set(np.array(list(encoding_map_reversed.keys()))))
-        if len(diff) > 0:
-            if not np.isnan(diff[0]):
-                new_code_for_category = diff[0]
-                self.encoding_map[col]['Missing_data'] = new_code_for_category
-
-    def _drop_cols_with_all_nans(self, data_prepared):
-        """Drop columns with all missing values.
-
-        Remove such columns from self.nan_cols.
-
-        Args:
-            data_prepared (pandas.DataFrame):
-                Data to drop empty columns
-
-        Returns:
-            data_prepared (pandas.DataFrame):
-                Data without empty columns
-
-        """
-        for col in data_prepared:
-            if np.all(data_prepared[col].isnull()):
-                data_prepared.drop(col, axis = 1, inplace = True)
-                self.nan_cols.remove(col)
-                self.droped_cols.append(col)
-                if self.verbose:
-                    print(f'Droped column {col} with all NaNs')
-                    print('-'*50)
-
-        return data_prepared
-
-    def _drop_nan_constant_cols(self, data_prepared):
-        """Drop columns with all missing values and all other constant vals.
-
-        Remove such columns from self.nan_cols.
-
-        Args:
-            data_prepared (pandas.DataFrame):
-                Data to drop columns witn NaNs and all other constant vals
-
-        Returns:
-            data_prepared (pandas.DataFrame):
-                Data without NaN cols and all other constant vals
-
-        """
-        for col in data_prepared:
-            if np.any(data_prepared[col].isnull()):
-                if data_prepared[col].nunique() == 1:
-                    data_prepared.drop(col, axis = 1, inplace = True)
-                    self.nan_cols.remove(col)
-                    self.droped_cols.append(col)
-                    if self.verbose:
-                        print(f'Droped column {col} with NaNs and all other constants')
-                        print('-'*50)
-        return data_prepared
-
-    def impute(self, data):
-        """Impute missing values in dataset.
-
-        Args:
-            data (pandas.DataFrame):
-                Data to impute missing values in
-
-        Returns:
-            data (pandas.DataFrame):
-                Data with imputed missing values
-            or
-            data (pandas.DataFrame):
-                original data if there are no missing values to impute
-
-        """
-        start = timeit.default_timer()
-        # check for actual presence of nans
-        if ( not self.nan_cols and not np.any(data.isnull()) ) or ( not not self.nan_cols and not np.any(data[self.nan_cols].isnull()) ):
-            print('\nNo missing data to impute')
+        Main function to execute NaN imputation in df.
+        
+        Parameters
+        ----------
+        data : pd.DataFrame
+            data for NaN imputation.
+        train : bool, optional
+            flag for train / test set imputation. 
+            If False will not drop excessive column when imputing NaN; 
+            used for test set NaN imputation in order to output the same shaped imputed_df. 
+            The default is True.
+        
+        Returns
+        -------
+        df : pd.DataFrame
+            data with all NaN cols imputed.
+            
+        '''
+        if self._dont_need_impute(data):
+            self.printer.print('no missing data', order=2)
             return data
-        else:
-            if self.verbose:
-                self._print_data_dims(data)
-            data = self._prepare_data(data)
-
-            # deal with NaN cols with constant and empty_cols
-            if self.drop_nan_cols_with_constant:
-                data = self._drop_nan_constant_cols(data)
-#            self._skip_cols_with_constant()
-            if self.drop_empty_cols:
-                data = self._drop_cols_with_all_nans(data)
-
-            # impute in multiprocessing mode
-            if self.multiprocessing_load > 1:
-                print(f'\nDeploy multiprocessing with {self.num_workers} parallel proceses\n')
-                with concurrent.futures.ProcessPoolExecutor(max_workers = self.num_workers) as executor:
-                    results = [executor.submit(self._fill_or_impute, data, col) for col in self.nan_cols]
-                # extract imputed cols from multiprocessing results
-                for f in concurrent.futures.as_completed(results):
-                    try:
-                        imputed_col = f.result()
-                        data[imputed_col.name] = imputed_col
-                    except:
-                        continue
-
-            # impute on a single core
-            else:
-                print('\nImpute sequentially on a single core\n')
-                for col in self.nan_cols:
-                    try:
-                        data[col] = self._fill_or_impute(data, col)
-                    except:
-                        continue
-
-            # map to revresed encoding_map dict
-            for col in list(self.encoding_map.keys()):
-                if col in data:
-                    self._update_encoding_map_with_fill_nans_with_string_result(data, col)
-                    data[col] = data[col].map({val:key for key, val in self.encoding_map[col].items()})
-            stop = timeit.default_timer()
-            if self.verbose:
-                if len(self.droped_cols) > 0:
-                    print(f'\nDroped {len(self.droped_cols)} columns with either all NaNs or with NaNs and all other constants')
-                print(f'\nNaNs imputation time: {np.round((stop-start)/60,2)} minutes')
-                print('-'*50)
-            return data
+        df = data.copy()
+        self.printer.print(f'Initiating NaNImputer.impute', order = 1)
+        if self.verbose:
+            self._print_data_dims(df)        
+        if not train:
+            self._clear_attributes_placeholders_for_test()
+        # ------------------------------
+        df = self._drop_hopeless_nan_cols(df, train)
+        # ------------------------------
+        df = self._get_or_fill_constants(df, train)
+        # ------------------------------
+        df = self._fill_object_nan_cols_with_string(df)
+        # ------------------------------
+        self._get_cols_to_impute(df)
+        # ------------------------------
+        df = self._process_df(df)
+        # ------------------------------
+        df = self._impute_single_core(df)
+        df = self._inverse_transform(df)
+        self.printer.print(f'Missing values after imputation: {sum(df.isnull().sum())}', order = 2)
+        return df

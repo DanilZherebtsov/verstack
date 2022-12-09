@@ -1,4 +1,4 @@
-Every time you want to update your package:
+Every time you want to update your package: 
 
 	0. If adding new Class, (to make it callable after import) to __init__.py add: from verstack.NewClassName import NewClassName
 

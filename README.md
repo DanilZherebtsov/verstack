@@ -1,4 +1,4 @@
-verstack 3.3.4 Documentation
+verstack 3.4.0 Documentation
 ============================
 
 Machine learning tools to make a Data Scientist\'s work efficient
@@ -12,6 +12,7 @@ veratack package contains the following tools:
 -   **DateParser** automated date columns finder and parser
 -   **LGBMTuner** automated lightgbm models tuner with optuna
 -   **NaNImputer** impute all missing values in a pandas dataframe using
+-   **NaNImputerLegacy** legacy version of a multicore NaNImputer based on XGB
     advanced machine learning with 1 line of code
 -   **Multicore** execute any function in concurrency using all the
     available cpu cores
@@ -1028,12 +1029,93 @@ tuner.predict(test, threshold = 0.3)
 NaNImputer
 ----------
 
+Impute all missing values in a pandas dataframe by lightgbm models in using a single line of code.
+
+Note: This is the second major version of NaNImputer. The original class (last version 1.4.0) 
+had been very popular. The legacy version is kept within verstack with a new class name NaNImputerLegacy.
+Differences between the NaNImputer and NaNImputerLegacy:
+    - The new NaNImputer is based on LightGBM instead of XGBoost in the legacy version
+    - The new NaNImputer is using a single core multithreading instead of multicore legacy version, nevertheless it is significantly faster
+    - The new NaNImputer's interface is much simpler and features only two configurable parameters
+    - The imputation quality of the new NaNImputer is on par with the NaNImputerLegacy
+
+### Logic
+
+With NaNImputer you can fill missing values in numeric, binary and
+categoric columns in your pandas dataframe using advanced
+LGBMRegressor/LGBMClassifier models with just 1 line of code. Regardless
+of the data types in your dataframe (string/bool/numeric/date):
+
+> -   all of the columns will be checked for missing values
+> -   transformed into numeric formats
+> -   split into subsets with and without missing values
+> -   applicalbe models will be selected and configured for each of the
+>     columns with NaNs
+> -   NaNs will be predicted and placed into corresponding indixes
+> -   columns with all NaNs will be droped
+> -   columns containing NaNs and known values as a single constant will be dropped
+> -   columns containing over 50% NaNs will be dropped
+> -   data will be reverse-transformed into original format
+
+The only limitation is:
+
+-   NaNs in pure text columns are not imputed. By default they are
+    filled with \'Missing\_data\' value. 
+
+**Initialize NaNImputer**
+
+``` {.python}
+from verstack import NaNImputer
+
+# initialize with default parameters
+imputer = NaNImputer()
+
+# initialize with selected parameters
+imputer = NaNImputer(train_sample_size = 50000,
+                     verbose = False)
+```
+
+### Parameters
+
+-   `train_sample_size` \[default=30000\]
+
+    Number of rows to use for training the NaNImputer model.
+    the dataset is smaller than train_sample_size, the whole dataset will be used.
+
+-   `verbose` \[default=True\]
+
+    Controls the information output to the console.
+
+### Methods
+
+-   `impute(data)`
+
+    Execute NaNs imputation columnwise in a pd.DataFrame
+
+    > Parameters
+    >
+    > -   `data` pd.DataFrame
+    >
+    >     dataframe with missing values in a single/multiple columns
+
+### Examples
+
+Using NaNImputer with all default parameters
+
+``` {.python}
+imputer = NaNImputer()
+df_imputed = imputer.impute(df)
+```
+
+NaNImputerLegacy
+----------
+
 Impute all missing values in a pandas dataframe by xgboost models in
 multiprocessing mode using a single line of code.
 
 ### Logic
 
-With NaNImputer you can fill missing values in numeric, binary and
+With NaNImputerLegacy you can fill missing values in numeric, binary and
 categoric columns in your pandas dataframe using advanced
 XGBRegressor/XGBClassifier models with just 1 line of code. Regardless
 of the data types in your dataframe (string/bool/numeric):
@@ -1059,16 +1141,16 @@ The only limitation is:
     filled with \'Missing\_data\' value. Configurable. If disabled -
     will return these columns with missing values untouched
 
-**Initialize NaNImputer**
+**Initialize NaNImputerLegacy**
 
 ``` {.python}
-from verstack import NaNImputer
+from verstack import NaNImputerLegacy
 
 # initialize with default parameters
-imputer = NaNImputer()
+imputer = NaNImputerLegacy()
 
 # initialize with selected parameters
-imputer = NaNImputer(conservative = False, 
+imputer = NaNImputerLegacy(conservative = False, 
                      n_feats = 10, 
                      nan_cols = None, 
                      fix_string_nans = True, 
@@ -1149,10 +1231,10 @@ imputer = NaNImputer(conservative = False,
 
 ### Examples
 
-Using NaNImputer with all default parameters
+Using NaNImputerLegacy with all default parameters
 
 ``` {.python}
-imputer = NaNImputer()
+imputer = NaNImputerLegacy()
 df_imputed = imputer.impute(df)
 ```
 
@@ -1161,9 +1243,8 @@ columns, use 20 most important features for each of these columns
 imputation and deploy a half of the available cpu cores
 
 ``` {.python}
-imputer = NaNImputer(nan_cols = ['col1', 'col2'], n_feats = 20, multiprocessing_load = 2)
+imputer = NaNImputerLegacy(nan_cols = ['col1', 'col2'], n_feats = 20, multiprocessing_load = 2)
 df_imputed = imputer.impute(df)
-```
 
 Multicore
 ---------
