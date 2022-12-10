@@ -11,9 +11,8 @@ veratack package contains the following tools:
     recursive feature elimination
 -   **DateParser** automated date columns finder and parser
 -   **LGBMTuner** automated lightgbm models tuner with optuna
--   **NaNImputer** impute all missing values in a pandas dataframe using
+-   **NaNImputer** impute all missing values in a pandas dataframe with lightgbm
 -   **NaNImputerLegacy** legacy version of a multicore NaNImputer based on XGB
-    advanced machine learning with 1 line of code
 -   **Multicore** execute any function in concurrency using all the
     available cpu cores
 -   **ThreshTuner** tune threshold for binary classification predictions
