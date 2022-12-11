@@ -1,10 +1,15 @@
-import pandas as pd
+import os
+import pickle
+import keras
+import tensorflow as tf
 import copy
+import pandas as pd
 from sklearn.model_selection import KFold, StratifiedKFold
 from verstack.stacking.optimise_params import optimise_params
 from verstack.stacking.generate_default_layers import generate_default_layers
 from verstack.stacking.args_validators import *
 from verstack.tools import timer, Printer
+
 
 '''
 TODO: 
@@ -13,7 +18,7 @@ TODO:
 
 class Stacker:
     
-    __version__ = '0.0.6'
+    __version__ = '0.1.1'
     
     def __init__(self, 
                  objective, 
@@ -630,8 +635,78 @@ class Stacker:
             test featues with appended stacking features.
 
         '''
-        self.printer.print('!!!Initiating Stacker.transform', order=1)
+        self.printer.print('Initiating Stacker.transform', order=1)
         validate_transform_args(X)
         X_with_stacked_feats = X.reset_index(drop=True).copy()
         X_with_stacked_feats = self._apply_all_or_extra_layers_to_test(X_with_stacked_feats)
         return X_with_stacked_feats
+    
+    def save_stacker(self, path):
+        '''Save trained models and Stacker instance to the specified path
+        
+        Parameters
+        ----------
+        path : str
+            path to the directory where the models will be saved
+            save_stacker method will create a directory stacker_saved_model in the specified path
+            
+        Returns
+        -------
+        None.'''
+    
+        filepath = os.path.join(path, 'stacker_saved_model')
+        if not os.path.exists(filepath):
+            os.mkdir(filepath)
+
+        for layer in self.trained_models.keys():
+            for model_ix_in_layer in self.trained_models[layer]:
+                save_dir = self._make_dir_for_layer_models(filepath, model_ix_in_layer)
+                models_lst = self.trained_models[layer][model_ix_in_layer]
+                for ix, model in enumerate(models_lst):
+                    model_save_path = os.path.join(save_dir, str(ix))
+                    try:
+                        self._save_keras_model(model, model_save_path)                
+                    except AttributeError:
+                        self._pickle_model(model, model_save_path)
+        self._save_stacker_instance(filepath)
+        print('Stacker instance saved to', filepath)
+    
+    def _save_stacker_instance(self, path):
+        '''Save stacker instance without trained models'''
+        self_copy = copy.copy(self)
+        self_copy.trained_models = {}
+        with open(f'{path}/stacker.p', 'wb') as f:
+            pickle.dump(self_copy, f)
+    
+    def _save_native_keras_model(self, model, path):
+        '''Save native keras model'''
+        tf.keras.models.save_model(model, path)
+    
+    def _save_keras_model(self, model, path):
+        '''Save keras model as a stacker wrapped keras model  in two steps: 
+        stacker pickle instance and keras.save_model object'''
+        try:
+            model_copy = copy.deepcopy(model)
+        except:
+            model_copy = copy.copy(model)
+        # extract the native keras model from stacker instance
+        keras_model = model_copy.model
+        # same the native keras model
+        self._save_native_keras_model(keras_model, path)
+        # save the verstack.stacking.kerasModel instance without the actual keras model
+        model_copy.model = None
+        with open(f'{path}/verstack.stacking.kerasModel', 'wb') as f:
+            pickle.dump(model_copy, f)
+        
+    def _pickle_model(self, model, path):
+        '''Save model with pickle'''
+        with open(path, 'wb') as f:
+            pickle.dump(model, f)
+                    
+    def _make_dir_for_layer_models(self, filepath, model_ix_in_layer):
+        '''Make directory for fold models within one model in layer'''
+        save_dir = os.path.join(filepath, model_ix_in_layer)
+        if not os.path.exists(save_dir):
+            os.mkdir(save_dir)
+        return save_dir
+

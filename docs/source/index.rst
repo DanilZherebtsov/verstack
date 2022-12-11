@@ -1,5 +1,5 @@
 ############################
-verstack 3.4.0 Documentation
+verstack 3.5.0 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -205,6 +205,36 @@ Methods
   returns
     pd.DataFrame test featues with appended stacking features
 
+Saving and loading Stacker instance
+===========================
+ ... 
+    save_stacker() is a Stacker instance method, it is performed after fit_transform() is completed.
+
+    load_stacker() is a standalone function; called from verstack.stacking.load_model.load_model(path); should be executed after import
+
+* ``save_stacker(path)``
+
+  Save fitted stacker object to a directory.
+
+  Parameters
+
+    - ``path`` [str]
+    
+      path to where Stacker will create directory "saved_stacker_model" and save stacker artefacts
+    
+* ``verstack.stacking.load_model.load_model(path)``
+
+  Load the saved stacker model.
+
+  Parameters
+    - ``path`` [str]
+
+      path to "stacker_saved_model" directory
+
+  returns
+    Stacker instance
+
+
 **Attributes**
 
 * ``layers``
@@ -249,6 +279,30 @@ Then add one more layer and disable hyperparameters optimization for this layer
   # pass the transformed dataset if need to call .fit_transform() after adding extra layers to the fitted instance of Stacker
   X_with_stacked_feats = stacker.fit_transform(X_with_stacked_feats, y)
   test_with_stacked_feats = stacker.transform(test_with_stacked_feats)
+
+Saving Stacker model
+
+.. code-block:: python
+
+  from verstack import Stacker
+  stacker = Stacker(objective = 'multiclass', auto = True)
+  X_with_stacked_feats = stacker.fit_transform(X, y)
+
+  # specify the path to where stacker will create the stacker_saved_model directory
+  path = '/Documents'
+  stacker.save_stacker(path)
+
+Loading Stacker model
+
+.. code-block:: python
+
+  from verstack.stacking.load_stacker import load_stacker
+  path_where_stacker_saved_models = 'Documents/stacker_saved_model'
+  stacker = load_stacker(path_where_stacker_saved_models)
+
+  # use the loaded stacker to create stacking features on test set
+  X_test_with_stacked_feats = stacker.transform(X_test)
+
 
 ******************
 FeatureSelector
