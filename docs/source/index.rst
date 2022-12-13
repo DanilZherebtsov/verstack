@@ -1,5 +1,5 @@
 ############################
-verstack 3.5.0 Documentation
+verstack 3.5.1 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -1345,7 +1345,7 @@ Access the results after .fit()
   # return pd.DataFrame with the best predicted fraction_of_1
   thresh.best_predict_ratio()
   # return the actual labels fraction_of_1
-  thresh.labels_fractio_of_1
+  thresh.labels_fraction_of_1
 
 ***************************
 stratified_continuous_split

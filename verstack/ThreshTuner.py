@@ -5,7 +5,7 @@ from collections import Counter
 
 class ThreshTuner():
     
-    __version__ = '0.0.2'
+    __version__ = '0.0.3'
     
     ''' Tune threshold for binary classificaiton models output. '''
     
@@ -64,8 +64,8 @@ class ThreshTuner():
     @min_threshold.setter
     def min_threshold(self, min_t):
         if min_t:
-            if type(min_t) != float and type(min_t) != int : raise Exception('min_threshold must be integer or float')
-            if type(min_t) == float or type(min_t) == int:
+            if type(min_t) not in [np.float64, float] and type(min_t) != int : raise Exception('min_threshold must be integer or float')
+            if type(min_t) in [np.float64, float] or type(min_t) == int:
                 if min_t < 0 or min_t >= 1 : raise Exception('min_threshold must be greater than 0 and less than 1')
 
         self._min_threshold = min_t
@@ -77,8 +77,8 @@ class ThreshTuner():
     @max_threshold.setter
     def max_threshold(self, max_t):
         if max_t:
-            if type(max_t) != float and type(max_t) != int : raise Exception('max_threshold must be integer or float')
-            if type(max_t) == float or type(max_t) == int:
+            if type(max_t) not in [np.float64, float] and type(max_t) != int : raise Exception('max_threshold must be integer or float')
+            if type(max_t) in [np.float64, float] or type(max_t) == int:
                 if max_t <= 0 or max_t > 1 : raise Exception('max_threshold must be greater than 0 and less than or equal to 1')
             if self.min_threshold:
                 if max_t < self.min_threshold : raise Exception('max_threshold must be grater than min_threshold')

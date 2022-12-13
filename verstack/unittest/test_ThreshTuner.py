@@ -12,5 +12,11 @@ def test_ThreshTuner():
     
     tuner = ThreshTuner(n_thresholds=10, min_threshold=0.4, max_threshold=0.7)
     tuner.fit(true, pred)
-    result = tuner.best_predict_ratio()['threshold'].values[0] == 0.5333333333333333
-    assert result
+    result_with_optional_parameters = tuner.best_predict_ratio()['threshold'].values[0] == 0.5333333333333333
+
+    tuner = ThreshTuner()
+    tuner.fit(true, pred)
+    result_with_default_parameters = tuner.best_predict_ratio()['fraction_of_1'].values[0] == 0.474
+
+    assert result_with_optional_parameters
+    assert result_with_default_parameters
