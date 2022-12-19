@@ -11,6 +11,7 @@ from verstack.Multicore import Multicore
 from verstack.ThreshTuner import ThreshTuner
 from verstack.DateParser import DateParser
 from verstack.FeatureSelector import FeatureSelector
+from verstack.PandasOptimizer import PandasOptimizer
 # LGBMTuner import
 from verstack.lgbm_optuna_tuning.LGBMTuner import LGBMTuner
 # Stacker import

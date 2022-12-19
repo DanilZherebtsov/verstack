@@ -4,9 +4,9 @@ Every time you want to update your package:
 
 	Also for new classes it is a good practice to add a class version. Check out NaNImputer for an example
 
-	1. $ python increment_version.py new_version_index (increment the version index in the version.py/index.rst/README.md (setup.py version increment will be done later in step 6))
+	1. update index.rst file in the docs folder and build a new release on readthedocks.org
 
-	2. update index.rst file in the docs folder and build a new release on readthedocks.org
+	2. $ python increment_version.py new_version_index (increment the version index in the version.py/index.rst/README.md (setup.py version increment will be done later in step 6))
 
 	3. use https://cloudconvert.com/rst-to-md to update the README.md with instruction and push to github (need updating at this step before creating a new release, so it would get posted on pypi)
 

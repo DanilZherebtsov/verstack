@@ -1,10 +1,11 @@
-verstack 3.5.1 Documentation
+verstack 3.6.0 Documentation
 ============================
 
 Machine learning tools to make a Data Scientist\'s work efficient
 
 veratack package contains the following tools:
 
+-   **PandasOptimizer** load a pandas.DataFrame with optimized datatypes (reduce RAM usage)
 -   **Stacker** automated stacking ensemble configuration/train/features
     creation in train/test sets
 -   **FeatureSelector** automated feature selection class based on
@@ -41,6 +42,135 @@ Getting verstack
 \$ `pip install --upgrade verstack`
 :::
 
+PandasOptimizer
+---------------
+
+Automated loader of a pandas.DataFrame with optimized data types.
+The resulting dataframe memory footprint is on average 20% of the original data footprint.
+
+Under the hood it is using a pandas.read_csv / pandas.read_excel functions, loads
+data by batches, infers data types of each variable and finally loads the whole
+dataframe with optimized dtypes.
+
+Allows to pass selected arguments of a pandas.read_csv/pandas.read_excel functions.
+
+Accepts for optimization either a path to an object on disk or a loaded pd.DataFrame object.
+
+**Initialize PandasOptimizer**
+
+``` {.python}
+from verstack import PandasOptimizer
+
+# initialize with default parameters
+opt = PandasOptimizer()
+
+# initialize with custom parameters
+opt = PandasOptimizer(chunksize = 1000,
+                     sep = ';',
+                     delimiter = ',',
+                     usecols = ['col_x', 'col_y'],
+                     encoding = 'acsii')
+
+### Parameters
+
+-   `pd_read_func` \[default=\'pandas.read_csv\'\]
+
+    One of the pandas.read_csv / pandas.read_excel functions to use when reading your file
+
+-   `sep` \[default=","\]
+
+    Separator applicable for the data
+    
+-   `delimiter` \[default=None\]
+
+    Delimiter applicable for the data
+    
+-   `usecols` \[default=None\]
+
+    usecols argument for pandas.read_csv / pandas.read_excel function
+
+-   `encoding` \[default="utf-8"\]
+
+    encoding argument for pandas.read_csv / pandas.read_excel function
+    
+-   `chunksize` \[default=10000\]
+
+    Number of rows to read at a time when learning the optimized dtypes
+
+-   `verbose` \[default=True\]
+
+    Verbosity setting
+
+### Methods
+
+-   `optimize_memory_usage(path_or_df)`
+
+    Read dataframe & optimized data types or optimize existing dataframe
+
+    > Parameters
+    >
+    > -   `path_or_df` \[str or pd.DataFrame\]
+    >
+    >     path to file or object of type pandas.DataFrame
+    >
+    returns
+
+    :   pd.DataFrame with optimized dtypes
+
+-   `discover_dtypes(path_or_df)`
+
+    Find the most optimized numeric dtypes in object.
+
+    > Parameters
+    >
+    > -   `path_or_df` \[str or pd.DataFrame\]
+    >
+    >     path to file or pd.DataFrame object
+
+    returns
+
+    :   dict columns names and optimized dtypes
+
+-   `get_shape(path_or_df)`
+
+    Get shape of dataframe without reading it into memory, (not used in optimization).
+
+    > Parameters
+    >
+    > -   `path_or_df` \[str or pd.DataFrame\]
+    >
+    >     path to file or pd.DataFrame object
+
+    returns
+
+    :   tuple data shape
+
+**Attributes**
+
+-   `optimized_dtypes`
+
+    Dictionary with columns names and optimized dtypes
+
+-   `original_data_size_mb`
+
+    Size of original data (prior to optimization) in MB
+
+-   `optimized_data_size_mb`
+
+    Size of optimized data in MB
+
+-   `optimized_to_original_ratio`
+
+    Perentage - fraction of memory footprint of optimized data relative to the original data
+### Examples
+
+Using PandasOptimizer in auto mode
+
+``` {.python}
+from verstack import PandasOptimizer
+opt = PandasOptimizer()
+df = opt.optimize_memory_usage(path_to_data)
+```
 Stacker
 -------
 
