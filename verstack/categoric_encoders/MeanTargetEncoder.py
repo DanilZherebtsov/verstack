@@ -13,7 +13,7 @@ class MeanTargetEncoder():
     Test set (transform()) is encoded without normalization.
     '''
 
-    __version__ = '0.1.1'
+    __version__ = '0.1.2'
     
     def __init__(self, save_inverse_transform = False, na_sentinel = True):
         '''
@@ -102,6 +102,7 @@ class MeanTargetEncoder():
 
         if self._na_sentinel:
             encoded_df[colname].fillna(self.__global_mean, inplace=True)
+        encoded_df[colname] = encoded_df[colname].astype('float64')
         return encoded_df
 
     def transform(self, df):
@@ -129,6 +130,7 @@ class MeanTargetEncoder():
         # fill the incoming NaNs with self.__global_mean
         if self._na_sentinel:
             encoded_df[self._colname].fillna(self.__global_mean, inplace = True)
+        encoded_df[self._colname] = encoded_df[self._colname].astype('float64')
         return encoded_df
         
     def _inverse_transform_without_smoothing(self, df):
