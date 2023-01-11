@@ -7,6 +7,7 @@ import optuna
 from sklearn.model_selection import train_test_split
 from copy import copy
 from functools import partial
+import plotly.express as px
 import warnings
 warnings.filterwarnings("ignore")
 import matplotlib.pyplot as plt
@@ -20,7 +21,7 @@ from verstack.lgbm_optuna_tuning.optuna_tools import Distribution, OPTUNA_DISTRI
 
 class LGBMTuner:
 
-    __version__ = '0.1.1'
+    __version__ = '0.1.2'
 
     def __init__(self, **kwargs):
         '''
@@ -820,19 +821,19 @@ class LGBMTuner:
                                                         'font_color':'white',
                                                         'title_font_color':'lightgrey',
                                                         'xaxis':{'visible':False,
-                                                                    'showticklabels':False,
-                                                                    'showgrid':False},
+                                                                 'showticklabels':False,
+                                                                 'showgrid':False},
                                                         'yaxis':{'showticklabels':True,
-                                                                    'title':''}}
+                                                                 'title':''}}
         default_plotly_light_fig_update_layout_kwargs = {'plot_bgcolor': '#dee0eb',
-                                                            'paper_bgcolor': '#fff',
-                                                            'font_color': '#34383d',
-                                                            'title_font_color': 'lightgrey',
-                                                            'xaxis': {'visible': False,
-                                                                    'showticklabels': False,
-                                                                    'showgrid': False},
-                                                            'yaxis': {'showticklabels': True,
-                                                                    'title': ''}}
+                                                         'paper_bgcolor': '#fff',
+                                                         'font_color': '#34383d',
+                                                         'title_font_color': 'lightgrey',
+                                                         'xaxis': {'visible': False,
+                                                                   'showticklabels': False,
+                                                                   'showgrid': False},
+                                                         'yaxis': {'showticklabels': True,
+                                                                   'title': ''}}
         # set plotly update_layout kwargs            
         if plotly_fig_update_layout_kwargs:
             kwargs = plotly_fig_update_layout_kwargs
