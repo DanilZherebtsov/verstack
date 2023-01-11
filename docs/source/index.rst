@@ -1,5 +1,5 @@
 ############################
-verstack 3.6.0 Documentation
+verstack 3.6.1 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -939,7 +939,13 @@ Methods
   returns
     array of float
 
-* ``plot_importances(n_features = 15, figsize = (10,6), interactive = False, display = True, plotly_fig_update_layout_kwargs = {})``
+* ``plot_importances(n_features = 15, 
+                     figsize = (10,6), 
+                     interactive = False, 
+                     display = True, 
+                     dark = True,
+                     save = False,
+                     plotly_fig_update_layout_kwargs = {})``
 
   Plot feature importance
     
@@ -958,6 +964,14 @@ Methods
     - ``display`` [default=True]
 
       Display plot in browser. If False, plot will be saved in cwd.
+
+    - ``dark`` [default=True]
+
+      Enable dark or light mode for plot.
+
+    - ``save`` [default=False]
+
+      Save plot to current working directory.
 
     - ``plotly_fig_update_layout_kwargs`` [default={}]
 

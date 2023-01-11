@@ -8,8 +8,9 @@ from sklearn.model_selection import train_test_split
 from copy import copy
 from functools import partial
 import warnings
-from verstack.tools import timer, Printer
 warnings.filterwarnings("ignore")
+import matplotlib.pyplot as plt
+from verstack.tools import timer, Printer
 from verstack.lgbm_optuna_tuning.lgb_metrics import get_pruning_metric, get_optimization_metric_func, define_objective, classification_metrics, regression_metrics, get_eval_score, print_lower_greater_better, supported_metrics, get_n_rounds_optimization_metric
 from verstack.lgbm_optuna_tuning.args_validators import *
 from verstack.lgbm_optuna_tuning.optuna_tools import Distribution, OPTUNA_DISTRIBUTIONS_MAP, SearchSpace
@@ -19,7 +20,7 @@ from verstack.lgbm_optuna_tuning.optuna_tools import Distribution, OPTUNA_DISTRI
 
 class LGBMTuner:
 
-    __version__ = '0.1.0'
+    __version__ = '0.1.1'
 
     def __init__(self, **kwargs):
         '''
@@ -725,6 +726,138 @@ class LGBMTuner:
         self._feature_importances = normalized_importances
     # ------------------------------------------------------------------------------------------
 
+    def _plot_static_fim(self,
+                        feat_imp, 
+                        figsize = (10,6), 
+                        dark=True,
+                        save=False,
+                        display=True):
+        """
+        Plot feature importance as a horizontal bar chart.
+
+        Parameters
+        ----------
+        feat_imp : pd.Series
+            feature importance values.
+        figsize : tuple, optional
+            figure size. The default is (10,6).
+        dark : bool, optional
+            dark theme. The default is True.
+        save : bool, optional
+            save figure. The default is False.
+        display : bool, optional
+            display figure. The default is True.
+        
+        Returns
+        -------
+        None.
+        
+        """
+        fig, ax = plt.subplots(figsize=figsize)
+        plt.tight_layout()
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        ax.spines['bottom'].set_visible(False)
+        if dark:
+            name = 'FIM_DARK'
+            plt.style.use('seaborn-deep')
+            plt.style.use('dark_background')
+            ax.barh(feat_imp.index, feat_imp, alpha=0.8, color='#F99245')
+            fig.set_facecolor('#20253c')
+            ax.set_facecolor('#20253c')
+            ax.tick_params(axis='x', colors='white')
+            ax.tick_params(axis='y', colors='white')
+            ax.set_title('Feature importances (sum up to 1)', color='white')
+        else:
+            name = 'FIM_LIGHT'
+            plt.style.use('seaborn-pastel')
+            ax.barh(feat_imp.index, feat_imp, alpha=0.8, color='#007bff')
+            fig.set_facecolor('#dee0eb')
+            ax.set_facecolor('#dee0eb')
+            ax.tick_params(axis='x', colors='#212529')
+            ax.tick_params(axis='y', colors='#212529')
+            ax.set_title('Feature importances (sum up to 1)', color='#212529')
+        if display:
+            plt.show()
+        if save:
+            plt.savefig(f'{name}.png', dpi=300, facecolor=fig.get_facecolor(),
+                        edgecolor='none', bbox_inches='tight')
+            print(f'Feature Importance Plot is saved to {os.path.join(os.getcwd(), f"{name}.png")}')
+    # ------------------------------------------------------------------------------------------
+    def _plot_interactive_fim(self, plot_df, dark=True, save=False, display=True, plotly_fig_update_layout_kwargs={}):
+        '''
+        Create and save interactive plotly plot.
+        
+        Parameters
+        ----------
+        plot_df : pd.Series
+            Series with features names and importances.
+        dark : bool, optional
+            Dark theme. The default is True.
+        save : bool, optional
+            Save plot to working directory. The default is False.
+        display : bool, optional
+            Display plot in console or in browser (for interactive plots). The default is True.
+        plotly_fig_update_layout_kwargs : dict, optional
+            Dictionary with plotly layout parameters. The default is {}.
+
+        Returns
+        -------
+        None.
+            
+        '''
+      
+        BAR_COLOR = '#F99245'
+        fig = px.bar(plot_df, 
+                        x = 'importance', 
+                        y = 'feature', 
+                        orientation = 'h',
+                        color_discrete_sequence = [BAR_COLOR]*len(plot_df),
+                        text = 'importance_percent')
+        default_plotly_dark_fig_update_layout_kwargs = {'plot_bgcolor':'#20253c', # plot color
+                                                        'paper_bgcolor':'#2d3250', # html color
+                                                        'font_color':'white',
+                                                        'title_font_color':'lightgrey',
+                                                        'xaxis':{'visible':False,
+                                                                    'showticklabels':False,
+                                                                    'showgrid':False},
+                                                        'yaxis':{'showticklabels':True,
+                                                                    'title':''}}
+        default_plotly_light_fig_update_layout_kwargs = {'plot_bgcolor': '#dee0eb',
+                                                            'paper_bgcolor': '#fff',
+                                                            'font_color': '#34383d',
+                                                            'title_font_color': 'lightgrey',
+                                                            'xaxis': {'visible': False,
+                                                                    'showticklabels': False,
+                                                                    'showgrid': False},
+                                                            'yaxis': {'showticklabels': True,
+                                                                    'title': ''}}
+        # set plotly update_layout kwargs            
+        if plotly_fig_update_layout_kwargs:
+            kwargs = plotly_fig_update_layout_kwargs
+        else:
+            if dark:
+                name = 'FIM_DARK.html'
+                kwargs = default_plotly_dark_fig_update_layout_kwargs
+            else:
+                name = 'FIM_LIGHT.html'
+                kwargs = default_plotly_light_fig_update_layout_kwargs
+        fig.update_layout(**kwargs)
+        fig.update_traces(textposition='inside',
+                            marker_line_color=BAR_COLOR)
+        if display:
+            try:
+                fig.write_html(name, config={'displaylogo': False})
+                self._display_html(name)
+                if not save:
+                    os.remove(name)
+            except Exception as e:
+                print(f'Display html error: {e}')
+        if save:
+            fig.write_html(name, config={'displaylogo': False})
+            print(f'Feature Importance Plot is saved to {os.path.join(os.getcwd(), name)}')        
+    # ------------------------------------------------------------------------------------------
     def _display_html(self, html_file):
         '''Run html plot in the default browser'''
         import webbrowser
@@ -736,9 +869,18 @@ class LGBMTuner:
         os.remove(html_file)
     # ------------------------------------------------------------------------------------------
 
-    def plot_importances(self, n_features=15, figsize=(10,6), interactive=False, display=True, plotly_fig_update_layout_kwargs={}):
+    def plot_importances(self, 
+                         n_features=15, 
+                         figsize=(10,6), 
+                         interactive=False, 
+                         display=True, 
+                         dark=True,
+                         save=True,
+                         plotly_fig_update_layout_kwargs={}):
         '''
         Plot feature importances.
+
+        Can plot interactive html plot or static png plot.
 
         Parameters
         ----------
@@ -750,6 +892,10 @@ class LGBMTuner:
             Create & save to current wd interactive html plot. The default is False.
         display: bool, optional
             Display plot in browser. If False, plot will be saved in cwd. The default is True.
+        dark: bool, optional
+            Display dark/light version of plot. The default is True.
+        save: bool, optional
+            Save plot to cwd. The default is True.
         plotly_fig_update_layout_kwargs: dict, optional
             kwargs for plotly.fig.update_layout() function. The default is empty dict and default_plotly_fig_update_layout_kwargs will be used
 
@@ -762,59 +908,23 @@ class LGBMTuner:
         validate_plot_importances_n_features_argument(n_features)
         validate_plot_importances_figsize_argument(figsize)
         validate_plotting_interactive_argument(interactive)
-
         if interactive:
-            import plotly.express as px
-            plot_df = pd.DataFrame(self._feature_importances.nlargest(n_features).sort_values(), columns = ['importance'])
-            plot_df['feature'] = plot_df.index
-            plot_df.reset_index(drop = True, inplace = True)
-            plot_df['importance_percent'] = [str(np.round(val*100,3))+'%' for val in plot_df['importance']]
-            
-            BAR_COLOR = '#F99245'
-            
-            fig = px.bar(plot_df, 
-                         x = 'importance', 
-                         y = 'feature', 
-                         orientation = 'h',
-                         color_discrete_sequence = [BAR_COLOR]*len(plot_df),
-                         text = 'importance_percent')
-
-            default_plotly_fig_update_layout_kwargs = {'plot_bgcolor':'#20253c', # plot color
-                                                       'paper_bgcolor':'#2d3250', # html color
-                                                       'font_color':'white',
-                                                       'title_font_color':'lightgrey',
-                                                       'xaxis':{'visible':False,
-                                                                'showticklabels':False,
-                                                                'showgrid':False},
-                                                       'yaxis':{'showticklabels':True,
-                                                                'title':''}}
-
-            # set plotly update_layout kwargs            
-            if plotly_fig_update_layout_kwargs:
-                kwargs = plotly_fig_update_layout_kwargs
-            else:
-                kwargs = default_plotly_fig_update_layout_kwargs
-
-            fig.update_layout(**kwargs)
-
-            fig.update_traces(textposition='inside',
-                              marker_line_color=BAR_COLOR)
-
-            fig.write_html('feature_importance_plot.html', config={'displaylogo': False})
-            if display:
-                try:
-                    self._display_html('feature_importance_plot.html')
-                except Exception as e:
-                    print(f'Display html error: {e}')
-                    print(f'Optimization History Plot is saved to {os.path.join(os.getcwd(), "feature_importance_plot.html")}')
+            importances_for_html_plot = pd.DataFrame(self._feature_importances.nlargest(n_features).sort_values(), columns = ['importance'])
+            importances_for_html_plot['feature'] = importances_for_html_plot.index
+            importances_for_html_plot.reset_index(drop = True, inplace = True)
+            importances_for_html_plot['importance_percent'] = [str(np.round(val*100,3))+'%' for val in importances_for_html_plot['importance']]
+            self._plot_interactive_fim(importances_for_html_plot, 
+                                       dark=dark, 
+                                       save=save, 
+                                       display=display, 
+                                       plotly_fig_update_layout_kwargs=plotly_fig_update_layout_kwargs)
         else:
-            import matplotlib.pyplot as plt
-            importances_for_plot = self._feature_importances.nlargest(n_features).sort_values()
-            importances_for_plot.plot(kind = 'barh', figsize = figsize, color = 'grey')
-            for i, v in enumerate(importances_for_plot):
-                plt.text(v, i, str(v), color='grey', fontsize = 10, va  = 'center')
-            plt.title('Feature importances (sum up to 1)', color = 'grey')
-            plt.show()
+            importances_for_png_plot = self._feature_importances.nlargest(n_features).sort_values()           
+            self._plot_static_fim(importances_for_png_plot, 
+                                  figsize = figsize, 
+                                  dark=dark, 
+                                  save=save,
+                                  display=display)
     # ------------------------------------------------------------------------------------------
     
     def plot_optimization_history(self, interactive=False, display=True):
@@ -1018,7 +1128,7 @@ class LGBMTuner:
             self.plot_param_importances()
             self.plot_intermediate_values()
             if self.refit:
-                self.plot_importances()
+                self.plot_importances(dark=False, save=False)
         
         if self.best_params['objective'] == 'multiclass':
             n_rounds_eval_metric = 'multi_logloss'
