@@ -107,7 +107,7 @@ states_provinces_dict = {
 # -----------------------------------------------------------------------------
 class DateParser():
     
-    __version__ = '0.0.6'
+    __version__ = '0.0.7'
 
     def __init__(self, country = None, state = None, prov = None, payday = None, verbose = True):
         '''
@@ -450,7 +450,7 @@ class DateParser():
             number of days since epoch.
 
         '''
-        return (datetime_object - datetime(1970,1,1)).days
+        return (datetime_object.tz_localize(None) - datetime(1970,1,1)).days
     # -----------------------------------------------------------------------------
     def _get_payday_flag(self, day):
         '''
@@ -861,7 +861,8 @@ class DateParser():
         '''Determine dayfirst argument for pd.to_datetime based on maximum of date components'''
         clean_series = datetime_col_series.dropna()
         delimiter = self._get_date_delimiter(clean_series[0])
-        date_components = clean_series.str.split(delimiter, expand = True)
+        date_components = clean_series.str.split(' ', expand = True)[0]
+        date_components = date_components.str.split(delimiter, expand = True)
         max_values_in_date_components = {}
         for col in date_components:
             date_components[col] = date_components[col].astype(int)
