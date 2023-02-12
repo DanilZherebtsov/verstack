@@ -79,10 +79,7 @@ def combine_single_valued_bins(y_binned):
         return y_binned
 
     # combine the single-valued-bins with nearest neighbors
-    keys_with_single_value = []
-    for key, value in y_binned_count.items():
-        if value == 1:
-            keys_with_single_value.append(key)
+    keys_with_single_value = [k for k, v in y_binned_count.items() if v == 1]
 
     # first look for neighbors among other sinle keys
     neighbors1 = find_neighbors_in_two_lists(keys_with_single_value, keys_with_single_value)
@@ -90,18 +87,20 @@ def combine_single_valued_bins(y_binned):
         # then look for neighbors among other available keys
         neighbors1 = find_neighbors_in_two_lists(keys_with_single_value, y_binned_count.keys())
     # now process keys for which no neighbor was found
-    leftover_keys_to_find_neighbors = find_keys_without_neighbor(neighbors1)
+    leftover_keys_to_find_neighbors = list(set(keys_with_single_value).difference(neighbors1))
     neighbors2 = find_neighbors_in_two_lists(leftover_keys_to_find_neighbors, y_binned_count.keys())
     neighbors = sorted(list(set(neighbors1 + neighbors2)))
     
     # split neighbors into groups for combining
-    splits = int(len(neighbors)/2)
-    neighbors = np.array_split(neighbors, splits)
-    for group in neighbors:
-        val_to_use = group[0] 
-        for val in group:
-            y_binned = np.where(y_binned == val, val_to_use, y_binned)
-            keys_with_single_value = [x  for x in keys_with_single_value if x != val]
+    # only possible when neighbors are found
+    if len(neighbors) > 0:
+        splits = int(len(neighbors)/2)
+        neighbors = np.array_split(neighbors, splits)
+        for group in neighbors:
+            val_to_use = group[0]
+            for val in group:
+                y_binned = np.where(y_binned == val, val_to_use, y_binned)
+                keys_with_single_value = [x for x in keys_with_single_value if x != val]
     # --------------------------------------------------------------------------------
     # now conbine the leftover keys_with_single_values with the rest of the bins
     def find_nearest(array, value):
