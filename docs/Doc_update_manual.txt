@@ -11,7 +11,7 @@ There are two different sets of documentation:
 		- $ make html
 		- index.html will be composed and saved to docs/build
 
-2. To amend the documentation for github & pypi to verstack.git/README.md 
+2. To amend the documentation for github & pypi to verstack.git/README.rst 
 - it will get pulled up to pipy and github automatically with new release
 
 

@@ -2,7 +2,7 @@ import fileinput
 import sys
 from verstack.version import __version__ as current_version
 
-files = ['verstack/version.py', 'README.md', 'docs/source/index.rst']
+files = ['verstack/version.py', 'README.rst', 'docs/source/index.rst']
          
 def update_version(file, new_version):
     for line in fileinput.input(file, inplace=1):

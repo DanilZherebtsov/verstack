@@ -4,8 +4,8 @@ import os
 # parse __version__ from version.py
 exec(open('verstack/version.py').read())
 
-# parse long_description from readme.md
-with open("README.md", "r") as fh:
+# parse long_description from README.rst
+with open("README.rst", "r") as fh:
     long_description = fh.read()
 
 # we conditionally add python-snappy based on the presence of an env var
@@ -36,7 +36,7 @@ setup(
   author = 'Danil Zherebtsov',
   author_email = 'danil.com@me.com',
   url = 'https://github.com/DanilZherebtsov/verstack',
-  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/refs/tags/3.6.4.tar.gz',
+  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/refs/tags/3.6.5.tar.gz',
   keywords = ['impute', 'missing', 'values', 'stratify', 'nan', 'continuous', 'multiprocessing', 'concurrent', 'timer'],
   install_requires=dependencies,
   classifiers=[
