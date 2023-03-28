@@ -5,11 +5,11 @@ from collections import Counter
 
 class ThreshTuner():
     
-    __version__ = '0.0.3'
+    __version__ = '0.0.4'
     
     ''' Tune threshold for binary classificaiton models output. '''
     
-    def __init__(self, n_thresholds = 200, min_threshold = None, max_threshold = None):
+    def __init__(self, n_thresholds = 200, min_threshold = None, max_threshold = None, verbose = True):
         '''
         Initialize class instance
 
@@ -36,7 +36,9 @@ class ThreshTuner():
         self.labels_fraction_of_1 = None
         self.loss_func = None
         self.result = None
-        print(self.__repr__())
+        self.verbose = verbose
+        if self.verbose:
+            print(self.__repr__())
         
     # print init parameters when calling the class instance
     def __repr__(self):
@@ -224,9 +226,10 @@ class ThreshTuner():
 
         self._measure_metrics(labels, pred, thresholds)
 
-        print(f'\n                   Best threshold(s)\n{"-"*55}')
-        # print result without index
-        print(self.result[self.result[self.loss_func.__name__] == self.result[self.loss_func.__name__].max()].to_string(index = False))
-        print('-'*55)
+        if self.verbose:
+            print(f'\n                   Best threshold(s)\n{"-"*55}')
+            # print result without index
+            print(self.result[self.result[self.loss_func.__name__] == self.result[self.loss_func.__name__].max()].to_string(index = False))
+            print('-'*55)
 
 

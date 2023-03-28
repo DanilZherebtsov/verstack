@@ -1,5 +1,5 @@
 ############################
-verstack 3.6.6 Documentation
+verstack 3.6.7 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -1423,6 +1423,10 @@ Parameters
 * ``max_threshold`` float or int [default=None]
 
   Maximum threshold value. If not set by user: will be inferred from labels balance based on fraction_of_1
+
+* ``verbose`` bool [default=True]
+
+  Verbose setting for the class instance
 
 Methods
 ===========================
