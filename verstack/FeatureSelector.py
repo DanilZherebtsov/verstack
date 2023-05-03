@@ -7,7 +7,7 @@ from verstack.tools import timer
 
 class FeatureSelector:  
 
-    __version__ = '0.0.4'
+    __version__ = '0.0.5'
 
     def __init__(self, **kwargs):
                  # objective = 'regression', 
@@ -225,7 +225,7 @@ class FeatureSelector:
             selected train features.
 
         '''
-        self._validate_pandas(X, y)
+        self._validate_pandas(X)
         self.printer.print('Initiating FeatureSelector', order=1)
         if self.auto:
             self.printer.print(f'Comparing LinearRegression and RandomForest for feature selection', order = 2)
@@ -238,12 +238,9 @@ class FeatureSelector:
         self.printer.print(f'Selected {len(self.selected_features)} features from {X.shape[1]}', order=3)
         return X[self.selected_features]
 
-    def _validate_pandas(self, X, y=None):
+    def _validate_pandas(self, X):
         if not isinstance(X, pd.DataFrame):
             raise TypeError('Invalid argument for X, must be a pandas.DataFrame')
-        if y is not None:
-            if not isinstance(y, pd.Series):
-                raise TypeError('Invalid argument y, must be a pandas.Series')
 
     def _prepare_data_apply_selector(self, X, y, selector, scale_data = False):
         X_subset, y_subset = self._subset_data(X, y)
@@ -332,7 +329,7 @@ class FeatureSelector:
             if self.objective == 'regression':
                 model = LGBMRegressor()
             else:
-                if y.nunique() == 2:
+                if len(np.unique(y)) == 2:
                     model = LGBMClassifier(objective = 'binary')
                 else:
                     model = LGBMClassifier(objective = 'multiclass')                
@@ -476,7 +473,7 @@ class FeatureSelector:
     def _subset_data(self, X, y):
         '''Subset train dataset by n megabytes.
         Used to speed up experiments during feature engineering & model tuning.'''
-        temp = pd.concat([X, y], axis=1)
+        temp = pd.concat([X, pd.Series(y, name='target')], axis=1)
         data_size = np.round(temp.memory_usage().sum()/(1024*1024), 2)
     
         if data_size > self.subset_size_mb:
@@ -503,7 +500,7 @@ class FeatureSelector:
         '''Transform to float32, drop rows with np.nan, np.inf'''
         X_subset = pd.DataFrame(X_subset).astype('float32')
         X_subset = X_subset[~X_subset.isin([np.nan, np.inf, -np.inf]).any(1)]
-        y_subset = y_subset.loc[X_subset.index]
+        y_subset = pd.Series(y_subset).loc[X_subset.index]
         return X_subset, y_subset
 
     def _get_sklearn_scoring_func_name(self, y):
@@ -511,7 +508,7 @@ class FeatureSelector:
         if self.objective == 'regression':
             return 'neg_root_mean_squared_error'
         else:
-            if y.nunique() == 2:
+            if len(np.unique(y)) == 2:
                 return 'roc_auc'
             else:
                 return 'neg_log_loss'
