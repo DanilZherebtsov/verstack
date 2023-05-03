@@ -1,5 +1,5 @@
 ############################
-verstack 3.6.7 Documentation
+verstack 3.7.0 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -794,18 +794,30 @@ Optimization history and parameters importance in static and interactive formats
 Logic
 ================================================================
 
-The only required user inputs are the X (features), y (labels) and evaluation metric name, LGBMTuner will handle the rest 
+The only required user inputs are the X (features), y (labels) and evaluation metric name, LGBMTuner will handle the rest.
 
+By default LGBMTuner will:
+1. Configure various LGBM model hyperparameters for regression or classification based on input data
  - lgbm model type (regression/classification) is inferred from the labels and evaluation metric (passed by user)
  - optimization metric may be different from the evaluation metric (passed by user). LGBMTuner at hyperparameters search stage imploys the error reduction strategy, thus:
    - most regression task type metrics are supported for optimization, if not, MSE is selected for optimization
    - for classification task types hyperparameters are tuned by optimizing log_loss, n_estimators are tuned with evaluation_metric
  - early stopping is engaged at each stage of LGBMTuner optimizations
- - for every trial (iteration) a random train_test_split is performed (stratified for classification)
+ - for every trial (iteration) a random train_test_split is performed (stratified for classification) eliminating the need for cross-validation
  - lgbm model initial parameters!=defaults and are inferred from the data stats and built in logic
  - optimization parameters and their search space are inferred from the data stats and built in logic
  - LGBMTuner class instance (after optimization) can be used for making predictions with conventional syntaxis (predict/predict_proba)
  - verbosity is controlled and by default outputs only the necessary optimization process/results information
+2. Optimize the follwoing parameters within the defined ranges:
+ - 'feature_fraction' : {'low': 0.5, 'high': 1}
+ - 'num_leaves' : {'low' : 16, 'high': 255}
+ - 'bagging_fraction' : {'low' : 0.5, 'high' : 1.0}
+ - 'min_sum_hessian_in_leaf' : {'low' : 1e-3, 'high' " 10.0}
+ - 'lambda_l1' : {'low' " 1e-8, 'high' : 10.0}
+ - 'lambda_l2' : {'low' " 1e-8, 'high' : 10.0}
+
+.. note:: 
+  User may define other parameters and their respective grids for optimization by changing the LGBM.grid dictionary after the class is initialized.
 
 **Initialize LGBMTuner**
 
@@ -1063,6 +1075,10 @@ Methods
 
   dictionary with evaluation results per each of non-pruned trials measured by a function derived from the ``metric`` argument
 
+* ``grid``
+
+  dictionary with all the supported and currently selected optimization parameters
+
 Examples
 ================================================================
 
@@ -1089,6 +1105,43 @@ LGBMTuner with custom settings
   tuner.plot_importances(legend = True)
   tuner.plot_intermediate_values(interactive = True)
   tuner.predict(test, threshold = 0.3)
+
+LGBMTuner with custom optimization parameters
+
+.. code-block:: python
+
+  tuner = LGBMTuner(metric = 'auc', trials = 300)
+  # show the supported parameters for optimization
+  tuner.grid
+  #--->{'boosting_type': None,
+  #--->'num_iterations': None,
+  #--->'learning_rate': None,
+  #--->'num_leaves': {'low': 16, 'high': 255},                  <--- default setting
+  #--->'max_depth': None,
+  #--->'min_data_in_leaf': None,
+  #--->'min_sum_hessian_in_leaf': {'low': 0.001, 'high': 10.0}, <--- default setting
+  #--->'bagging_fraction': {'low': 0.5, 'high': 1.0},           <--- default setting
+  #--->'feature_fraction': {'low': 0.5, 'high': 1.0},           <--- default setting
+  #--->'max_delta_step': None,
+  #--->'lambda_l1': {'low': 1e-08, 'high': 10.0},               <--- default setting
+  #--->'lambda_l2': {'low': 1e-08, 'high': 10.0},               <--- default setting
+  #--->'linear_lambda': None,
+  #--->'min_gain_to_split': None,
+  #--->'drop_rate': None,
+  #--->'top_rate': None,
+  #--->'min_data_per_group': None,
+  #--->'max_cat_threshold': None}
+
+  # change optimization parameters
+  # parameters can be passed by any of the following ways: 
+  # - list (will be used for a random search)
+  # - tuple (will be used to define the uniform grid range between the min(tuple), max(tuple))
+  # - dict with keywords 'choice'/'low'/'high'
+  tuner.grid['boosting_type'] = ['gbdt', 'rf'] 
+  tuner.grid['max_data_in_leaf'] = {'choice' : ['gbdt', 'rf']}
+  tuner.grid['learning_rate'] = (0.001, 0.1)
+  tuner.grid['lambda_l1'] = {'low': 0.1, 'high': 5}
+  tuner.fit(X, y)
 
 ******************
 NaNImputer

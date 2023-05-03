@@ -19,9 +19,16 @@ from verstack.lgbm_optuna_tuning.optuna_tools import Distribution, OPTUNA_DISTRI
 # BACKLOG: add option to pass different param_grid for optimization
 # OPTIONAL TODO - add factorization to targets and inverse_transform predictions for classification (E.g. Ghosts, prudential)
 
+supported_gridsearch_params = [
+    'boosting_type', 'num_iterations', 'learning_rate', 'num_leaves', 'max_depth', 
+    'min_data_in_leaf', 'min_sum_hessian_in_leaf', 'bagging_fraction', 'feature_fraction',
+    'max_delta_step', 'lambda_l1', 'lambda_l2', 'linear_lambda', 'min_gain_to_split',
+    'drop_rate', 'top_rate', 'min_data_per_group', 'max_cat_threshold'
+    ]
+
 class LGBMTuner:
 
-    __version__ = '0.1.2'
+    __version__ = '1.0.0'
 
     def __init__(self, **kwargs):
         '''
@@ -51,6 +58,38 @@ class LGBMTuner:
         eval_results_callback : func
             callback function to be applied on the eval_results dictionary that is being populated
             with evaluation metric score upon completion of each training trial.
+        grid: dict
+            Parameters search space for optimization. 
+            
+            A default search space is populated at fit, depending on number of trials:
+            "feature_fraction" = (Distribution.UNIFORM, low=0.5, high=1.0) 
+            "num_leaves" = (Distribution.INTUNIFORM, low=16, high=255)
+            if self.trials > 30:
+                "bagging_fraction" = (Distribution.UNIFORM, low=0.5, high=1.0) 
+                "min_sum_hessian_in_leaf" = (Distribution.LOGUNIFORM, low=1e-3, high=10.0)
+            if self.trials > 100:
+                "lambda_l1" = (Distribution.LOGUNIFORM, low=1e-8, high=10.0)
+                "lambda_l2" = (Distribution.LOGUNIFORM, low=1e-8, high=10.0)
+
+            Grid can be modified with the following parameters to be included in the Search Space:
+                boosting_type : 'gbdt', 'dart', 'rf' 
+                num_iterations : >= 0
+                learning_rate : > 0.0
+                num_leaves : 1 < num_leaves <= 131072
+                max_depth : 
+                min_data_in_leaf : >= 0
+                min_sum_hessian_in_leaf : >= 0.0
+                bagging_fraction : 0.0 < bagging_fraction <= 1.0
+                feature_fraction : 0.0 < feature_fraction <= 1.0
+                max_delta_step : 
+                lambda_l1 : >=0
+                lambda_l2 : >=0
+                linear_lambda : >=0
+                min_gain_to_split : >=0.0
+                drop_rate : 0.0 <= drop_rate <= 1.0
+                top_rate : 0.0 <= top_rate <= 1.0
+                min_data_per_group : > 0
+                max_cat_threshold : > 0
 
         Returns
         -------
@@ -74,6 +113,20 @@ class LGBMTuner:
         self._best_params = None
         self.eval_results = {} # evaluation metric results per each trial storage
         self.eval_results_callback = kwargs.get('eval_results_callback', None)
+        self.search_space = self._get_default_search_space()
+        self.grid = self._get_all_available_and_defined_grids()
+
+        # get user defined grid
+
+    def _get_all_available_and_defined_grids(self):
+        all_grids = {}
+        for param in supported_gridsearch_params:
+            if param in self.search_space:
+                all_grids[param] = self.search_space[param].params
+            else:
+                all_grids[param] = None
+        return all_grids
+        
 
     # print init parameters when calling the class instance
     def __repr__(self):
@@ -82,7 +135,9 @@ class LGBMTuner:
             \n          refit: {self.refit}\
             \n          verbosity: {self.verbosity}\
             \n          visualization: {self.visualization})\
-            \n          device_type: {self.device_type})'
+            \n          device_type: {self.device_type})\
+            \n          grid: {self.grid})'
+    
 
     # Validate init arguments
     # =========================================================================
@@ -228,28 +283,28 @@ class LGBMTuner:
         default_params_classification = {"task": "train",
                                         "learning_rate": 0.05,
                                         "num_leaves": 128,
-                                        "colsample_bytree": 0.7,
-                                        "subsample": 0.7,
+                                        "feature_fraction": 0.7,
+                                        "bagging_fraction": 0.7,
                                         "bagging_freq": 1,
                                         "max_depth": -1,
                                         "verbosity": -1,
-                                        "reg_alpha": 1,
-                                        "reg_lambda": 0.0,
+                                        "lambda_l1": 1,
+                                        "lambda_l2": 0.0,
                                         "min_split_gain": 0.0,
                                         "zero_as_missing": False,
                                         "max_bin": 255,
                                         "min_data_in_bin": 3,
-                                        "n_estimators": 3000,
+                                        "num_iterations": 3000,
                                         "early_stopping_rounds": 100,
                                         "random_state": 42,
                                         "device_type": self.device_type}
 
         default_params_regression = {"learning_rate": 0.05,
                                     "num_leaves": 32,
-                                    "colsample_bytree": 0.9,
-                                    "subsample": 0.9,
+                                    "feature_fraction": 0.9,
+                                    "bagging_fraction": 0.9,
                                     "verbosity": -1,
-                                    "n_estimators": 3000,
+                                    "num_iterations": 3000,
                                     "early_stopping_rounds": 100,
                                     "random_state": 42,
                                     "device_type": self.device_type}
@@ -304,27 +359,27 @@ class LGBMTuner:
             self._init_params["num_leaves"] = 64 if task == "regression" else 128
         elif rows_num > 50000:
             self._init_params["num_leaves"] = 32 if task == "regression" else 64
-            # params['reg_alpha'] = 1 if task == 'reg' else 0.5
+            # params['lambda_l1'] = 1 if task == 'reg' else 0.5
         elif rows_num > 20000:
             self._init_params["num_leaves"] = 32 if task == "regression" else 32
-            self._init_params["reg_alpha"] = 0.5 if task == "regression" else 0.0
+            self._init_params["lambda_l1"] = 0.5 if task == "regression" else 0.0
         elif rows_num > 10000:
             self._init_params["num_leaves"] = 32 if task == "regression" else 64
-            self._init_params["reg_alpha"] = 0.5 if task == "regression" else 0.2
+            self._init_params["lambda_l1"] = 0.5 if task == "regression" else 0.2
         elif rows_num > 5000:
             self._init_params["num_leaves"] = 24 if task == "regression" else 32
-            self._init_params["reg_alpha"] = 0.5 if task == "regression" else 0.5
+            self._init_params["lambda_l1"] = 0.5 if task == "regression" else 0.5
         else:
             self._init_params["num_leaves"] = 16 if task == "regression" else 16
-            self._init_params["reg_alpha"] = 1 if task == "regression" else 1
+            self._init_params["lambda_l1"] = 1 if task == "regression" else 1
 
         self._init_params["learning_rate"] = init_lr
-        self._init_params["n_estimators"] = ntrees
+        self._init_params["num_iterations"] = ntrees
         self._init_params["early_stopping_rounds"] = es
     # -----------------------------------------------------------------------------
 
-    def _get_default_search_space(self, estimated_n_trials):
-        '''Sample hyperparameters from suggested.
+    def _get_default_search_space(self):
+        '''Sample hyperparameters from suggested
 
         Parameters
         ----------
@@ -340,28 +395,26 @@ class LGBMTuner:
         # TODO: create addditional options based on bigger estimated_n_trials
         search_space = {}
 
-        search_space["colsample_bytree"] = SearchSpace(Distribution.UNIFORM, low=0.5, high=1.0) 
+        search_space["feature_fraction"] = SearchSpace(Distribution.UNIFORM, low=0.5, high=1.0) 
         search_space["num_leaves"] = SearchSpace(Distribution.INTUNIFORM, low=16, high=255)
 
-        if estimated_n_trials > 30:
-            search_space["subsample"] = SearchSpace(Distribution.UNIFORM, low=0.5, high=1.0) 
+        if self.trials > 30:
+            search_space["bagging_fraction"] = SearchSpace(Distribution.UNIFORM, low=0.5, high=1.0) 
             search_space["min_sum_hessian_in_leaf"] = SearchSpace(Distribution.LOGUNIFORM, low=1e-3, high=10.0)
 
-        if estimated_n_trials > 100:
-            search_space["reg_alpha"] = SearchSpace(Distribution.LOGUNIFORM, low=1e-8, high=10.0)
-            search_space["reg_lambda"] = SearchSpace(Distribution.LOGUNIFORM, low=1e-8, high=10.0)
+        if self.trials > 100:
+            search_space["lambda_l1"] = SearchSpace(Distribution.LOGUNIFORM, low=1e-8, high=10.0)
+            search_space["lambda_l2"] = SearchSpace(Distribution.LOGUNIFORM, low=1e-8, high=10.0)
 
         return search_space
     # -----------------------------------------------------------------------------
 
-    def _sample_from_search_space(self, optimization_search_space, trial):
+    def _sample_from_search_space(self, trial):
         '''
         Get params for a trial.
 
         Parameters
         ----------
-        optimization_search_space : dict
-            grid for selecting parameters.
         trial : optuna.Trial
             trial object.
         suggested_params : dict
@@ -375,16 +428,16 @@ class LGBMTuner:
         Returns
         -------
         trial_values : dict
-            trial parameters consisting from suggested_params modified by optimization_search_space.
+            trial parameters consisting from suggested_params modified by grid.
 
         '''
         trial_values = copy(self._init_params)
-        for parameter, SearchSpace in optimization_search_space.items():
+        for parameter, SearchSpace in self.search_space.items():
             if SearchSpace.distribution_type in OPTUNA_DISTRIBUTIONS_MAP:
                 trial_values[parameter] = getattr(trial, OPTUNA_DISTRIBUTIONS_MAP[SearchSpace.distribution_type])(
                     name=parameter, **SearchSpace.params)
             else:
-                for key, value in optimization_search_space.items():
+                for key, value in self.search_space.items():
                     print(key)
                     print(value.distribution_type)
                 raise ValueError(f"Optuna does not support distribution {SearchSpace.distribution_type}")
@@ -396,7 +449,7 @@ class LGBMTuner:
         Create lgbm.Datasets for training and validation.
         
         By default splits without defined random_state in order to replicate CV (sort of).
-        Seed is used for optimize_n_estimators.
+        Seed is used for optimize_num_iterations.
 
         Parameters
         ----------
@@ -431,10 +484,9 @@ class LGBMTuner:
             return dtrain, dvalid
     # -----------------------------------------------------------------------------
 
-    def optimize_n_estimators(self, X, y, params, verbose_eval = 100):
+    def optimize_num_iterations(self, X, y, params, verbose_eval = 100):
         '''
-        Optimize n_estimators for lgb model.
-        
+        Optimize num_iterations for lgb model.
         Here (after all the tuning) the actual eval_metric is used for early stopping.
         get_n_rounds_optimization_metric(self.metric) returns the feval function 
         from lgb_metrics in an acceptable format.
@@ -451,7 +503,7 @@ class LGBMTuner:
         Returns
         -------
         int
-            best_iteration for further n_estimators param.
+            best_iteration for further num_iterations param.
         best_score : float
             validation score from best_iteration
 
@@ -461,7 +513,7 @@ class LGBMTuner:
         validate_params_argument(params)
         validate_verbose_eval_argument(verbose_eval)
 
-        self.printer.print('Tune n_estimators with early_stopping', order=2)
+        self.printer.print('Tune num_iterations with early_stopping', order=2)
         if self.verbosity>0:
             verbose_eval_rounds = verbose_eval
         else:
@@ -621,8 +673,12 @@ class LGBMTuner:
         '''
         optimization_metric_func = get_optimization_metric_func(self.metric)
         dtrain, dvalid, valid_x, valid_y = self._get_dtrain_dvalid_objects(X, y, self.metric, return_raw_valid = True)
-        optimization_search_space = self._get_default_search_space(estimated_n_trials = 200)    
-        params = self._sample_from_search_space(optimization_search_space, trial)
+        # get default grid
+
+
+
+
+        params = self._sample_from_search_space(trial)
         # Add a callback for pruning.
         pruning_callback = optuna.integration.LightGBMPruningCallback(trial, get_pruning_metric(self.metric, self.target_classes))
         result = self._get_validation_score(trial, dtrain, dvalid, valid_x, valid_y, optimization_metric_func, params, pruning_callback)
@@ -708,14 +764,14 @@ class LGBMTuner:
     
     def _populate_best_params_to_init_params(self, best_params):
         '''Populate the learned params into the suggested params'''
-        # output params are temporary, because n_estimators tuning will follow
+        # output params are temporary, because num_iterations tuning will follow
         temp_params = copy(self._init_params)
         for key, val in best_params.items():
             temp_params[key] = val
-        # remove early_stopping & n_estimators from params (used during optuna optimization).
+        # remove early_stopping & num_iterations from params (used during optuna optimization).
         # final early stopping will be trained during final_estimators_tuning
         del temp_params['early_stopping_rounds']
-        del temp_params['n_estimators']
+        del temp_params['num_iterations']
         
         return temp_params
     # ------------------------------------------------------------------------------------------
@@ -1051,7 +1107,41 @@ class LGBMTuner:
                                           5 : 'DEBUG'}
         optuna.logging.set_verbosity(getattr(optuna.logging, value_to_optuna_verbosity_dict[value]))
     # ------------------------------------------------------------------------------------------
-        
+
+    def _contains_float(self, iterable):
+        '''Check if float any floats are in iterable'''
+        return float in [type(x) for x in iterable]
+
+    def _all_ints(self, iterable):
+        '''Check if iterable contains only ints'''
+        return np.all([type(x)==int for x in iterable])
+
+    def _align_grid_and_search_space(self):
+        '''Redefine self.search_space for optuna based on self.grid which could be amended by user'''
+        unsupported_params = []
+        for param_name, param_grid in self.grid.items():
+            if param_name not in supported_gridsearch_params:
+                unsupported_params.append(param_name)
+                continue
+            if isinstance(param_grid, list):
+                self.search_space[param_name] = SearchSpace(Distribution.CHOICE, choices = param_grid)
+            elif isinstance(param_grid, tuple):
+                if self._contains_float(param_grid):
+                    self.search_space[param_name] = SearchSpace(Distribution.UNIFORM, low = min(param_grid), high = max(param_grid))
+                elif self._all_ints(param_grid):
+                    self.search_space[param_name] = SearchSpace(Distribution.INTUNIFORM, low = min(param_grid), high = max(param_grid))
+            elif isinstance(param_grid, dict):
+                if 'choices' in param_grid:
+                    self.search_space[param_name] = SearchSpace(Distribution.CHOICE, choices = param_grid['choices'])
+                elif 'low' in param_grid:
+                    if self._contains_float(param_grid.values()):
+                        self.search_space[param_name] = SearchSpace(Distribution.UNIFORM, low = param_grid['low'], high = param_grid['high'])
+                    elif self._all_ints(param_grid.values()):
+                        self.search_space[param_name] = SearchSpace(Distribution.INTUNIFORM, low = param_grid['low'], high = param_grid['high'])
+        if unsupported_params:
+            self.printer.print(f'Following changed parameters are not supported for tuning: {unsupported_params}', order = 'error', trailing_blank_paragraph=True)
+        self.grid = {key: value for key, value in self.grid.items() if key not in unsupported_params}
+    
     @timer
     def fit(self, X, y):
         '''
@@ -1100,6 +1190,7 @@ class LGBMTuner:
         self.target_classes = y.unique().tolist()
         self._get_target_minimum(y)
         self._init_params_on_input(len(X), y)
+        self._align_grid_and_search_space()
         self._set_optuna_verbosity(self.verbosity)
         
         sampler = optuna.samplers.TPESampler(seed=self.seed)
@@ -1115,9 +1206,9 @@ class LGBMTuner:
         # populate the learned params into the suggested params
         temp_params = self._populate_best_params_to_init_params(study.best_params)
 
-        # tune n_estimators    
-        iteration, best_score = self.optimize_n_estimators(X.values, y.values, temp_params)
-        temp_params['n_estimators'] = iteration
+        # tune num_iterations    
+        iteration, best_score = self.optimize_num_iterations(X.values, y.values, temp_params)
+        temp_params['num_iterations'] = iteration
         self._best_params = temp_params        
         if self.refit:
             self.fit_optimized(X.values, y.values)
@@ -1142,5 +1233,5 @@ class LGBMTuner:
         print()
         self.printer.print(f"Optuna hyperparameters optimization finished", order=3)
         self.printer.print(f"Best trial number:{study.best_trial.number:>2}{break_symbol:>5}     {optimization_metric_func.__name__}:{study.best_trial.value:>29}", order=4, breakline='-')
-        self.printer.print(f'n_estimators optimization finished', order=3)
+        self.printer.print(f'num_iterations optimization finished', order=3)
         self.printer.print(f'best iteration:{iteration:>5}{break_symbol:>4}     {n_rounds_eval_metric}:{best_score:>29}', order=4, breakline='=')
