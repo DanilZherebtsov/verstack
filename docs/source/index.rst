@@ -1138,7 +1138,7 @@ LGBMTuner with custom optimization parameters
   # - tuple (will be used to define the uniform grid range between the min(tuple), max(tuple))
   # - dict with keywords 'choice'/'low'/'high'
   tuner.grid['boosting_type'] = ['gbdt', 'rf'] 
-  tuner.grid['max_data_in_leaf'] = {'choice' : ['gbdt', 'rf']}
+  tuner.grid['max_data_in_leaf'] = {'choice' : [40, 50, 70]}
   tuner.grid['learning_rate'] = (0.001, 0.1)
   tuner.grid['lambda_l1'] = {'low': 0.1, 'high': 5}
   tuner.fit(X, y)
