@@ -522,7 +522,7 @@ Methods
 
       Train features
 
-    - ``y`` [pd.Series]
+    - ``y`` [pd.Series/np.array]
 
       Train labels
 
