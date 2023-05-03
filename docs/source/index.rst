@@ -791,6 +791,8 @@ LGBMTuner selects optimal hyperparameters based on executed trials (configurable
 Feature importances are available in numeric format, as a static plot, and as an interactive plot (html).
 Optimization history and parameters importance in static and interactive formats are alse accesable by built in methods.
 
+Medium `article <https://medium.com/@danilzherebtsov/effortlessly-tune-lgbm-with-optuna-49de040d0784>`_ with full walkthrough and examples.
+
 Logic
 ================================================================
 
