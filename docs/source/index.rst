@@ -817,7 +817,10 @@ By default LGBMTuner will:
  - 'lambda_l2' : {'low' " 1e-8, 'high' : 10.0}
 
 .. note:: 
-  User may define other parameters and their respective grids for optimization by changing the LGBM.grid dictionary after the class is initialized.
+  User may define other lightgbm parameters and their respective grids for optimization by changing the LGBM.grid dictionary after the class is initialized, please refer to the examples below.
+
+.. note:: 
+  LGBM categorical_feature is supported. Unique values within each categoric feature must be encoded by consecutive integers and casted to 'categoric' dtype: df['categoric_column'] = df['categoric_column'].astype('categoric')
 
 **Initialize LGBMTuner**
 

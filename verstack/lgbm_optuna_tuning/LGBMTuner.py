@@ -673,11 +673,6 @@ class LGBMTuner:
         '''
         optimization_metric_func = get_optimization_metric_func(self.metric)
         dtrain, dvalid, valid_x, valid_y = self._get_dtrain_dvalid_objects(X, y, self.metric, return_raw_valid = True)
-        # get default grid
-
-
-
-
         params = self._sample_from_search_space(trial)
         # Add a callback for pruning.
         pruning_callback = optuna.integration.LightGBMPruningCallback(trial, get_pruning_metric(self.metric, self.target_classes))
@@ -1201,7 +1196,6 @@ class LGBMTuner:
         optimization_function = partial(self._objective, X = X.values, y = y.values)
 
         study.optimize(optimization_function, n_trials = self.trials)
-
 
         # populate the learned params into the suggested params
         temp_params = self._populate_best_params_to_init_params(study.best_params)
