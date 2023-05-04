@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   
   <!-- Licensed under the Apache 2.0 License -->
@@ -15,14 +14,13 @@
   <link rel="stylesheet" type="text/css" href="_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>verstack 1.0.0 Documentation &#8212; verstack 0.1.1 documentation</title>
+    <title>verstack 3.7.1 Documentation &#8212; verstack 0.1.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/guzzle.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
   
@@ -36,7 +34,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="nav-item nav-item-0"><a href="#">verstack 0.1.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">verstack 1.0.0 Documentation</a></li> 
+        <li class="nav-item nav-item-this"><a href="">verstack 3.7.1 Documentation</a></li> 
       </ul>
     </div>
     <div class="container-wrapper">
@@ -52,73 +50,117 @@
     <h2>Contents</h2>
     <div class="sidebar-localtoc">
       <ul>
-<li><a class="reference internal" href="#">verstack 1.0.0 Documentation</a><ul>
-<li><a class="reference internal" href="#nanimputer">NaNImputer</a><ul>
+<li><a class="reference internal" href="#">verstack 3.7.1 Documentation</a><ul>
+<li><a class="reference internal" href="#pandasoptimizer">PandasOptimizer</a><ul>
 <li><a class="reference internal" href="#logic">Logic</a></li>
 <li><a class="reference internal" href="#parameters">Parameters</a></li>
 <li><a class="reference internal" href="#methods">Methods</a></li>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#multicore">Multicore</a><ul>
-<li><a class="reference internal" href="#id1">Logic</a></li>
-<li><a class="reference internal" href="#id2">Parameters</a></li>
-<li><a class="reference internal" href="#id3">Methods</a></li>
-<li><a class="reference internal" href="#id4">Examples</a></li>
+<li><a class="reference internal" href="#stacker">Stacker</a><ul>
+<li><a class="reference internal" href="#id1">Parameters</a></li>
+<li><a class="reference internal" href="#id2">Methods</a></li>
+<li><a class="reference internal" href="#saving-and-loading-stacker-instance">Saving and loading Stacker instance</a></li>
+<li><a class="reference internal" href="#id3">Examples</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#threshtuner">ThreshTuner</a><ul>
-<li><a class="reference internal" href="#id5">Logic</a></li>
-<li><a class="reference internal" href="#id6">Parameters</a></li>
+<li><a class="reference internal" href="#featureselector">FeatureSelector</a><ul>
+<li><a class="reference internal" href="#id4">Parameters</a></li>
 <li><a class="reference internal" href="#id7">Methods</a></li>
 <li><a class="reference internal" href="#id8">Examples</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#stratified-continuous-split">stratified_continuous_split</a><ul>
+<li><a class="reference internal" href="#dateparser">DateParser</a><ul>
 <li><a class="reference internal" href="#id9">Parameters</a></li>
-<li><a class="reference internal" href="#id10">Examples</a></li>
+<li><a class="reference internal" href="#id10">Methods</a></li>
+<li><a class="reference internal" href="#id11">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#lgbmtuner">LGBMTuner</a><ul>
+<li><a class="reference internal" href="#id12">Logic</a></li>
+<li><a class="reference internal" href="#parameters-keyword-arguments-only">Parameters (keyword arguments only)</a></li>
+<li><a class="reference internal" href="#id13">Methods</a></li>
+<li><a class="reference internal" href="#id16">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#nanimputer">NaNImputer</a><ul>
+<li><a class="reference internal" href="#id17">Logic</a></li>
+<li><a class="reference internal" href="#id18">Parameters</a></li>
+<li><a class="reference internal" href="#id19">Methods</a></li>
+<li><a class="reference internal" href="#id20">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#nanimputerlegacy">NaNImputerLegacy</a><ul>
+<li><a class="reference internal" href="#id21">Logic</a></li>
+<li><a class="reference internal" href="#id22">Parameters</a></li>
+<li><a class="reference internal" href="#id23">Methods</a></li>
+<li><a class="reference internal" href="#id24">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#multicore">Multicore</a><ul>
+<li><a class="reference internal" href="#id25">Logic</a></li>
+<li><a class="reference internal" href="#id26">Parameters</a></li>
+<li><a class="reference internal" href="#id27">Methods</a></li>
+<li><a class="reference internal" href="#id28">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#threshtuner">ThreshTuner</a><ul>
+<li><a class="reference internal" href="#id29">Logic</a></li>
+<li><a class="reference internal" href="#id30">Parameters</a></li>
+<li><a class="reference internal" href="#id31">Methods</a></li>
+<li><a class="reference internal" href="#id32">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#stratified-continuous-split">stratified_continuous_split</a><ul>
+<li><a class="reference internal" href="#id33">Parameters</a></li>
+<li><a class="reference internal" href="#id34">Examples</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#categoric-encoders">categoric_encoders</a><ul>
 <li><a class="reference internal" href="#factorizer">Factorizer</a><ul>
-<li><a class="reference internal" href="#id11">Logic</a></li>
-<li><a class="reference internal" href="#id12">Parameters</a></li>
-<li><a class="reference internal" href="#id13">Methods</a></li>
-<li><a class="reference internal" href="#id14">Examples</a></li>
+<li><a class="reference internal" href="#id35">Logic</a></li>
+<li><a class="reference internal" href="#id36">Parameters</a></li>
+<li><a class="reference internal" href="#id37">Methods</a></li>
+<li><a class="reference internal" href="#id38">Examples</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#onehotencoder">OneHotEncoder</a><ul>
-<li><a class="reference internal" href="#id15">Logic</a></li>
-<li><a class="reference internal" href="#id16">Parameters</a></li>
-<li><a class="reference internal" href="#id17">Methods</a></li>
-<li><a class="reference internal" href="#id18">Examples</a></li>
+<li><a class="reference internal" href="#id39">Logic</a></li>
+<li><a class="reference internal" href="#id40">Parameters</a></li>
+<li><a class="reference internal" href="#id41">Methods</a></li>
+<li><a class="reference internal" href="#id42">Examples</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#frequencyencoder">FrequencyEncoder</a><ul>
-<li><a class="reference internal" href="#id19">Logic</a></li>
-<li><a class="reference internal" href="#id20">Parameters</a></li>
-<li><a class="reference internal" href="#id21">Methods</a></li>
-<li><a class="reference internal" href="#id22">Examples</a></li>
+<li><a class="reference internal" href="#id43">Logic</a></li>
+<li><a class="reference internal" href="#id44">Parameters</a></li>
+<li><a class="reference internal" href="#id45">Methods</a></li>
+<li><a class="reference internal" href="#id46">Examples</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#meantargetencoder">MeanTargetEncoder</a><ul>
-<li><a class="reference internal" href="#id23">Logic</a></li>
-<li><a class="reference internal" href="#id24">Parameters</a></li>
-<li><a class="reference internal" href="#id25">Methods</a></li>
-<li><a class="reference internal" href="#id26">Examples</a></li>
+<li><a class="reference internal" href="#id47">Logic</a></li>
+<li><a class="reference internal" href="#id48">Parameters</a></li>
+<li><a class="reference internal" href="#id49">Methods</a></li>
+<li><a class="reference internal" href="#id50">Examples</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#weightofevidenceencoder">WeightOfEvidenceEncoder</a><ul>
-<li><a class="reference internal" href="#id27">Logic</a></li>
-<li><a class="reference internal" href="#id29">Parameters</a></li>
-<li><a class="reference internal" href="#id31">Methods</a></li>
-<li><a class="reference internal" href="#id32">Examples</a></li>
+<li><a class="reference internal" href="#id51">Logic</a></li>
+<li><a class="reference internal" href="#id53">Parameters</a></li>
+<li><a class="reference internal" href="#id55">Methods</a></li>
+<li><a class="reference internal" href="#id56">Examples</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li><a class="reference internal" href="#timer">timer</a><ul>
-<li><a class="reference internal" href="#id33">Examples</a></li>
+<li><a class="reference internal" href="#id57">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#printer">Printer</a><ul>
+<li><a class="reference internal" href="#id58">Examples</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#links">Links</a></li>
@@ -138,18 +180,24 @@
             <ol class="breadcrumb">
               <li><a href="#">Docs</a></li>
               
-              <li>verstack 1.0.0 Documentation</li>
+              <li>verstack 3.7.1 Documentation</li>
             </ol>
           </div>
           
           <div class="document clearer body">
             
-  <section id="verstack-1-0-0-documentation">
-<h1>verstack 1.0.0 Documentation<a class="headerlink" href="#verstack-1-0-0-documentation" title="Permalink to this headline">¶</a></h1>
+  <section id="verstack-3-7-1-documentation">
+<h1>verstack 3.7.1 Documentation<a class="headerlink" href="#verstack-3-7-1-documentation" title="Permalink to this heading">¶</a></h1>
 <p>Machine learning tools to make a Data Scientist’s work efficient</p>
 <p>veratack package contains the following tools:</p>
 <ul class="simple">
+<li><p><strong>PandasOptimizer</strong> oad a pandas.DataFrame with optimized datatypes (reduce RAM usage)</p></li>
+<li><p><strong>Stacker</strong> automated stacking ensemble configuration/train/features creation in train/test sets</p></li>
+<li><p><strong>FeatureSelector</strong> automated feature selection class based on recursive feature elimination</p></li>
+<li><p><strong>DateParser</strong> automated date columns finder and parser</p></li>
+<li><p><strong>LGBMTuner</strong> automated lightgbm models tuner with optuna</p></li>
 <li><p><strong>NaNImputer</strong> impute all missing values in a pandas dataframe using advanced machine learning with 1 line of code</p></li>
+<li><p><strong>NaNImputerLegacy</strong> legacy version of a multicore NaNImputer based on XGB</p></li>
 <li><p><strong>Multicore</strong> execute any function in concurrency using all the available cpu cores</p></li>
 <li><p><strong>ThreshTuner</strong> tune threshold for binary classification predictions</p></li>
 <li><p><strong>stratified_continuous_split</strong> create train/test splits stratified on the continuous variable</p></li>
@@ -162,21 +210,1198 @@
 <li><p><strong>FrequencyEncoder</strong> encode categoric variable by class frequencies</p></li>
 <li><p><strong>MeanTargetEncoder</strong> encode categoric variable by mean of the target variable</p></li>
 <li><p><strong>WeightOfEvidenceEncoder</strong> encode categoric variable as a weight of evidence of a binary target variable</p></li>
-<li><p><strong>timer</strong> convenient timer decorator to quickly measure and display time of any function execution</p></li>
 </ul>
 </div></blockquote>
+<ul class="simple">
+<li><p><strong>timer</strong> convenient timer decorator to quickly measure and display time of any function execution</p></li>
+<li><p><strong>Printer</strong> a convenient function to set up and execute print statements based on the ‘global’ verbosity setting within large projects</p></li>
+</ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Getting verstack</p>
 <p>$ <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">verstack</span></code></p>
 <p>$ <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">verstack</span></code></p>
 </div>
-<section id="nanimputer">
-<h2>NaNImputer<a class="headerlink" href="#nanimputer" title="Permalink to this headline">¶</a></h2>
-<p>Impute all missing values in a pandas dataframe by xgboost models in multiprocessing mode using a single line of code.</p>
+<section id="pandasoptimizer">
+<h2>PandasOptimizer<a class="headerlink" href="#pandasoptimizer" title="Permalink to this heading">¶</a></h2>
+<p>Automated loader of a pandas.DataFrame with optimized data types. The resulting dataframe memory footprint is on average 20% of the original data footprint.</p>
 <section id="logic">
-<h3>Logic<a class="headerlink" href="#logic" title="Permalink to this headline">¶</a></h3>
+<h3>Logic<a class="headerlink" href="#logic" title="Permalink to this heading">¶</a></h3>
+<p>Under the hood it is using a pandas.read_csv / pandas.read_excel functions, loads
+data by batches, infers data types of each variable and finally loads the whole
+dataframe with optimized dtypes.</p>
+<p>Allows to pass selected arguments of a pandas.read_csv/pandas.read_excel functions.</p>
+<p>Accepts for optimization either a path to an object on disk or a loaded pd.DataFrame object.</p>
+<p><strong>Initialize PandasOptimizer</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">PandasOptimizer</span>
+
+<span class="c1"># initialize with default parameters</span>
+<span class="n">opt</span> <span class="o">=</span> <span class="n">PandasOptimizer</span><span class="p">()</span>
+
+<span class="c1"># initialize with selected parameters</span>
+<span class="n">opt</span> <span class="o">=</span> <span class="n">PandasOptimizer</span><span class="p">(</span><span class="n">chunksize</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+                    <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;;&#39;</span><span class="p">,</span>
+                    <span class="n">delimiter</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span>
+                    <span class="n">usecols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;col_x&#39;</span><span class="p">,</span> <span class="s1">&#39;col_y&#39;</span><span class="p">],</span>
+                    <span class="n">encoding</span> <span class="o">=</span> <span class="s1">&#39;acsii&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">pd_read_func</span></code> [default=pd.read_csv]</p>
+<p>One of the pandas.read_csv / pandas.read_excel functions to use when reading your file</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sep</span></code> [default=”,”]</p>
+<p>Separator applicable for the data</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">delimiter</span></code> [default=None]</p>
+<p>Delimiter applicable for the data</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">usecols</span></code> [default=None]</p>
+<p>usecols argument for pandas.read_csv / pandas.read_excel function</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">encoding</span></code> [default=”utf-8”]</p>
+<p>encoding argument for pandas.read_csv / pandas.read_excel function</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chunksize</span></code> [default=100000]</p>
+<p>Number of rows to read at a time when learning the optimized dtypes</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">verbose</span></code> [default=True]</p>
+<p>Verbosity setting</p>
+</li>
+</ul>
+</section>
+<section id="methods">
+<h3>Methods<a class="headerlink" href="#methods" title="Permalink to this heading">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">optimize_memory_usage(path_or_df)</span></code></p>
+<p>Read dataframe &amp; optimized data types or optimize existing dataframe</p>
+<blockquote>
+<div><p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">path_or_df</span></code> str or pd.DataFrame</p>
+<p>path to file or object of type pandas.DataFrame</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">discover_dtypes(path_or_df)</span></code></p>
+<p>Find the most optimized numeric dtypes in object.</p>
+<blockquote>
+<div><p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">path_or_df</span></code> str or pd.DataFrame</p>
+<p>path to file or object of type pandas.DataFrame</p>
+</li>
+</ul>
+<p>Returns</p>
+<blockquote>
+<div><p>dict: columns names and optimized dtypes</p>
+</div></blockquote>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_shape(path_or_df)</span></code></p>
+<p>Get shape of dataframe without reading it into memory, (not used in optimization)</p>
+<blockquote>
+<div><p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">path_or_df</span></code> str or pd.DataFrame</p>
+<p>path to file or object of type pandas.DataFrame</p>
+</li>
+</ul>
+<p>Returns</p>
+<blockquote>
+<div><p>tuple: data shape</p>
+</div></blockquote>
+</div></blockquote>
+</li>
+</ul>
+<p><strong>Attributes</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">optimized_dtypes</span></code></p>
+<p>Dictionary with columns names and optimized dtypes</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">original_data_size_mb</span></code></p>
+<p>Size of original data (prior to optimization) in MB</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">optimized_data_size_mb</span></code></p>
+<p>Size of optimized data in MB</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">optimized_to_original_ratio</span></code></p>
+<p>Perentage - fraction of memory footprint of optimized data relative to the original data</p>
+</li>
+</ul>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h3>
+<p>Using NaNImputer with all default parameters</p>
+</section>
+</section>
+<section id="stacker">
+<h2>Stacker<a class="headerlink" href="#stacker" title="Permalink to this heading">¶</a></h2>
+<p>Fully automated highly configurable stacking ensemble creation class. Can create single or multiple layers of stacked features. Applicable for train/test set features creation. Any number of layers and models within layers can be added to Stacker instance (models in layers must contain fit / predict / predict_proba (<cite>if classification</cite>) methods for the Stacker to properly create features using these models).</p>
+<p>Additional metafeatures can be created from stacked features if metafeats parameter is set to True.</p>
+<p>Subsequent (&gt;1) layers can be trained either on predictions from one previous layer / or predictions from one previous layer and meta features / or predictions from all previous layers / or predictions from all previous layers and meta features <cite>subject to stacking_feats_depth parameter configuration</cite>; original X features can also be used for training the subsequent layers <cite>subjuect to include_X parameter configuration</cite>.</p>
+<p>Stacker includes auto mode which will create two layers of stacked features with layer 1 consisting of 14 diverse models and layer 2 consisting of a linear and boosed model</p>
+<p>Models’ <code class="docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code> hyperparameters tuning is enabled if gridsearch_iteration parameter is &gt; 0 <cite>subject to model being supported by built in parameters optimization function</cite>.</p>
+<p>Stacked feats creation on the train set is perfromed by train/predict operations on 4 folds. Each stacked feature in the test set is created by predicting with 4 models <cite>fitted on train set</cite> and averaging predictions. When averaging for regression tasks - mean of predicted values is computed; for binary - mean of positive class probabilities is computed; for multiclass - the most commonly predicted class from the 4 predictions is selected.</p>
+<blockquote>
+<div><p>… the output of fit_transfrom() / transform() methods will return the dataframe with original features and stacked features.</p>
+</div></blockquote>
+<p><strong>auto mode models</strong></p>
+<blockquote>
+<div><p>layer_1: 14 models</p>
+<ul class="simple">
+<li><p>LGBM(max_depth = 12)</p></li>
+<li><p>XGB(max_depth = 10, n_jobs = -1)</p></li>
+<li><p>GradientBoosting(max_depth = 7)</p></li>
+<li><p>kerasModel(num_layers = 3)</p></li>
+<li><p>kerasModel(num_layers = 2)</p></li>
+<li><p>kerasModel(num_layers = 1)</p></li>
+<li><p>ExtraTree(max_depth = 12)</p></li>
+<li><p>RandomForest(max_depth = 7)</p></li>
+<li><p>Linear/LogisticRegression()</p></li>
+<li><p>KNeighbors(n_neighbors=15)</p></li>
+<li><p>KNeighbors(n_neighbors=10)</p></li>
+<li><p>SVR(kernel = ‘rbf’)</p></li>
+<li><p>DecisionTree(max_depth = 15)</p></li>
+<li><p>DecisionTree(max_depth = 8)</p></li>
+</ul>
+<p>layer_2: two models</p>
+<ul class="simple">
+<li><p>LGBM(max_depth = 3)</p></li>
+<li><p>Ridge()</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Initialize Stacker</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">Stacker</span>
+
+<span class="c1"># initialize with default parameters</span>
+<span class="n">stacker</span> <span class="o">=</span> <span class="n">Stacker</span><span class="p">(</span><span class="n">objective</span> <span class="o">=</span> <span class="s1">&#39;regression&#39;</span><span class="p">)</span>
+
+<span class="c1"># initialize with selected parameters</span>
+<span class="n">stacker</span> <span class="o">=</span> <span class="n">Stacker</span><span class="p">(</span><span class="n">objective</span> <span class="o">=</span> <span class="s1">&#39;regression&#39;</span><span class="p">,</span>
+                  <span class="n">auto</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                  <span class="n">auto_num_layers</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+                  <span class="n">metafeats</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                  <span class="n">epochs</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+                  <span class="n">gridsearch_iterations</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+                  <span class="n">stacking_feats_depth</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                  <span class="n">include_X</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                  <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="id1">
+<h3>Parameters<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="simple">
+<dt>parameters <code class="docutils literal notranslate"><span class="pre">metafeats</span></code>, <code class="docutils literal notranslate"><span class="pre">gridsearch_iterations</span></code>, <code class="docutils literal notranslate"><span class="pre">stacking_feats_depth</span></code>, <code class="docutils literal notranslate"><span class="pre">include_X</span></code> can be configured independently for any layer in the follwoing manner: E.g. If need to optimize the models’ hyperparameters only in layer_2:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">stacker</span> <span class="pre">=</span> <span class="pre">Stacker('regression',</span> <span class="pre">gridsearch_iterations</span> <span class="pre">=</span> <span class="pre">0)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stacker.add_layer([model_1,</span> <span class="pre">model_2,</span> <span class="pre">model_3])</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">X_transformed</span> <span class="pre">=</span> <span class="pre">stacker.fit_transform(X,</span> <span class="pre">y)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stacker.add_layer([model_4,</span> <span class="pre">model_5])</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stacker.gridsearch_iterations</span> <span class="pre">=</span> <span class="pre">20</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">X_transformed</span> <span class="pre">=</span> <span class="pre">stacker.fit_transform(X_transformed,</span> <span class="pre">y)</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</div></blockquote>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">objective</span></code> [default=None]</p>
+<p>Training objective. Can take values: ‘regression’, ‘binary’, ‘multiclass’</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">auto</span></code> [default=False]</p>
+<p>Enable/disable automatic configuration of 1 or 2 layers of models to create stacked features. If True will automatically populate the self.layers with 1 or 2 lists of preconfigured diverse models.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">auto_num_layers</span></code> [default=2]</p>
+<p>Number of automatically generated layers. Can take values 1 and 2</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">metafeats</span></code> [default=True]</p>
+<dl class="simple">
+<dt>Additional statistical meta features creation from the stacked predictions:</dt><dd><ul class="simple">
+<li><p>pairwise differences between the stacked predictions are created for  all pairs (recursively)</p></li>
+<li><p>mean and std for all the stacked features in a layer are created as two extra meta feats</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">epochs</span></code> [default=200]</p>
+<p>Number of neural networks epochs. Applicable for the three automatically configured neural networks in the auto mode</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gridsearch_iterations</span></code> [default=10]</p>
+<p>Number of hyperparameters optimization iterations. If set to 0, hyperparameters will not be optimized. If &gt; 0, hyperparameters in all layers will be optimized. E.g. Supported models for optimization:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>lightgbm.sklearn.LGBMRegressor / lightgbm.sklearn.LGBMClassifier</p></li>
+<li><p>xgboost.sklearn.XGBRegressor / xgboost.sklearn.XGBClassifier</p></li>
+<li><p>sklearn.ensemble.GradientBoostingRegressor / sklearn.ensemble.GradientBoostingClassifier</p></li>
+<li><p>sklearn.tree._classes.ExtraTreeRegressor / sklearn.tree._classes.ExtraTreeClassifier</p></li>
+<li><p>sklearn.ensemble._forest.RandomForestRegressor / sklearn.ensemble._forest.RandomForestClassifier</p></li>
+<li><p>sklearn.linear_model._logistic.LogisticRegression</p></li>
+<li><p>sklearn.linear_model._ridge.Ridge</p></li>
+<li><p>sklearn.neighbors._regression.KNeighborsRegressor / sklearn.neighbors._classification.KNeighborsClassifier</p></li>
+<li><p>sklearn.svm._classes.SVR / sklearn.svm._classes.SVC</p></li>
+<li><p>sklearn.tree._classes.DecisionTreeRegressor / sklearn.tree._classes.DecisionTreeClassifier</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stacking_feats_depth</span></code> [default=1]</p>
+<dl class="simple">
+<dt>Defines the features used by subsequent (&gt;1) layers to train the stacking models. Can take values between 1 and 4 where:</dt><dd><ul class="simple">
+<li><p>1 = use predictions from one previous layer</p></li>
+<li><p>2 = use predictions from one previous layer and meta features</p></li>
+<li><p>3 = use predictions from all previous layers</p></li>
+<li><p>4 = use predictions from all previous layers and meta features</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">include_X</span></code> [default=False]</p>
+<p>Flag to use original X features for subsequent layer training</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">verbose</span></code> [default=True]</p>
+<p>Print progress outputs or silent</p>
+</li>
+</ul>
+</section>
+<section id="id2">
+<h3>Methods<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">add_layer([model_1,</span> <span class="pre">model_2(),</span> <span class="pre">model_3])</span></code></p>
+<p>Add layer with models to Stacker instance.</p>
+<blockquote>
+<div><p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">models_list</span></code> [list]</p>
+<p>List containing initiated models instances. Each model must contain fit() / predict() / predict_proba() (<cite>if classification</cite>) methods</p>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>returns</dt><dd><p>None</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fit_transform(X,</span> <span class="pre">y)</span></code></p>
+<p>Train/predict/append to X the stacking features from models defined in self.layers</p>
+<blockquote>
+<div><p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">X</span></code> [pd.DataFrame]</p>
+<p>train features</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y</span></code> [pd.Series]</p>
+<p>train labels</p>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>returns</dt><dd><p>pd.DataFrame train featues with appended stacking features</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">transform(X)</span></code></p>
+<p>Create stacking features on the test set from models saved in self.trained_models</p>
+<blockquote>
+<div><p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">X</span></code> [pd.DataFrame]</p>
+<p>test features</p>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>returns</dt><dd><p>pd.DataFrame test featues with appended stacking features</p>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="saving-and-loading-stacker-instance">
+<h3>Saving and loading Stacker instance<a class="headerlink" href="#saving-and-loading-stacker-instance" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl>
+<dt>…</dt><dd><p>save_stacker() is a Stacker instance method, it is performed after fit_transform() is completed.</p>
+<p>load_stacker() is a standalone function; called from verstack.stacking.load_model.load_model(path); should be executed after import</p>
+</dd>
+</dl>
+</div></blockquote>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">save_stacker(path)</span></code></p>
+<p>Save fitted stacker object to a directory.</p>
+<p>Parameters</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">path</span></code> [str]</p>
+<p>path to where Stacker will create directory “saved_stacker_model” and save stacker artefacts</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">verstack.stacking.load_model.load_model(path)</span></code></p>
+<p>Load the saved stacker model.</p>
+<dl>
+<dt>Parameters</dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">path</span></code> [str]</p>
+<p>path to “stacker_saved_model” directory</p>
+</li>
+</ul>
+</dd>
+<dt>returns</dt><dd><p>Stacker instance</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p><strong>Attributes</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">layers</span></code></p>
+<p>Dictionary with ‘layer_n’ as key and list of models in layer as value</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trained_models</span></code></p>
+<p>Dictionary with ‘layer_n’ as key and dictionary with stacked feature name as key and list of 4 <cite>trained on different folds</cite> models instances for predicting on test set</p>
+</li>
+</ul>
+</section>
+<section id="id3">
+<h3>Examples<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<p>Using Stacker in auto mode</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">Stacker</span>
+<span class="n">stacker</span> <span class="o">=</span> <span class="n">Stacker</span><span class="p">(</span><span class="n">objective</span> <span class="o">=</span> <span class="s1">&#39;multiclass&#39;</span><span class="p">,</span> <span class="n">auto</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">X_with_stacked_feats</span> <span class="o">=</span> <span class="n">stacker</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Add two custom layers, for training subsequent (&gt;1) layers use not only the predictions of the previous layer, but also metafeats in the previous layer and X original features
+Then add one more layer and disable hyperparameters optimization for this layer</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># initialize Stacker</span>
+<span class="n">stacker</span> <span class="o">=</span> <span class="n">Stacker</span><span class="p">(</span><span class="n">objective</span> <span class="o">=</span> <span class="s1">&#39;multiclass&#39;</span><span class="p">,</span>
+                  <span class="n">auto</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                  <span class="n">stacking_feats_depth</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+                  <span class="n">include_X</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="c1"># add layers</span>
+<span class="n">stacker</span><span class="o">.</span><span class="n">add_layer</span><span class="p">([</span><span class="n">model_1</span><span class="p">,</span> <span class="n">model_2</span><span class="p">,</span> <span class="n">model_3</span><span class="p">])</span>
+<span class="n">stacker</span><span class="o">.</span><span class="n">add_layer</span><span class="p">([</span><span class="n">model_4</span><span class="p">,</span> <span class="n">model_5</span><span class="p">])</span>
+<span class="c1"># add stacking features to train/test</span>
+<span class="n">X_with_stacked_feats</span> <span class="o">=</span> <span class="n">stacker</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">test_with_stacked_feats</span> <span class="o">=</span> <span class="n">stacker</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+<span class="c1"># add extra layer</span>
+<span class="n">stacker</span><span class="o">.</span><span class="n">add_layer</span><span class="p">([</span><span class="n">model_6</span><span class="p">,</span> <span class="n">model_7</span><span class="p">])</span>
+<span class="c1"># change the gridsearch_iteration setting</span>
+<span class="n">stacker</span><span class="o">.</span><span class="n">gridsearch_iterations</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="c1"># pass the transformed dataset if need to call .fit_transform() after adding extra layers to the fitted instance of Stacker</span>
+<span class="n">X_with_stacked_feats</span> <span class="o">=</span> <span class="n">stacker</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_with_stacked_feats</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">test_with_stacked_feats</span> <span class="o">=</span> <span class="n">stacker</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test_with_stacked_feats</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Saving Stacker model</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">Stacker</span>
+<span class="n">stacker</span> <span class="o">=</span> <span class="n">Stacker</span><span class="p">(</span><span class="n">objective</span> <span class="o">=</span> <span class="s1">&#39;multiclass&#39;</span><span class="p">,</span> <span class="n">auto</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">X_with_stacked_feats</span> <span class="o">=</span> <span class="n">stacker</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="c1"># specify the path to where stacker will create the stacker_saved_model directory</span>
+<span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;/Documents&#39;</span>
+<span class="n">stacker</span><span class="o">.</span><span class="n">save_stacker</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Loading Stacker model</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack.stacking.load_stacker</span> <span class="kn">import</span> <span class="n">load_stacker</span>
+<span class="n">path_where_stacker_saved_models</span> <span class="o">=</span> <span class="s1">&#39;Documents/stacker_saved_model&#39;</span>
+<span class="n">stacker</span> <span class="o">=</span> <span class="n">load_stacker</span><span class="p">(</span><span class="n">path_where_stacker_saved_models</span><span class="p">)</span>
+
+<span class="c1"># use the loaded stacker to create stacking features on test set</span>
+<span class="n">X_test_with_stacked_feats</span> <span class="o">=</span> <span class="n">stacker</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="featureselector">
+<h2>FeatureSelector<a class="headerlink" href="#featureselector" title="Permalink to this heading">¶</a></h2>
+<p>Automated feature selector based on recursive feature elimination. FeatureSelector has built-in &amp; configured models (linear/logistic regression &amp; RandomForest) and employs logic to recursively eliminate features with one of these models taking advantage of sklearn.feature_selection.RFECV.
+Different modes preform feature selection in different modes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>one of the built-in models</p></li>
+<li><p>any other model, which should be passed by user at init</p></li>
+<li><p>auto mode: a competition between feature selection independently by linear model and RandomForest is evaluated by a third model (LGBM by default, can be configured by user) to select a subset which yields higher accuracy</p></li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>Additional arguments allow to:</dt><dd><ul class="simple">
+<li><p>reduce input data size for running experiments</p></li>
+<li><p>in auto mode, allows to automatically select features from a model with smaller accuracy if number of selected features for this model is smaller and percent difference between accuracy is within the allowed_score_gap parameter</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Initialize FeatureSelector</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">FeatureSelector</span>
+
+<span class="c1"># initialize with default parameters</span>
+<span class="n">FS</span> <span class="o">=</span> <span class="n">FeatureSelector</span><span class="p">(</span><span class="n">objective</span> <span class="o">=</span> <span class="s1">&#39;regression&#39;</span><span class="p">)</span>
+
+<span class="c1"># initialize with custom model</span>
+<span class="kn">from</span> <span class="nn">lightgbm</span> <span class="kn">import</span> <span class="n">LGBMRegressor</span>
+<span class="n">model_for_feature_selection</span> <span class="o">=</span> <span class="n">LGBMRegressor</span><span class="p">()</span>
+<span class="n">FS</span> <span class="o">=</span> <span class="n">FeatureSelector</span><span class="p">(</span><span class="n">objective</span> <span class="o">=</span> <span class="s1">&#39;regression&#39;</span><span class="p">,</span>
+                     <span class="n">custom_model</span> <span class="o">=</span> <span class="n">model_for_feature_selection</span><span class="p">)</span>
+
+<span class="c1"># initialize with selected parameters</span>
+<span class="n">stacker</span> <span class="o">=</span> <span class="n">Stacker</span><span class="p">(</span><span class="n">objective</span> <span class="o">=</span> <span class="s1">&#39;regression&#39;</span><span class="p">,</span>
+                  <span class="n">auto</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                  <span class="n">subset_size_mb</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+                  <span class="n">allowed_score_gap</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+                  <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="id4">
+<h3>Parameters<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">objective</span></code> [default=’regression’]</p>
+<p>Training objective. Can take values: ‘regression’ and any other string which will be interpreted as ‘classification’</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">auto</span></code> [default=False]</p>
+<p>Enable/disable automatic feature selection comparison between linear model and RandomForest. FeatureSelector will select two independent sets of features by LR/RF and score with a third model (LGBM by default). Features that yield a higher accuracy are returned</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">allowed_score_gap</span></code> [default=0.0]</p>
+<dl class="simple">
+<dt>(If <code class="docutils literal notranslate"><span class="pre">auto``==True)</span> <span class="pre">If</span> <span class="pre">a</span> <span class="pre">user</span> <span class="pre">requires</span> <span class="pre">a</span> <span class="pre">smaller</span> <span class="pre">set</span> <span class="pre">of</span> <span class="pre">features</span> <span class="pre">and</span> <span class="pre">can</span> <span class="pre">compromise</span> <span class="pre">a</span> <span class="pre">controlled</span> <span class="pre">value</span> <span class="pre">of</span> <span class="pre">accuracy,</span> <span class="pre">the</span> <span class="pre">``allowed_score_gap</span></code> parameter can take values between 0.0 and 1.0 to control the allowance for potential model lower validation score if model has a smaller number of selected features. E.g. <code class="docutils literal notranslate"><span class="pre">allowed_score_gap</span></code> = 0.05 will allow to return selected features from one of the two models if</dt><dd><ul class="simple">
+<li><p>its accuracy is up to 5% worse than the competing model</p></li>
+<li><p>it has selected a smaller number of features</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">final_scoring_model</span></code> [default=None]</p>
+<p>(If <a href="#id5"><span class="problematic" id="id6">``</span></a>auto``==True) Pass model instance to compare scores between features selected by linear model and by RandomForest model. The default value is None, in this case lightgbm model is used</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">default_model_linear</span></code> [default=False]</p>
+<p>Flag to deploy linear model or RandomForest model for feature selection</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">custom_model</span></code> [default=None]</p>
+<p>Pass model instance to be used for feature selection instead of built-in linear/RandomForest models</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subset_size_mb</span></code> [default=20]</p>
+<p>Value to reduce data dimensionality (row-wise) for running feature selection experiments</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">verbose</span></code> [default=True]</p>
+<p>Verbosity setting</p>
+</li>
+</ul>
+</section>
+<section id="id7">
+<h3>Methods<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">fit_transform(X,</span> <span class="pre">y,</span> <span class="pre">kwargs)</span></code></p>
+<p>Apply feature selection on features and target</p>
+<blockquote>
+<div><p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">X</span></code> [pd.DataFrame]</p>
+<p>Train features</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y</span></code> [pd.Series/np.array]</p>
+<p>Train labels</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kwargs</span></code> [keyword arguments]</p>
+<p>Arguments for <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFECV.html">sklearn.feature_selection.RFECV</a></p>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>returns</dt><dd><p>pd.DataFrame selected features</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">transform(X)</span></code></p>
+<p>Apply trained FeatureSelector instance to transform another dataset by subsetting it to the selected features</p>
+<blockquote>
+<div><p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">X</span></code> [pd.DataFrame]</p>
+<p>Features</p>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>returns</dt><dd><p>pd.DataFrame selected features</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p><strong>Attributes</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">layers</span></code></p>
+<p>Dictionary with ‘layer_n’ as key and list of models in layer as value</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trained_models</span></code></p>
+<p>Dictionary with ‘layer_n’ as key and dictionary with stacked feature name as key and list of 4 <cite>trained on different folds</cite> models instances for predicting on test set</p>
+</li>
+</ul>
+</section>
+<section id="id8">
+<h3>Examples<a class="headerlink" href="#id8" title="Permalink to this heading">¶</a></h3>
+<p>Using FeatureSelector in auto mode</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">FeatureSelector</span>
+<span class="n">FS</span> <span class="o">=</span> <span class="n">FeatureSelector</span><span class="p">(</span><span class="n">objective</span> <span class="o">=</span> <span class="s1">&#39;regression&#39;</span><span class="p">,</span> <span class="n">auto</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">selected_feats</span> <span class="o">=</span> <span class="n">FS</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Use built-in RandomForest model for feature selection</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">FS</span> <span class="o">=</span> <span class="n">FeatureSelector</span><span class="p">(</span><span class="n">objective</span> <span class="o">=</span> <span class="s1">&#39;regression&#39;</span><span class="p">,</span> <span class="n">default_model_linear</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">selected_feats</span> <span class="o">=</span> <span class="n">FS</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Pass custom model for feature selection</p>
+</section>
+</section>
+<section id="dateparser">
+<h2>DateParser<a class="headerlink" href="#dateparser" title="Permalink to this heading">¶</a></h2>
+<p>Fully automated DateParser tool that takes as input a pandas.DataFrame and returns a pandas.DataFrame with parsed datetime features.
+Holidays flags and names are created as features subject to user passing the country argument (E.g. country = ‘US’). Holiday features extraction are based on utilizing the <cite>holidays</cite> package.
+Datetime columns will be found automatically, transformed to pd.Timestamp format, new columns with the follwing features (if applicable to the specific datetime format) will be created:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>year</p></li>
+<li><p>month</p></li>
+<li><p>day (monthday)</p></li>
+<li><p>quarter</p></li>
+<li><p>week</p></li>
+<li><p>weekday</p></li>
+<li><p>dayofyear</p></li>
+<li><p>hour</p></li>
+<li><p>minute</p></li>
+<li><p>second</p></li>
+<li><p>part_of_day</p></li>
+<li><p>timediff (if two datetime columns are found)</p></li>
+<li><p>is_holiday (if country argument is passed)</p></li>
+<li><p>holiday_name (if country argument is passed)</p></li>
+<li><p>is_payday (if payday argument is passed)</p></li>
+<li><p>days_from_epoch (1970/01/01)</p></li>
+</ul>
+<p>… same set of features will be created (with column name prefix) for each of the datetime columns DateParser detects.</p>
+</div></blockquote>
+<p><strong>Supported datetime formats</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>‘28-OCT-90’,</p></li>
+<li><p>‘28-OCT-1990’,</p></li>
+<li><p>‘10/28/90’,</p></li>
+<li><p>‘10/28/1990’,</p></li>
+<li><p>‘28.10.90’,</p></li>
+<li><p>‘28.10.1990’,</p></li>
+<li><p>‘90/10/28’,</p></li>
+<li><p>‘1990/10/28’,</p></li>
+<li><p>‘4 Q 90’,</p></li>
+<li><p>‘4 Q 1990’,</p></li>
+<li><p>‘OCT 90’,</p></li>
+<li><p>‘OCT 1990’,</p></li>
+<li><p>‘43 WK 90’,</p></li>
+<li><p>‘43 WK 1990’,</p></li>
+<li><p>‘01:02’,</p></li>
+<li><p>‘02:34’,</p></li>
+<li><p>‘02:34.75’,</p></li>
+<li><p>‘20-JUN-1990 08:03’,</p></li>
+<li><p>‘20-JUN-1990 08:03:00’,</p></li>
+<li><p>‘1990-06-20 08:03’,</p></li>
+<li><p>‘1990-06-20 08:03:00.0’</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Initialize DateParser</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">DateParser</span>
+
+<span class="c1"># initialize with default parameters</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">DateParser</span><span class="p">()</span>
+
+<span class="c1"># initialize with selected parameters</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">DateParser</span><span class="p">(</span><span class="n">country</span> <span class="o">=</span> <span class="s1">&#39;US&#39;</span><span class="p">,</span>
+                  <span class="n">state</span> <span class="o">=</span> <span class="s1">&#39;CA&#39;</span><span class="p">,</span>
+                  <span class="n">payday</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">])</span>
+</pre></div>
+</div>
+<section id="id9">
+<h3>Parameters<a class="headerlink" href="#id9" title="Permalink to this heading">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">country</span></code> [default=None]</p>
+<p>Country name or abreviation. For a full list of supported countries call parser.list_supported_countries()</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">state</span></code> [default=None]</p>
+<p>State abreviation. Correct state abreviations are available at <a class="reference external" href="https://pypi.org/project/holidays/">https://pypi.org/project/holidays/</a></p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prov</span></code> [default=None]</p>
+<p>Province abreviation. Correct province abreviations are available at <a class="reference external" href="https://pypi.org/project/holidays/">https://pypi.org/project/holidays/</a></p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">payday</span></code> [default=None]</p>
+<p>List of paydays applicable in a specific country. E.g. [1, 15]</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">verbose</span></code> [default=True]</p>
+<p>Enable or desable console prints</p>
+</li>
+</ul>
+</section>
+<section id="id10">
+<h3>Methods<a class="headerlink" href="#id10" title="Permalink to this heading">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">fit_transform(df)</span></code></p>
+<p>Fully automatic search of datetime columns and features extraction.
+Apart from all the conventional datetime features will automatically parse holidays / paydays if specified and init.
+Saves the found datetime columns names and feature extraction pipelines for the transform() method.</p>
+<blockquote>
+<div><p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> [pd.DataFrame]</p>
+<p>Data with raw features</p>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>returns</dt><dd><p>pd.DataFrame with new features</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">transform(df)</span></code></p>
+<p>Parse identical set of features from a new dataset. Usually applied to test set transformation.
+E.g. if test set datetime columns include a short timeframe so that quarter feature is constant and thus should not be created, the dataset will still be populated by this feature in order to preserve the identical columns names and order between train/test sets. Think machine learning.</p>
+<blockquote>
+<div><p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> [pd.DataFrame]</p>
+<p>Data with raw features (test/valid set)</p>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>returns</dt><dd><p>pd.DataFrame with new features</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">parse_holidays(datetime_col_series,</span> <span class="pre">country,</span> <span class="pre">state,</span> <span class="pre">province,</span> <span class="pre">holiday_names)</span></code></p>
+<p>Create series with holidays names or flags for a defined country based on series of datetime-like strings.</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">datetime_col_series</span></code> [pd.Series]</p>
+<p>Series of datetime-like strings in line with supported_formats</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">country</span></code> [str]</p>
+<p>Country name or abreviation. For a full list of supported countries call parser.list_supported_countries()</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">state</span></code> [str, default = None]</p>
+<p>State abreviation. Correct state abreviations are available at <a class="reference external" href="https://pypi.org/project/holidays/">https://pypi.org/project/holidays/</a></p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prov</span></code> [str, default = None]</p>
+<p>Province abreviation. Correct province abreviations are available at <a class="reference external" href="https://pypi.org/project/holidays/">https://pypi.org/project/holidays/</a></p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">holiday_names</span></code> [bool, default = False]</p>
+<p>Flag to return holidays as a binary feature or string holidays names</p>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>returns</dt><dd><p>pd.Series with holidays binary flags or holidays string names</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_holidays_calendar(country,</span> <span class="pre">years,</span> <span class="pre">state</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">prov</span> <span class="pre">=</span> <span class="pre">None)</span></code></p>
+<p>Get data on the holidays in a given country (optinally in a certain state/province) for a given year(s).</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">country</span></code> [str]</p>
+<p>Country name or abreviation. For a full list of supported countries call parser.list_supported_countries()</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">state</span></code> [str, default = None]</p>
+<p>State abreviation. Correct state abreviations are available at <a class="reference external" href="https://pypi.org/project/holidays/">https://pypi.org/project/holidays/</a></p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prov</span></code> [str, default = None]</p>
+<p>Province abreviation. Correct province abreviations are available at <a class="reference external" href="https://pypi.org/project/holidays/">https://pypi.org/project/holidays/</a></p>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>returns</dt><dd><p>dictionary with holidays dates and names</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">list_supported_countries()</span></code></p>
+<p>Print a list of supported countries and abreviations.</p>
+</li>
+</ul>
+<p><strong>Attributes</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">datetime_cols</span></code></p>
+<p>List of found datetime columns names. Available after fit_transform()</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">created_datetime_cols</span></code></p>
+<p>List of created datetime features. Available after fit_transform()</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">supported</span> <span class="pre">formats</span></code></p>
+<p>List of supported datetime formats</p>
+</li>
+</ul>
+</section>
+<section id="id11">
+<h3>Examples<a class="headerlink" href="#id11" title="Permalink to this heading">¶</a></h3>
+<p>Using DateParser with all default parameters</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span> <span class="o">=</span> <span class="n">DateParser</span><span class="p">()</span>
+<span class="n">train_with_parsed_dt_feats</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+<span class="n">test_with_parsed_dt_feats</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>DateParser with holidays/paydays</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span> <span class="o">=</span> <span class="n">DateParser</span><span class="p">(</span><span class="n">country</span> <span class="o">=</span> <span class="s1">&#39;US&#39;</span><span class="p">,</span> <span class="n">payday</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">])</span>
+<span class="n">train_with_parsed_dt_feats</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+<span class="n">test_with_parsed_dt_feats</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="lgbmtuner">
+<h2>LGBMTuner<a class="headerlink" href="#lgbmtuner" title="Permalink to this heading">¶</a></h2>
+<p>Fully automated lightgbm model hyperparameter tuning class with optuna under the hood.
+LGBMTuner selects optimal hyperparameters based on executed trials (configurable), optimizes n_estimators and fits the final model to the whole train set.
+Feature importances are available in numeric format, as a static plot, and as an interactive plot (html).
+Optimization history and parameters importance in static and interactive formats are alse accesable by built in methods.</p>
+<p>Medium <a class="reference external" href="https://medium.com/&#64;danilzherebtsov/effortlessly-tune-lgbm-with-optuna-49de040d0784">article</a> with full walkthrough and examples.</p>
+<section id="id12">
+<h3>Logic<a class="headerlink" href="#id12" title="Permalink to this heading">¶</a></h3>
+<p>The only required user inputs are the X (features), y (labels) and evaluation metric name, LGBMTuner will handle the rest.</p>
+<p>By default LGBMTuner will:
+1. Configure various LGBM model hyperparameters for regression or classification based on input data</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>lgbm model type (regression/classification) is inferred from the labels and evaluation metric (passed by user)</p></li>
+<li><p>optimization metric may be different from the evaluation metric (passed by user). LGBMTuner at hyperparameters search stage imploys the error reduction strategy, thus:
+- most regression task type metrics are supported for optimization, if not, MSE is selected for optimization
+- for classification task types hyperparameters are tuned by optimizing log_loss, n_estimators are tuned with evaluation_metric</p></li>
+<li><p>early stopping is engaged at each stage of LGBMTuner optimizations</p></li>
+<li><p>for every trial (iteration) a random train_test_split is performed (stratified for classification) eliminating the need for cross-validation</p></li>
+<li><p>lgbm model initial parameters!=defaults and are inferred from the data stats and built in logic</p></li>
+<li><p>optimization parameters and their search space are inferred from the data stats and built in logic</p></li>
+<li><p>LGBMTuner class instance (after optimization) can be used for making predictions with conventional syntaxis (predict/predict_proba)</p></li>
+<li><p>verbosity is controlled and by default outputs only the necessary optimization process/results information</p></li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Optimize the follwoing parameters within the defined ranges:</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>‘feature_fraction’ : {‘low’: 0.5, ‘high’: 1}</p></li>
+<li><p>‘num_leaves’ : {‘low’ : 16, ‘high’: 255}</p></li>
+<li><p>‘bagging_fraction’ : {‘low’ : 0.5, ‘high’ : 1.0}</p></li>
+<li><p>‘min_sum_hessian_in_leaf’ : {‘low’ : 1e-3, ‘high’ ” 10.0}</p></li>
+<li><p>‘lambda_l1’ : {‘low’ ” 1e-8, ‘high’ : 10.0}</p></li>
+<li><p>‘lambda_l2’ : {‘low’ ” 1e-8, ‘high’ : 10.0}</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>User may define other lightgbm parameters and their respective grids for optimization by changing the LGBM.grid dictionary after the class is initialized, please refer to the examples below.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>LGBM categorical_feature is supported. Unique values within each categoric feature must be encoded by consecutive integers and casted to ‘categoric’ dtype: df[‘categoric_column’] = df[‘categoric_column’].astype(‘categoric’) before sending the data to LGBMTuner.fit() method.</p>
+</div>
+<p><strong>Initialize LGBMTuner</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">LGBMTuner</span>
+
+<span class="c1"># initialize with default parameters</span>
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">LGBMTuner</span><span class="p">(</span><span class="n">metric</span> <span class="o">=</span> <span class="s1">&#39;rmse&#39;</span><span class="p">)</span>
+
+<span class="c1"># initialize with selected parameters</span>
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">LGBMTuner</span><span class="p">(</span><span class="n">metric</span> <span class="o">=</span> <span class="s1">&#39;rmse&#39;</span><span class="p">,</span>
+                  <span class="n">trials</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+                  <span class="n">refit</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                  <span class="n">verbosity</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                  <span class="n">visualization</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                  <span class="n">seed</span> <span class="o">=</span> <span class="mi">999</span><span class="p">,</span>
+                  <span class="n">device_type</span> <span class="o">=</span> <span class="s1">&#39;gpu&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="parameters-keyword-arguments-only">
+<h3>Parameters (keyword arguments only)<a class="headerlink" href="#parameters-keyword-arguments-only" title="Permalink to this heading">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">metric</span></code> [default=None]</p>
+<dl class="simple">
+<dt>Evaluation metric for hyperparameters optimization. LGBMTuner supports the following metrics (note the syntax)</dt><dd><p>[‘mae’, ‘mse’, ‘rmse’, ‘rmsle’, ‘mape’, ‘smape’, ‘rmspe’, ‘r2’, ‘auc’, ‘gini’, ‘log_loss’, ‘accuracy’, ‘balanced_accuracy’, ‘precision’, ‘precision_weighted’, ‘precision_macro’, ‘recall’, ‘recall_weighted’, ‘recall_macro’, ‘f1’, ‘f1_weighted’, ‘f1_macro’, ‘lift’]</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trials</span></code> [default=100]</p>
+<p>Number of trials to run</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">refit</span></code> [default=True]</p>
+<p>Fit the model with optimized hyperparameters on the whole train set (required for feature_importances, plot_importances() and prediction methods)</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">verbosity</span></code> [default=1]</p>
+<p>Console verbosity level: 0 - no output except for optuna CRITICAL errors and builtin exceptions;
+(1-5) based on optuna.logging options. The default is 1</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">visualization</span></code> [default=True]</p>
+<p>Automatically output feature_importance &amp; optimization plots into the console after tuning. Plots are also available on demand by corresponding methods</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seed</span></code> [default=42]</p>
+<p>Random state parameter</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">device_type</span></code> [default=”cpu”]</p>
+<p>Device for the tree learning, you can use GPU to achieve the faster learning. Acceptable parameters are “cpu”, “gpu”, “cuda”, “cuda_exp”</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eval_results_callback</span></code> [default=None]</p>
+<p>Callback function to be applied on the eval_results dictionary that is being populated with evaluation metric score upon completion of each training trial</p>
+</li>
+</ul>
+</section>
+<section id="id13">
+<h3>Methods<a class="headerlink" href="#id13" title="Permalink to this heading">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">fit(X,</span> <span class="pre">y)</span></code></p>
+<p>Execute LGBM model hyperparameters tuning</p>
+<blockquote>
+<div><p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">X</span></code> [pd.DataFrame]</p>
+<p>Train features</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y</span></code> [pd.Series]</p>
+<p>Train labels</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">optimize_n_estimators(X,</span> <span class="pre">y,</span> <span class="pre">params,</span> <span class="pre">verbose_eval</span> <span class="pre">=</span> <span class="pre">100)</span></code></p>
+<p>Optimize n_estimators for lgb model.</p>
+<blockquote>
+<div><p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">X</span></code> [np.array]</p>
+<p>Train features</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y</span></code> [np.array]</p>
+<p>Train labels</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">params</span></code> [dict]</p>
+<p>parameters to use for training the model with early stopping</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">verbose_eval</span></code> [int]</p>
+<p>evaluation output at each <code class="docutils literal notranslate"><span class="pre">verbose_eval</span></code> iteratio n</p>
+</li>
+</ul>
+<dl class="simple">
+<dt>returns</dt><dd><p>(best_iteration, best_score)</p>
+</dd>
+</dl>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fit_optimized(X,</span> <span class="pre">y)</span></code></p>
+<p>Train model with tuned params on whole train data</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">X</span></code> [np.array]</p>
+<p>Train features</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y</span></code> [np.array]</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">predict(test,</span> <span class="pre">threshold</span> <span class="pre">=</span> <span class="pre">0.5)</span></code></p>
+<p>Predict by optimized model on new data</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">test</span></code> [pd.DataFrame]</p>
+<p>Test features</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">threshold</span></code> [default=0.5]</p>
+<p>Classification threshold (applicable for binary classification)</p>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>returns</dt><dd><p>array of int</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">predict_proba(test)</span></code></p>
+<p>Predict probabilities by optimized model on new data</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">test</span></code> [pd.DataFrame]</p>
+<p>Test features</p>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>returns</dt><dd><p>array of float</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><a href="#id14"><span class="problematic" id="id15">``</span></a>plot_importances(n_features = 15,</dt><dd><p>figsize = (10,6),
+interactive = False,
+display = True,
+dark = True,
+save = False,
+plotly_fig_update_layout_kwargs = {})``</p>
+</dd>
+</dl>
+<p>Plot feature importance</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">n_features</span></code> [default=15]</p>
+<p>Number of important features to plot</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">figsize</span></code> [default=(10,6)]</p>
+<p>plot size</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">interactive</span></code> [default=False]</p>
+<p>Create &amp; display with the default browser the interactive html plot or (if browser disply is unavailable) save to current wd.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">display</span></code> [default=True]</p>
+<p>Display plot in browser. If False, plot will be saved in cwd.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dark</span></code> [default=True]</p>
+<p>Enable dark or light mode for plot.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">save</span></code> [default=False]</p>
+<p>Save plot to current working directory.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plotly_fig_update_layout_kwargs</span></code> [default={}]</p>
+<p>kwargs for plotly.fig.update_layout() function. The default is empty dict and default_plotly_fig_update_layout_kwargs configured inside the plot_importances() will be used.</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_optimization_history(interactive</span> <span class="pre">=</span> <span class="pre">False)</span></code></p>
+<p>Plot optimization function improvement history</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">interactive</span></code> [default=False]</p>
+<p>Create &amp; display with the default browser the interactive html plot or (if browser disply is unavailable) save to current wd.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">display</span></code> [default=True]</p>
+<p>Display plot in browser. If False, plot will be saved in cwd.</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_param_importances(interactive</span> <span class="pre">=</span> <span class="pre">False)</span></code></p>
+<p>Plot params importance plot</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">interactive</span></code> [default=False]</p>
+<p>Create &amp; display with the default browser the interactive html plot or (if browser disply is unavailable) save to current wd.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">display</span></code> [default=True]</p>
+<p>Display plot in browser. If False, plot will be saved in cwd.</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_intermediate_values(interactive</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">legend</span> <span class="pre">=</span> <span class="pre">False)</span></code></p>
+<p>Plot optimization trials history. Shows successful and terminated trials. If trials &gt; 50 it is better to study the interactive version</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">interactive</span></code> [default=False]</p>
+<p>Create &amp; display with the default browser the interactive html plot or (if browser disply is unavailable) save to current wd.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">legend</span></code> [default=False]</p>
+<p>Plot legen on a static plot</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">display</span></code> [default=True]</p>
+<p>Display plot in browser. If False, plot will be saved in cwd.</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p><strong>Attributes</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">metric</span></code></p>
+<p>Evaluation metric defined by user at LGBMTuner init</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">refit</span></code></p>
+<p>Setting for refitting the optimized model on whole train dataset</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">verbosity</span></code></p>
+<p>Verbosity level settings</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">visualization</span></code></p>
+<p>Automatic plots output after optimization setting</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seed</span></code></p>
+<p>Random state value</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fitted_model</span></code></p>
+<p>Trained LGBM booster model with optimized parameters</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">feature_importances</span></code></p>
+<p>Feature importance values</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">study</span></code></p>
+<p>optuna.study.study.Study object after hyperparameters tuning</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">init_params</span></code></p>
+<p>initial LGBM model parameters</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">best_params</span></code></p>
+<p>learned optimized parameters</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eval_results</span></code></p>
+<p>dictionary with evaluation results per each of non-pruned trials measured by a function derived from the <code class="docutils literal notranslate"><span class="pre">metric</span></code> argument</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grid</span></code></p>
+<p>dictionary with all the supported and currently selected optimization parameters</p>
+</li>
+</ul>
+</section>
+<section id="id16">
+<h3>Examples<a class="headerlink" href="#id16" title="Permalink to this heading">¶</a></h3>
+<p>Using LGBMTuner with all default parameters</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">imputer</span> <span class="o">=</span> <span class="n">LGBMTuner</span><span class="p">(</span><span class="s1">&#39;auc&#39;</span><span class="p">)</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">feature_importances</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">plot_importances</span><span class="p">()</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">plot_intermediate_values</span><span class="p">()</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">plot_optimization_history</span><span class="p">()</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">plot_param_importances</span><span class="p">()</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">best_params</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>LGBMTuner with custom settings</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">imputer</span> <span class="o">=</span> <span class="n">LGBMTuner</span><span class="p">(</span><span class="n">metric</span> <span class="o">=</span> <span class="s1">&#39;auc&#39;</span><span class="p">,</span> <span class="n">trials</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span> <span class="n">verbosity</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">visualization</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">plot_importances</span><span class="p">(</span><span class="n">legend</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">plot_intermediate_values</span><span class="p">(</span><span class="n">interactive</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>LGBMTuner with custom optimization parameters</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tuner</span> <span class="o">=</span> <span class="n">LGBMTuner</span><span class="p">(</span><span class="n">metric</span> <span class="o">=</span> <span class="s1">&#39;auc&#39;</span><span class="p">,</span> <span class="n">trials</span> <span class="o">=</span> <span class="mi">300</span><span class="p">)</span>
+<span class="c1"># show the supported parameters for optimization</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">grid</span>
+<span class="c1">#---&gt;{&#39;boosting_type&#39;: None,</span>
+<span class="c1">#---&gt;&#39;num_iterations&#39;: None,</span>
+<span class="c1">#---&gt;&#39;learning_rate&#39;: None,</span>
+<span class="c1">#---&gt;&#39;num_leaves&#39;: {&#39;low&#39;: 16, &#39;high&#39;: 255},                  &lt;--- default setting</span>
+<span class="c1">#---&gt;&#39;max_depth&#39;: None,</span>
+<span class="c1">#---&gt;&#39;min_data_in_leaf&#39;: None,</span>
+<span class="c1">#---&gt;&#39;min_sum_hessian_in_leaf&#39;: {&#39;low&#39;: 0.001, &#39;high&#39;: 10.0}, &lt;--- default setting</span>
+<span class="c1">#---&gt;&#39;bagging_fraction&#39;: {&#39;low&#39;: 0.5, &#39;high&#39;: 1.0},           &lt;--- default setting</span>
+<span class="c1">#---&gt;&#39;feature_fraction&#39;: {&#39;low&#39;: 0.5, &#39;high&#39;: 1.0},           &lt;--- default setting</span>
+<span class="c1">#---&gt;&#39;max_delta_step&#39;: None,</span>
+<span class="c1">#---&gt;&#39;lambda_l1&#39;: {&#39;low&#39;: 1e-08, &#39;high&#39;: 10.0},               &lt;--- default setting</span>
+<span class="c1">#---&gt;&#39;lambda_l2&#39;: {&#39;low&#39;: 1e-08, &#39;high&#39;: 10.0},               &lt;--- default setting</span>
+<span class="c1">#---&gt;&#39;linear_lambda&#39;: None,</span>
+<span class="c1">#---&gt;&#39;min_gain_to_split&#39;: None,</span>
+<span class="c1">#---&gt;&#39;drop_rate&#39;: None,</span>
+<span class="c1">#---&gt;&#39;top_rate&#39;: None,</span>
+<span class="c1">#---&gt;&#39;min_data_per_group&#39;: None,</span>
+<span class="c1">#---&gt;&#39;max_cat_threshold&#39;: None}</span>
+
+<span class="c1"># change optimization parameters</span>
+<span class="c1"># parameters can be passed by any of the following ways:</span>
+<span class="c1"># - list (will be used for a random search)</span>
+<span class="c1"># - tuple (will be used to define the uniform grid range between the min(tuple), max(tuple))</span>
+<span class="c1"># - dict with keywords &#39;choice&#39;/&#39;low&#39;/&#39;high&#39;</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s1">&#39;boosting_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;gbdt&#39;</span><span class="p">,</span> <span class="s1">&#39;rf&#39;</span><span class="p">]</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s1">&#39;max_data_in_leaf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;choice&#39;</span> <span class="p">:</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">70</span><span class="p">]}</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s1">&#39;learning_rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s1">&#39;lambda_l1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;low&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;high&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="nanimputer">
+<h2>NaNImputer<a class="headerlink" href="#nanimputer" title="Permalink to this heading">¶</a></h2>
+<p>Impute all missing values in a pandas dataframe by xgboost models in multiprocessing mode using a single line of code.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is the second major version of NaNImputer. The original class (last version 1.4.0)
+had been very popular. The legacy version is kept within verstack with a new class name NaNImputerLegacy.
+Differences between the NaNImputer and NaNImputerLegacy:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The new NaNImputer is based on LightGBM instead of XGBoost in the legacy version</p></li>
+<li><p>The new NaNImputer is using a single core multithreading instead of multicore legacy version, nevertheless it is significantly faster</p></li>
+<li><p>The new NaNImputer’s interface is much simpler and features only two configurable parameters</p></li>
+<li><p>The imputation quality of the new NaNImputer is on par with the NaNImputerLegacy</p></li>
+</ul>
+</div></blockquote>
+</div>
+<section id="id17">
+<h3>Logic<a class="headerlink" href="#id17" title="Permalink to this heading">¶</a></h3>
 <p>With NaNImputer you can fill missing values in numeric, binary and categoric columns in your pandas dataframe using advanced XGBRegressor/XGBClassifier models with just 1 line of code. Regardless of the data types in your dataframe (string/bool/numeric):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>all of the columns will be checked for missing values</p></li>
+<li><p>transformed into numeric formats</p></li>
+<li><p>split into subsets with and without missing values</p></li>
+<li><p>applicalbe models will be selected and configured for each of the columns with NaNs</p></li>
+<li><p>NaNs will be predicted and placed into corresponding indixes</p></li>
+<li><p>columns with all NaNs will be droped</p></li>
+<li><p>columns containing NaNs and known values as a single constant will be dropped</p></li>
+<li><p>columns with over 50% NaNs will be droped</p></li>
+<li><p>data will be reverse-transformed into original format</p></li>
+</ul>
+</div></blockquote>
+<p>The only limitation is:</p>
+<ul class="simple">
+<li><p>NaNs in pure text columns are not imputed. By default they are filled with ‘Missing_data’ value. Configurable. If disabled - will return these columns with missing values untouched</p></li>
+</ul>
+<p><strong>Initialize NaNImputer</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">NaNImputer</span>
+
+<span class="c1"># initialize with default parameters</span>
+<span class="n">imputer</span> <span class="o">=</span> <span class="n">NaNImputer</span><span class="p">()</span>
+
+<span class="c1"># initialize with selected parameters</span>
+<span class="n">imputer</span> <span class="o">=</span> <span class="n">NaNImputer</span><span class="p">(</span><span class="n">train_sample_size</span> <span class="o">=</span> <span class="mi">50000</span><span class="p">,</span>
+                     <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id18">
+<h3>Parameters<a class="headerlink" href="#id18" title="Permalink to this heading">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">train_sample_size</span></code> [default=30000]</p>
+<p>Number of rows to use for training the NaNImputer model. If the dataset is smaller than train_sample_size, the whole dataset will be used.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">verbose</span></code> [default=True]</p>
+<p>Controls the information output to the console.</p>
+</li>
+</ul>
+</section>
+<section id="id19">
+<h3>Methods<a class="headerlink" href="#id19" title="Permalink to this heading">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">impute(data)</span></code></p>
+<p>Execute NaNs imputation columnwise in a pd.DataFrame</p>
+<blockquote>
+<div><p>Parameters</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code> pd.DataFrame</p>
+<p>dataframe with missing values in a single/multiple columns</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</section>
+<section id="id20">
+<h3>Examples<a class="headerlink" href="#id20" title="Permalink to this heading">¶</a></h3>
+<p>Using NaNImputer with all default parameters</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">imputer</span> <span class="o">=</span> <span class="n">NaNImputer</span><span class="p">()</span>
+<span class="n">df_imputed</span> <span class="o">=</span> <span class="n">imputer</span><span class="o">.</span><span class="n">impute</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="nanimputerlegacy">
+<h2>NaNImputerLegacy<a class="headerlink" href="#nanimputerlegacy" title="Permalink to this heading">¶</a></h2>
+<p>Impute all missing values in a pandas dataframe by xgboost models in multiprocessing mode using a single line of code.</p>
+<section id="id21">
+<h3>Logic<a class="headerlink" href="#id21" title="Permalink to this heading">¶</a></h3>
+<p>With NaNImputerLegacy you can fill missing values in numeric, binary and categoric columns in your pandas dataframe using advanced XGBRegressor/XGBClassifier models with just 1 line of code. Regardless of the data types in your dataframe (string/bool/numeric):</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>all of the columns will be checked for missing values</p></li>
@@ -195,50 +1420,42 @@
 <ul class="simple">
 <li><p>NaNs in pure text columns are not imputed. By default they are filled with ‘Missing_data’ value. Configurable. If disabled - will return these columns with missing values untouched</p></li>
 </ul>
-<p><strong>Initialize NaNImputer</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">NaNImputer</span>
+<p><strong>Initialize NaNImputerLegacy</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">NaNImputerLegacy</span>
 
 <span class="c1"># initialize with default parameters</span>
-<span class="n">imputer</span> <span class="o">=</span> <span class="n">NaNImputer</span><span class="p">()</span>
+<span class="n">imputer</span> <span class="o">=</span> <span class="n">NaNImputerLegacy</span><span class="p">()</span>
 
 <span class="c1"># initialize with selected parameters</span>
-<span class="n">imputer</span> <span class="o">=</span> <span class="n">NaNImputer</span><span class="p">(</span><span class="n">conservative</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-                     <span class="n">n_feats</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
-                     <span class="n">nan_cols</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                     <span class="n">fix_string_nans</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-                     <span class="n">multiprocessing_load</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
-                     <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-                     <span class="n">fill_nans_in_pure_text</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-                     <span class="n">drop_empty_cols</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-                     <span class="n">drop_nan_cols_with_constant</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">imputer</span> <span class="o">=</span> <span class="n">NaNImputerLegacy</span><span class="p">(</span><span class="n">conservative</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                           <span class="n">n_feats</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+                           <span class="n">nan_cols</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                           <span class="n">fix_string_nans</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                           <span class="n">multiprocessing_load</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+                           <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                           <span class="n">fill_nans_in_pure_text</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                           <span class="n">drop_empty_cols</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                           <span class="n">drop_nan_cols_with_constant</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="parameters">
-<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">conservative</span></code> [default=False]</p>
+<section id="id22">
+<h3>Parameters<a class="headerlink" href="#id22" title="Permalink to this heading">¶</a></h3>
 <ul>
-<li><p>Model complexity level used to impute missing values. If <code class="docutils literal notranslate"><span class="pre">True</span></code>: model will be set to less complex and much faster.</p></li>
-</ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">conservative</span></code> [default=False]</p>
+<p>Model complexity level used to impute missing values. If <code class="docutils literal notranslate"><span class="pre">True</span></code>: model will be set to less complex and much faster.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">n_feats</span></code> [default=10]</p>
-<ul>
-<li><p>Number of corellated independent features to be used forcorresponding column (with NaN) model training and imputation.</p></li>
-</ul>
+<p>Number of corellated independent features to be used forcorresponding column (with NaN) model training and imputation.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nan_cols</span></code> [default=None]</p>
-<ul>
-<li><p>List of columns to impute missing values in. If None: all the columns with missing values will be used.</p></li>
-</ul>
+<p>List of columns to impute missing values in. If None: all the columns with missing values will be used.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">fix_string_nans</span></code> [default=True]</p>
-<ul>
-<li><p>Find possible missing values in numeric columns that had been (mistakenly) encoded as strings, E.g. ‘Missing’/’NaN’/’No data’ and replace them with np.nan for further imputation.</p></li>
-</ul>
+<p>Find possible missing values in numeric columns that had been (mistakenly) encoded as strings, E.g. ‘Missing’/’NaN’/’No data’ and replace them with np.nan for further imputation.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">multiprocessing_load</span></code> [default=3]</p>
-<ul>
+<ul class="simple">
 <li><p>Levels of parallel multiprocessing compute
 - 1 = single core
 - 2 = half of all available cores
@@ -246,65 +1463,56 @@
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">verbose</span></code> [default=True]</p>
-<ul>
-<li><p>Print the imputation progress.</p></li>
-</ul>
+<p>Print the imputation progress.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">fill_nans_in_pure_text</span></code> [default=True]</p>
-<ul>
-<li><p>Fill the missing values in text fields by string ‘Missing_data’.Applicable for text fields (not categoric).</p></li>
-</ul>
+<p>Fill the missing values in text fields by string ‘Missing_data’.Applicable for text fields (not categoric).</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">drop_empty_cols</span></code> [default=True]</p>
-<ul>
-<li><p>Drop columns with all NaNs.</p></li>
-</ul>
+<p>Drop columns with all NaNs.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">drop_nan_cols_with_constant</span></code> [default=True]</p>
-<ul>
-<li><p>Drop columns containing NaNs and known values as a single constant.</p></li>
-</ul>
+<p>Drop columns containing NaNs and known values as a single constant.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">feature_selection</span></code> [default=”correlation”]
 - Define algorithm to select most important feats for each column imputation. Quick option: “correlation” is based on selecting n_feats with the highest binary correlation with each column for NaNs imputation. Less quick but more precise: “feature_importance” is based on extracting feature_importances from an xgboost model.</p></li>
 </ul>
 </section>
-<section id="methods">
-<h3>Methods<a class="headerlink" href="#methods" title="Permalink to this headline">¶</a></h3>
+<section id="id23">
+<h3>Methods<a class="headerlink" href="#id23" title="Permalink to this heading">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">impute(data)</span></code></p>
-<ul>
-<li><p>Execute NaNs imputation columnwise in a pd.DataFrame</p>
-<p>Parameters</p>
+<p>Execute NaNs imputation columnwise in a pd.DataFrame</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">data</span></code> pd.DataFrame</p>
 <p>dataframe with missing values in a single/multiple columns</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 </ul>
 </section>
-<section id="examples">
-<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
-<p>Using NaNImputer with all default parameters</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">imputer</span> <span class="o">=</span> <span class="n">NaNImputer</span><span class="p">()</span>
+<section id="id24">
+<h3>Examples<a class="headerlink" href="#id24" title="Permalink to this heading">¶</a></h3>
+<p>Using NaNImputerLegacy with all default parameters</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">imputer</span> <span class="o">=</span> <span class="n">NaNImputerLegacy</span><span class="p">()</span>
 <span class="n">df_imputed</span> <span class="o">=</span> <span class="n">imputer</span><span class="o">.</span><span class="n">impute</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Say you would like to impute missing values in a list of specific columns, use 20 most important features for each of these columns imputation and deploy a half of the available cpu cores</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">imputer</span> <span class="o">=</span> <span class="n">NaNImputer</span><span class="p">(</span><span class="n">nan_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;col1&#39;</span><span class="p">,</span> <span class="s1">&#39;col2&#39;</span><span class="p">],</span> <span class="n">n_feats</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">multiprocessing_load</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">imputer</span> <span class="o">=</span> <span class="n">NaNImputerLegacy</span><span class="p">(</span><span class="n">nan_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;col1&#39;</span><span class="p">,</span> <span class="s1">&#39;col2&#39;</span><span class="p">],</span> <span class="n">n_feats</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">multiprocessing_load</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
 <span class="n">df_imputed</span> <span class="o">=</span> <span class="n">imputer</span><span class="o">.</span><span class="n">impute</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 </section>
 <section id="multicore">
-<h2>Multicore<a class="headerlink" href="#multicore" title="Permalink to this headline">¶</a></h2>
+<h2>Multicore<a class="headerlink" href="#multicore" title="Permalink to this heading">¶</a></h2>
 <p>Execute any function in concurrency using all the available cpu cores.</p>
-<section id="id1">
-<h3>Logic<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<section id="id25">
+<h3>Logic<a class="headerlink" href="#id25" title="Permalink to this heading">¶</a></h3>
 <blockquote>
 <div><p>Multicore module is built on top of concurrent.futures package. Passed iterables are divided into chunks according to the number of workers and passed into separate processes.</p>
 <p>Results are extracted from finished processes and combined into a single/multiple output as per the defined function output requirements.</p>
@@ -322,29 +1530,28 @@
 </pre></div>
 </div>
 </section>
-<section id="id2">
-<h3>Parameters<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<section id="id26">
+<h3>Parameters<a class="headerlink" href="#id26" title="Permalink to this heading">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">workers</span></code> int or bool [default=False]</p>
-<ul class="simple">
-<li><p>Number of workers if passed by user. If <code class="docutils literal notranslate"><span class="pre">False</span></code>: all available cpu cores will be used.</p></li>
-</ul>
+<p>Number of workers if passed by user. If <code class="docutils literal notranslate"><span class="pre">False</span></code>: all available cpu cores will be used.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">multiple_iterables</span></code> bool [default=False]</p>
-<ul class="simple">
-<li><p>If function needs to iterate over multiple iterables, set to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
-</ul>
+<p>If function needs to iterate over multiple iterables, set to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 <p>Multiple iterables must be passed as a list (see examples below).</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">verbose</span></code> bool [default=True]</p>
+<p>Enable function execution progress print to the console</p>
 </li>
 </ul>
 </section>
-<section id="id3">
-<h3>Methods<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<section id="id27">
+<h3>Methods<a class="headerlink" href="#id27" title="Permalink to this heading">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">execute(func,</span> <span class="pre">iterable)</span></code></p>
-<ul>
-<li><p>Execute passed function and iterable(s) in concurrency.</p>
-<p>Parameters</p>
+<p>Execute passed function and iterable(s) in concurrency.</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">func</span></code> function</p>
 <p>function to execute in parallel</p>
@@ -353,13 +1560,12 @@
 <p>data to iterate over</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 </ul>
 </section>
-<section id="id4">
-<h3>Examples<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<section id="id28">
+<h3>Examples<a class="headerlink" href="#id28" title="Permalink to this heading">¶</a></h3>
 <p>Use Multicore with all default parameters</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">multicore</span> <span class="o">=</span> <span class="n">Multicore</span><span class="p">()</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">multicore</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">iterable_list</span><span class="p">)</span>
@@ -373,11 +1579,11 @@
 </section>
 </section>
 <section id="threshtuner">
-<h2>ThreshTuner<a class="headerlink" href="#threshtuner" title="Permalink to this headline">¶</a></h2>
+<h2>ThreshTuner<a class="headerlink" href="#threshtuner" title="Permalink to this heading">¶</a></h2>
 <p>Find the best threshold to split your predictions in a binary classification task. Most applicable for imbalance target cases.
 In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted fraction of 1) will be calculated and saved for every threshold. This will help the identify the appropriate threshold not only based on the score, but also based on the resulting distribution of 0 and 1 in the predictions.</p>
-<section id="id5">
-<h3>Logic<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<section id="id29">
+<h3>Logic<a class="headerlink" href="#id29" title="Permalink to this heading">¶</a></h3>
 <blockquote>
 <div><dl class="simple">
 <dt>Default behavior (only pass the labels and predictions):</dt><dd><ul class="simple">
@@ -412,33 +1618,30 @@ In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted
 </pre></div>
 </div>
 </section>
-<section id="id6">
-<h3>Parameters<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">n_thresholds</span></code> int [default=200]</p>
+<section id="id30">
+<h3>Parameters<a class="headerlink" href="#id30" title="Permalink to this heading">¶</a></h3>
 <ul>
-<li><p>Number of thresholds to test. If not set by user: 200 thresholds will be tested.</p></li>
-</ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">n_thresholds</span></code> int [default=200]</p>
+<p>Number of thresholds to test. If not set by user: 200 thresholds will be tested.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_threshold</span></code> float or int [default=None]</p>
-<ul>
-<li><p>Minimum threshold value. If not set by user: will be infered from labels balance based on fraction_of_1</p></li>
-</ul>
+<p>Minimum threshold value. If not set by user: will be inferred from labels balance based on fraction_of_1</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_threshold</span></code> float or int [default=None]</p>
-<ul>
-<li><p>Maximum threshold value. If not set by user: will be infered from labels balance based on fraction_of_1</p></li>
-</ul>
+<p>Maximum threshold value. If not set by user: will be inferred from labels balance based on fraction_of_1</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">verbose</span></code> bool [default=True]</p>
+<p>Verbose setting for the class instance</p>
 </li>
 </ul>
 </section>
-<section id="id7">
-<h3>Methods<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<section id="id31">
+<h3>Methods<a class="headerlink" href="#id31" title="Permalink to this heading">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">fit(labels,</span> <span class="pre">pred,</span> <span class="pre">loss_func)</span></code></p>
-<ul>
-<li><p>Calculate loss_func results for labels &amp; preds for the defined/default thresholds. Print the threshold(s) with the best loss_func scores</p>
-<p>Parameters</p>
+<p>Calculate loss_func results for labels &amp; preds for the defined/default thresholds. Print the threshold(s) with the best loss_func scores</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">labels</span></code> array/list/series [default=balanced_accuracy_score]</p>
 <p>y_true labels represented as 0 or 1</p>
@@ -450,28 +1653,21 @@ In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted
 <p>loss function for scoring the predictions, e.g. sklearn.metrics.f1_score</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">result()</span></code></p>
-<ul class="simple">
-<li><p>Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for for all the the defined/default thresholds</p></li>
-</ul>
+<p>Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for for all the the defined/default thresholds</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">best_score()</span></code></p>
-<ul class="simple">
-<li><p>Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for the best loss_func_score</p></li>
-</ul>
+<p>Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for the best loss_func_score</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">best_predict_ratio()</span></code></p>
-<ul class="simple">
-<li><p>Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for the (predicted) fraction_of_1 which is closest to the (actual) labels_fraction_of_1</p></li>
-</ul>
+<p>Display a dataframe with thresholds/loss_func_scores/fraction_of_1 for the (predicted) fraction_of_1 which is closest to the (actual) labels_fraction_of_1</p>
 </li>
 </ul>
 </section>
-<section id="id8">
-<h3>Examples<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<section id="id32">
+<h3>Examples<a class="headerlink" href="#id32" title="Permalink to this heading">¶</a></h3>
 <p>Use ThreshTuner with all default parameters</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">thresh</span> <span class="o">=</span> <span class="n">ThreshTuner</span><span class="p">()</span>
 <span class="n">thres</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">pred</span><span class="p">)</span>
@@ -496,13 +1692,13 @@ In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted
 <span class="c1"># return pd.DataFrame with the best predicted fraction_of_1</span>
 <span class="n">thresh</span><span class="o">.</span><span class="n">best_predict_ratio</span><span class="p">()</span>
 <span class="c1"># return the actual labels fraction_of_1</span>
-<span class="n">thresh</span><span class="o">.</span><span class="n">labels_fractio_of_1</span>
+<span class="n">thresh</span><span class="o">.</span><span class="n">labels_fraction_of_1</span>
 </pre></div>
 </div>
 </section>
 </section>
 <section id="stratified-continuous-split">
-<h2>stratified_continuous_split<a class="headerlink" href="#stratified-continuous-split" title="Permalink to this headline">¶</a></h2>
+<h2>stratified_continuous_split<a class="headerlink" href="#stratified-continuous-split" title="Permalink to this heading">¶</a></h2>
 <dl class="simple">
 <dt>Create stratified splits based on either continuous or categoric target variable.</dt><dd><ul class="simple">
 <li><p>For continuous target variable verstack uses binning and categoric split based on bins</p></li>
@@ -519,43 +1715,31 @@ In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted
                                              <span class="n">random_state</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
 </pre></div>
 </div>
-<section id="id9">
-<h3>Parameters<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">X,y,data</span></code></p>
+<section id="id33">
+<h3>Parameters<a class="headerlink" href="#id33" title="Permalink to this heading">¶</a></h3>
 <ul>
-<li><p>data input for the split in pandas.DataFrame/pandas.Series format.</p></li>
-</ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">X,y,data</span></code></p>
+<p>data input for the split in pandas.DataFrame/pandas.Series format.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">stratify</span></code></p>
-<ul>
-<li><p>target variable for the split in pandas/eries format.</p></li>
-</ul>
+<p>target variable for the split in pandas/eries format.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">test_size</span></code> [default=0.3]</p>
-<ul>
-<li><p>test split ratio.</p></li>
-</ul>
+<p>test split ratio.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">train_size</span></code> [default=0.7]</p>
-<ul>
-<li><p>train split ratio.</p></li>
-</ul>
+<p>train split ratio.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">continuous</span></code> [default=True]</p>
-<ul>
-<li><p>stratification target definition. If True, verstack will perform the stratification on the continuous target variable, if False, sklearn.model_selection.train_test_split will be performed with verstack enhancements.</p></li>
-</ul>
+<p>stratification target definition. If True, verstack will perform the stratification on the continuous target variable, if False, sklearn.model_selection.train_test_split will be performed with verstack enhancements.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">random_state</span></code> [default=5]</p>
-<ul>
-<li><p>random state value.</p></li>
-</ul>
+<p>random state value.</p>
 </li>
 </ul>
 </section>
-<section id="id10">
-<h3>Examples<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<section id="id34">
+<h3>Examples<a class="headerlink" href="#id34" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack.stratified_continuous_split</span> <span class="kn">import</span> <span class="n">scsplit</span>
 
 <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">scsplit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">stratify</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;continuous_column_name&#39;</span><span class="p">])</span>
@@ -566,21 +1750,21 @@ In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted
 </section>
 </section>
 <section id="categoric-encoders">
-<h2>categoric_encoders<a class="headerlink" href="#categoric-encoders" title="Permalink to this headline">¶</a></h2>
+<h2>categoric_encoders<a class="headerlink" href="#categoric-encoders" title="Permalink to this heading">¶</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>All the categoric encoders are conveniently integrated to work with pandas.DataFrame. Modules receive pd.DataFrame and kwargs as inputs and return pd.DataFrame with encoded column. All the necessary attributes for further transform/inverse_transform are saved in instance objects and can be seralized (e.g. pickle) for latter application.</p>
 </div>
 <section id="factorizer">
-<h3>Factorizer<a class="headerlink" href="#factorizer" title="Permalink to this headline">¶</a></h3>
+<h3>Factorizer<a class="headerlink" href="#factorizer" title="Permalink to this heading">¶</a></h3>
 <p>Encode categoric column by numeric labels.</p>
-<section id="id11">
-<h4>Logic<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h4>
+<section id="id35">
+<h4>Logic<a class="headerlink" href="#id35" title="Permalink to this heading">¶</a></h4>
 <p>Assign numeric labels starting with 0 to all unique variable’s categories.</p>
 <p>Missing values can be encoded by an integer value (defaults to -1) / float / string or can be left untransformed.</p>
 <p>When transform () - unseen categories will be be represented as NaN.</p>
 <p><strong>Initialize Factorizer</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack.categoric_encoders</span> <span class="kn">import</span> <span class="n">Factorizer</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">Factorizer</span>
 
 <span class="c1"># initialize with default parameters</span>
 <span class="n">factorizer</span> <span class="o">=</span> <span class="n">Factorizer</span><span class="p">()</span>
@@ -590,41 +1774,33 @@ In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted
 </pre></div>
 </div>
 <p><strong>Attributes</strong></p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code></p>
 <ul>
-<li><p>Defined (at init) missing values encoding value.</p></li>
-</ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code></p>
+<p>Defined (at init) missing values encoding value.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">colname</span></code></p>
-<ul>
-<li><p>Defined (at fit_transform()) column that had been transformed.</p></li>
-</ul>
+<p>Defined (at fit_transform()) column that had been transformed.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pattern</span></code></p>
-<ul>
-<li><p>Defined (at fit_transform()) encoding map.</p></li>
-</ul>
+<p>Defined (at fit_transform()) encoding map.</p>
 </li>
 </ul>
 </section>
-<section id="id12">
-<h4>Parameters<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h4>
-<ul class="simple">
+<section id="id36">
+<h4>Parameters<a class="headerlink" href="#id36" title="Permalink to this heading">¶</a></h4>
+<ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code> [default=-1]</p>
-<ul>
-<li><p>Missing values encoding value. Can take int/float/str/np.nan values.</p></li>
-</ul>
+<p>Missing values encoding value. Can take int/float/str/np.nan values.</p>
 </li>
 </ul>
 </section>
-<section id="id13">
-<h4>Methods<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h4>
+<section id="id37">
+<h4>Methods<a class="headerlink" href="#id37" title="Permalink to this heading">¶</a></h4>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">fit_transform(df,</span> <span class="pre">colname)</span></code></p>
-<ul>
-<li><p>Fit Factorizer to data and return transformed data.</p>
-<p>Parameters</p>
+<p>Fit Factorizer to data and return transformed data.</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
 <p>df containing the colname to transform.</p>
@@ -633,37 +1809,34 @@ In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted
 <p>Column name in df to be transformed.</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">transform(df)</span></code></p>
-<ul>
-<li><p>Apply the fitted Factorizer to new data and return transformed data. Unseen categories will be represented by NaN.</p>
-<p>Parameters</p>
+<p>Apply the fitted Factorizer to new data and return transformed data. Unseen categories will be represented by NaN.</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
 <p>Data containing the colname to transform.</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">inverse_transform(df)</span></code></p>
-<ul>
-<li><p>Inverse transform data that had been encoded by Factorizer. Data must contain colname that was passed at fit_transform().</p>
-<p>Parameters</p>
+<p>Inverse transform data that had been encoded by Factorizer. Data must contain colname that was passed at fit_transform().</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
 <p>Data containing the colname to transform.</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 </ul>
 </section>
-<section id="id14">
-<h4>Examples<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h4>
+<section id="id38">
+<h4>Examples<a class="headerlink" href="#id38" title="Permalink to this heading">¶</a></h4>
 <p>Use with default na_sentinel:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">factorizer</span> <span class="o">=</span> <span class="n">Factorizer</span><span class="p">()</span>
 <span class="n">train_encoded</span> <span class="o">=</span> <span class="n">factorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">)</span> <span class="c1"># will encode NaN values by -1</span>
@@ -681,15 +1854,16 @@ In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted
 </section>
 </section>
 <section id="onehotencoder">
-<h3>OneHotEncoder<a class="headerlink" href="#onehotencoder" title="Permalink to this headline">¶</a></h3>
+<h3>OneHotEncoder<a class="headerlink" href="#onehotencoder" title="Permalink to this heading">¶</a></h3>
 <p>Encode categoric column by a set of binary columns.</p>
-<section id="id15">
-<h4>Logic<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h4>
+<section id="id39">
+<h4>Logic<a class="headerlink" href="#id39" title="Permalink to this heading">¶</a></h4>
 <p>Categoric ‘column’:[‘a’,’b’,’c’] will be represented by three binary columns ‘a’, ‘b’, ‘c’. Original categoric ‘column’ is droped.</p>
 <p>Missing values can be represented by a separate column or omited.</p>
 <p>When transform() - unseen categories will not be represented by new columns, missing categories will be represented by empty (all zeros) columns.</p>
 <p><strong>Initialize OneHotEncoder</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ohe</span> <span class="o">=</span> <span class="n">OneHotEncoder</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">OneHotEncoder</span>
+<span class="n">ohe</span> <span class="o">=</span> <span class="n">OneHotEncoder</span><span class="p">()</span>
 <span class="n">train_encoded</span> <span class="o">=</span> <span class="n">ohe</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">)</span> <span class="c1"># will create a separate column for NaN values (if any)</span>
 <span class="n">test_encoded</span> <span class="o">=</span> <span class="n">ohe</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
 
@@ -698,41 +1872,33 @@ In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted
 </pre></div>
 </div>
 <p><strong>Attributes</strong></p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code></p>
 <ul>
-<li><p>Defined (at init) missing values encoding value.</p></li>
-</ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code></p>
+<p>Defined (at init) missing values encoding value.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">colname</span></code></p>
-<ul>
-<li><p>Defined (at fit_transform()) column that had been transformed.</p></li>
-</ul>
+<p>Defined (at fit_transform()) column that had been transformed.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">categories</span></code></p>
-<ul>
-<li><p>Defined (at fit_transform()) unique class categories which will be represented by binary columns.</p></li>
-</ul>
+<p>Defined (at fit_transform()) unique class categories which will be represented by binary columns.</p>
 </li>
 </ul>
 </section>
-<section id="id16">
-<h4>Parameters<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h4>
-<ul class="simple">
+<section id="id40">
+<h4>Parameters<a class="headerlink" href="#id40" title="Permalink to this heading">¶</a></h4>
+<ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code> [default=True]</p>
-<ul>
-<li><p>If True: create separate class column for NaN values.</p></li>
-</ul>
+<p>If True: create separate class column for NaN values.</p>
 </li>
 </ul>
 </section>
-<section id="id17">
-<h4>Methods<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h4>
+<section id="id41">
+<h4>Methods<a class="headerlink" href="#id41" title="Permalink to this heading">¶</a></h4>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">fit_transform(df,</span> <span class="pre">colname,</span> <span class="pre">prefix)</span></code></p>
-<ul>
-<li><p>Fit OneHotEncoder to data and return transformed data.</p>
-<p>Parameters</p>
+<p>Fit OneHotEncoder to data and return transformed data.</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
 <p>df containing the colname to transform.</p>
@@ -744,37 +1910,34 @@ In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted
 <p>String to append DataFrame column names. The default is None.</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">transform(df)</span></code></p>
-<ul>
-<li><p>Apply the fitted OneHotEncoder to new data and return transformed data. Unseen categories will not be represented by new columns, missing categories will be represented by empty (all zeros) columns.</p>
-<p>Parameters</p>
+<p>Apply the fitted OneHotEncoder to new data and return transformed data. Unseen categories will not be represented by new columns, missing categories will be represented by empty (all zeros) columns.</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
 <p>Data containing the colname to transform.</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">inverse_transform(df)</span></code></p>
-<ul>
-<li><p>Inverse transform data that had been encoded by OneHotEncoder. Data must contain one-hot-encoded columns that was created at fit_transform().</p>
-<p>Parameters</p>
+<p>Inverse transform data that had been encoded by OneHotEncoder. Data must contain one-hot-encoded columns that was created at fit_transform().</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
 <p>Data containing the colname to transform.</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 </ul>
 </section>
-<section id="id18">
-<h4>Examples<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h4>
+<section id="id42">
+<h4>Examples<a class="headerlink" href="#id42" title="Permalink to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ohe</span> <span class="o">=</span> <span class="n">OneHotEncoder</span><span class="p">()</span>
 <span class="n">train_encoded</span> <span class="o">=</span> <span class="n">ohe</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;colname&#39;</span><span class="p">)</span>
 <span class="n">test_encoded</span> <span class="o">=</span> <span class="n">ohe</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
@@ -786,10 +1949,10 @@ In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted
 </section>
 </section>
 <section id="frequencyencoder">
-<h3>FrequencyEncoder<a class="headerlink" href="#frequencyencoder" title="Permalink to this headline">¶</a></h3>
+<h3>FrequencyEncoder<a class="headerlink" href="#frequencyencoder" title="Permalink to this heading">¶</a></h3>
 <p>Encoder to represent categoric variable classes’ frequency across the dataset.</p>
-<section id="id19">
-<h4>Logic<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h4>
+<section id="id43">
+<h4>Logic<a class="headerlink" href="#id43" title="Permalink to this heading">¶</a></h4>
 <blockquote>
 <div><p>Original column [‘a’, ‘a’, ‘a’, ‘b’, ‘b’, ‘c’, ‘c’, ‘c’, ‘c’, np.nan]</p>
 <p>Encoded column  [0.3, 0.3, 0.3, 0.2, 0.2, 0.4, 0.4, 0.4, 0.4, 0.1] # np.nan]</p>
@@ -798,7 +1961,8 @@ In addition to thresholds &amp; loss_func scores, the predicted_ratio (predicted
 <p>Can handle missing values - encode NaN by NaN frequency or leave NaN values untransformed.
 Resulting frequencies are normalized as a percentage.</p>
 <p><strong>Initialize FrequencyEncoder</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fe</span> <span class="o">=</span> <span class="n">FrequencyEncoder</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">FrequencyEncoder</span>
+<span class="n">fe</span> <span class="o">=</span> <span class="n">FrequencyEncoder</span><span class="p">()</span>
 <span class="n">train_encoded</span> <span class="o">=</span> <span class="n">fe</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">)</span>
 <span class="n">test_encoded</span> <span class="o">=</span> <span class="n">fe</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
 
@@ -807,26 +1971,20 @@ Resulting frequencies are normalized as a percentage.</p>
 </pre></div>
 </div>
 <p><strong>Attributes</strong></p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code></p>
 <ul>
-<li><p>Defined (at init) missing values encoding value.</p></li>
-</ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code></p>
+<p>Defined (at init) missing values encoding value.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">colname</span></code></p>
-<ul>
-<li><p>Defined (at fit_transform()) column that had been transformed.</p></li>
-</ul>
+<p>Defined (at fit_transform()) column that had been transformed.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pattern</span></code></p>
-<ul>
-<li><p>Defined (at fit_transform()) encoding map.</p></li>
-</ul>
+<p>Defined (at fit_transform()) encoding map.</p>
 </li>
 </ul>
 </section>
-<section id="id20">
-<h4>Parameters<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h4>
+<section id="id44">
+<h4>Parameters<a class="headerlink" href="#id44" title="Permalink to this heading">¶</a></h4>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code> [default=True]</p>
 <ul>
@@ -835,13 +1993,13 @@ Resulting frequencies are normalized as a percentage.</p>
 </li>
 </ul>
 </section>
-<section id="id21">
-<h4>Methods<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h4>
+<section id="id45">
+<h4>Methods<a class="headerlink" href="#id45" title="Permalink to this heading">¶</a></h4>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">fit_transform(df,</span> <span class="pre">colname)</span></code></p>
-<ul>
-<li><p>Fit FrequencyEncoder to data and return transformed data.</p>
-<p>Parameters</p>
+<p>Fit FrequencyEncoder to data and return transformed data.</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
 <p>df containing the colname to transform.</p>
@@ -850,37 +2008,34 @@ Resulting frequencies are normalized as a percentage.</p>
 <p>Column name in df to be transformed.</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">transform(df)</span></code></p>
-<ul>
-<li><p>Apply the fitted FrequencyEncoder to new data and return transformed data. Unseen categories will be represented as NaN.</p>
-<p>Parameters</p>
+<p>Apply the fitted FrequencyEncoder to new data and return transformed data. Unseen categories will be represented as NaN.</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
 <p>Data containing the colname to transform.</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">inverse_transform(df)</span></code></p>
-<ul>
-<li><p>Inverse transform data that had been encoded by FrequencyEncoder. Data must contain colname that was passed at fit_transform().</p>
-<p>Parameters</p>
+<p>Inverse transform data that had been encoded by FrequencyEncoder. Data must contain colname that was passed at fit_transform().</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
 <p>Data containing the colname to transform.</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 </ul>
 </section>
-<section id="id22">
-<h4>Examples<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h4>
+<section id="id46">
+<h4>Examples<a class="headerlink" href="#id46" title="Permalink to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">frequency_encoder</span> <span class="o">=</span> <span class="n">FrequencyEncoder</span><span class="p">()</span>
 <span class="n">train_encoded</span> <span class="o">=</span> <span class="n">frequency_encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">)</span>
 <span class="n">test_encoded</span> <span class="o">=</span> <span class="n">frequency_encoder</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
@@ -892,10 +2047,10 @@ Resulting frequencies are normalized as a percentage.</p>
 </section>
 </section>
 <section id="meantargetencoder">
-<h3>MeanTargetEncoder<a class="headerlink" href="#meantargetencoder" title="Permalink to this headline">¶</a></h3>
+<h3>MeanTargetEncoder<a class="headerlink" href="#meantargetencoder" title="Permalink to this heading">¶</a></h3>
 <p>Encode train cat cols by mean target value for category.</p>
-<section id="id23">
-<h4>Logic<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h4>
+<section id="id47">
+<h4>Logic<a class="headerlink" href="#id47" title="Permalink to this heading">¶</a></h4>
 <p>To avoid target leakage train set encoding is performed by breaking data into 5 folds &amp;
 encoding categories of each fold with their respective target mean values calculated on the other 4 folds.
 This will introduce minor noize to train data encoding (at fit_transform()) as a normalization technique.
@@ -903,7 +2058,8 @@ Test set (transform()) is encoded without normalization.</p>
 <p>When transform() - unseen categories will be represented by the global target mean.</p>
 <p>Can handle missing values - encode NaN by global mean or leave NaN values untransformed.</p>
 <p><strong>Initialize MeanTargetEncoder</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mean_target_encoder</span> <span class="o">=</span> <span class="n">MeanTargetEncoder</span><span class="p">(</span><span class="n">save_inverse_transform</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">MeanTargetEncoder</span>
+<span class="n">mean_target_encoder</span> <span class="o">=</span> <span class="n">MeanTargetEncoder</span><span class="p">(</span><span class="n">save_inverse_transform</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 <span class="n">train_encoded</span> <span class="o">=</span> <span class="n">mean_target_encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">,</span> <span class="s1">&#39;targetname&#39;</span><span class="p">)</span>
 <span class="n">test_encoded</span> <span class="o">=</span> <span class="n">mean_target_encoder</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
 
@@ -912,51 +2068,39 @@ Test set (transform()) is encoded without normalization.</p>
 </pre></div>
 </div>
 <p><strong>Attributes</strong></p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code></p>
 <ul>
-<li><p>Defined (at init) missing values encoding value.</p></li>
-</ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code></p>
+<p>Defined (at init) missing values encoding value.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">colname</span></code></p>
-<ul>
-<li><p>Defined (at fit_transform()) column that had been transformed.</p></li>
-</ul>
+<p>Defined (at fit_transform()) column that had been transformed.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pattern</span></code></p>
-<ul>
-<li><p>Defined (at fit_transform()) encoding map.</p></li>
-</ul>
+<p>Defined (at fit_transform()) encoding map.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">save_inverse_transform</span></code></p>
-<ul>
-<li><p>Defined (at init) flag for saving the pattern for inverse transform.</p></li>
-</ul>
+<p>Defined (at init) flag for saving the pattern for inverse transform.</p>
 </li>
 </ul>
 </section>
-<section id="id24">
-<h4>Parameters<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h4>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code> [default=True]</p>
+<section id="id48">
+<h4>Parameters<a class="headerlink" href="#id48" title="Permalink to this heading">¶</a></h4>
 <ul>
-<li><p>If True: Encode NaN values by target global mean. If False return np.nan in the encoded column.</p></li>
-</ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code> [default=True]</p>
+<p>If True: Encode NaN values by target global mean. If False return np.nan in the encoded column.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">save_inverse_transform</span></code> [default=False]</p>
-<ul>
-<li><p>If True: Saves mean target values for each category at each encoding fold. Enable if need to inverse_transform the encoded data. Defaults to False because for large datasets saved pattern can significantly increase instance object size.</p></li>
-</ul>
+<p>If True: Saves mean target values for each category at each encoding fold. Enable if need to inverse_transform the encoded data. Defaults to False because for large datasets saved pattern can significantly increase instance object size.</p>
 </li>
 </ul>
 </section>
-<section id="id25">
-<h4>Methods<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h4>
+<section id="id49">
+<h4>Methods<a class="headerlink" href="#id49" title="Permalink to this heading">¶</a></h4>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">fit_transform(df,</span> <span class="pre">colname,</span> <span class="pre">targetname)</span></code></p>
-<ul>
-<li><p>Fit MeanTargetEncoder to data and return transformed data.</p>
-<p>Parameters</p>
+<p>Fit MeanTargetEncoder to data and return transformed data.</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
 <p>df containing the colname to transform.</p>
@@ -968,37 +2112,34 @@ Test set (transform()) is encoded without normalization.</p>
 <p>Target column name in df for extracting the mean values for each colname category.</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">transform(df)</span></code></p>
-<ul>
-<li><p>Apply the fitted MeanTargetEncoder to new data and return transformed data. Unseen categories will be encoded by the global target mean.</p>
-<p>Parameters</p>
+<p>Apply the fitted MeanTargetEncoder to new data and return transformed data. Unseen categories will be encoded by the global target mean.</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
 <p>Data containing the colname to transform.</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">inverse_transform(df)</span></code></p>
-<ul>
-<li><p>Inverse transform data that had been encoded by MeanTargetEncoder. Data must contain colname that was passed at fit_transform().</p>
-<p>Parameters</p>
+<p>Inverse transform data that had been encoded by MeanTargetEncoder. Data must contain colname that was passed at fit_transform().</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
 <p>Data containing the colname to transform.</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 </ul>
 </section>
-<section id="id26">
-<h4>Examples<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h4>
+<section id="id50">
+<h4>Examples<a class="headerlink" href="#id50" title="Permalink to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mean_target_encoder</span> <span class="o">=</span> <span class="n">MeanTargetEncoder</span><span class="p">(</span><span class="n">save_inverse_transform</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 <span class="n">train_encoded</span> <span class="o">=</span> <span class="n">mean_target_encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">,</span> <span class="s1">&#39;targetname&#39;</span><span class="p">)</span>
 <span class="n">test_encoded</span> <span class="o">=</span> <span class="n">mean_target_encoder</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
@@ -1010,17 +2151,18 @@ Test set (transform()) is encoded without normalization.</p>
 </section>
 </section>
 <section id="weightofevidenceencoder">
-<h3>WeightOfEvidenceEncoder<a class="headerlink" href="#weightofevidenceencoder" title="Permalink to this headline">¶</a></h3>
+<h3>WeightOfEvidenceEncoder<a class="headerlink" href="#weightofevidenceencoder" title="Permalink to this heading">¶</a></h3>
 <p>Encoder to represent categoric variables by Weight of Evidence in regards to the binary target variable.</p>
-<section id="id27">
-<h4>Logic<a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h4>
+<section id="id51">
+<h4>Logic<a class="headerlink" href="#id51" title="Permalink to this heading">¶</a></h4>
 <p>Built on top of sclearn package <a class="reference external" href="https://contrib.scikit-learn.org/category_encoders/woe.html#">category_encoders.woe.WOEEncoder</a>.</p>
 <p>If encoded value is negative - it represents a category that is more heavily enclided to the negative target class (0).
 Positive encoding result represents inclination to the positive target class (1).</p>
 <p>When fit_transform() is used on a train set, variable is encoded with adding minor noize to reduce the risk of overfitting.</p>
 <p>Can handle missing values - encode NaN by zero WoE or leave NaN untransformed.</p>
 <p><strong>Initialize WeightOfEvidenceEncoder</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">WOE</span> <span class="o">=</span> <span class="n">WeightOfEvidenceEncoder</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack</span> <span class="kn">import</span> <span class="n">WeightOfEvidenceEncoder</span>
+<span class="n">WOE</span> <span class="o">=</span> <span class="n">WeightOfEvidenceEncoder</span><span class="p">()</span>
 <span class="n">train_encoded</span> <span class="o">=</span> <span class="n">WOE</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">,</span> <span class="s1">&#39;targetname&#39;</span><span class="p">)</span>
 <span class="n">test_encoded</span> <span class="o">=</span> <span class="n">WOE</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
 
@@ -1029,46 +2171,36 @@ Positive encoding result represents inclination to the positive target class (1)
 </pre></div>
 </div>
 <p><strong>Attributes</strong></p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code></p>
 <ul>
-<li><p>Defined (at init) missing values encoding value.</p></li>
-</ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code></p>
+<p>Defined (at init) missing values encoding value.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">colname</span></code></p>
-<ul>
-<li><p>Defined (at fit_transform()) column that had been transformed.</p></li>
-</ul>
+<p>Defined (at fit_transform()) column that had been transformed.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">params</span></code></p>
-<ul>
-<li><p>Defined (at init) category_encoders.woe.WOEEncoder <a class="reference external" href="https://contrib.scikit-learn.org/category_encoders/woe.html#">parameters</a></p></li>
-</ul>
+<p>Defined (at init) category_encoders.woe.WOEEncoder <a class="reference external" href="https://contrib.scikit-learn.org/category_encoders/woe.html#">parameters</a></p>
 </li>
 </ul>
 </section>
-<section id="id29">
-<h4>Parameters<a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h4>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code> [default=True]</p>
+<section id="id53">
+<h4>Parameters<a class="headerlink" href="#id53" title="Permalink to this heading">¶</a></h4>
 <ul>
-<li><p>If True: Encode NaN values by zero WoE. If False return np.nan in the encoded column.</p></li>
-</ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">na_sentinel</span></code> [default=True]</p>
+<p>If True: Encode NaN values by zero WoE. If False return np.nan in the encoded column.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">kwargs</span></code></p>
-<ul>
-<li><p>category_encoders.woe.WOEEncoder <a class="reference external" href="https://contrib.scikit-learn.org/category_encoders/woe.html#">parameters</a>. Following parameters are set by default: <code class="docutils literal notranslate"><span class="pre">'randomized':True</span></code>, <code class="docutils literal notranslate"><span class="pre">'random_state':42</span></code>, <code class="docutils literal notranslate"><span class="pre">'handle_missing':'return_nan'</span></code> &lt;- infered from na_sentinel setting.</p></li>
-</ul>
+<p>category_encoders.woe.WOEEncoder <a class="reference external" href="https://contrib.scikit-learn.org/category_encoders/woe.html#">parameters</a>. Following parameters are set by default: <code class="docutils literal notranslate"><span class="pre">'randomized':True</span></code>, <code class="docutils literal notranslate"><span class="pre">'random_state':42</span></code>, <code class="docutils literal notranslate"><span class="pre">'handle_missing':'return_nan'</span></code> &lt;- inferred from na_sentinel setting.</p>
 </li>
 </ul>
 </section>
-<section id="id31">
-<h4>Methods<a class="headerlink" href="#id31" title="Permalink to this headline">¶</a></h4>
+<section id="id55">
+<h4>Methods<a class="headerlink" href="#id55" title="Permalink to this heading">¶</a></h4>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">fit_transform(df,</span> <span class="pre">colname,</span> <span class="pre">targetname)</span></code></p>
-<ul>
-<li><p>Fit WeightOfEvidenceEncoder to data and return transformed data.</p>
-<p>Parameters</p>
+<p>Fit WeightOfEvidenceEncoder to data and return transformed data.</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
 <p>df containing the colname to transform.</p>
@@ -1080,37 +2212,34 @@ Positive encoding result represents inclination to the positive target class (1)
 <p>Target column name in df for calculating WoE for each colname category.</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">transform(df)</span></code></p>
-<ul>
-<li><p>Apply the fitted WeightOfEvidenceEncoder to new data and return transformed data. Unseen categories’ WoE is set to 0.</p>
-<p>Parameters</p>
+<p>Apply the fitted WeightOfEvidenceEncoder to new data and return transformed data. Unseen categories’ WoE is set to 0.</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
 <p>Data containing the colname to transform.</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">inverse_transform(df)</span></code></p>
-<ul>
-<li><p>Inverse transform data that had been encoded by WeightOfEvidenceEncoder. Data must contain colname that was passed at fit_transform().</p>
-<p>Parameters</p>
+<p>Inverse transform data that had been encoded by WeightOfEvidenceEncoder. Data must contain colname that was passed at fit_transform().</p>
+<blockquote>
+<div><p>Parameters</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> pd.DataFrame</p>
 <p>Data containing the colname to transform.</p>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </li>
 </ul>
 </section>
-<section id="id32">
-<h4>Examples<a class="headerlink" href="#id32" title="Permalink to this headline">¶</a></h4>
+<section id="id56">
+<h4>Examples<a class="headerlink" href="#id56" title="Permalink to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">WOE</span> <span class="o">=</span> <span class="n">WeightOfEvidenceEncoder</span><span class="p">()</span>
 <span class="n">train_encoded</span> <span class="o">=</span> <span class="n">WOE</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;colname&#39;</span><span class="p">,</span> <span class="s1">&#39;targetname&#39;</span><span class="p">)</span>
 <span class="n">test_encoded</span> <span class="o">=</span> <span class="n">WOE</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
@@ -1123,13 +2252,13 @@ Positive encoding result represents inclination to the positive target class (1)
 </section>
 </section>
 <section id="timer">
-<h2>timer<a class="headerlink" href="#timer" title="Permalink to this headline">¶</a></h2>
+<h2>timer<a class="headerlink" href="#timer" title="Permalink to this heading">¶</a></h2>
 <p>Timer decorator to measure any function execution time and create elapsed time output: hours/minues/seconds will be calculated and returned conveniently.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">verstack</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">timer</span>
 </pre></div>
 </div>
-<section id="id33">
-<h3>Examples<a class="headerlink" href="#id33" title="Permalink to this headline">¶</a></h3>
+<section id="id57">
+<h3>Examples<a class="headerlink" href="#id57" title="Permalink to this heading">¶</a></h3>
 <p>timer is a decorator function: it must placed above the function (that needs to be timed) definition</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack.tools</span> <span class="kn">import</span> <span class="n">timer</span>
 
@@ -1145,8 +2274,122 @@ Positive encoding result represents inclination to the positive target class (1)
 </div>
 </section>
 </section>
+<section id="printer">
+<h2>Printer<a class="headerlink" href="#printer" title="Permalink to this heading">¶</a></h2>
+<p>Class to execute print statements subject to verbose argument and order of printed message.
+Includes errors stack trace if order == ‘error’.
+Add print statements to your program with different level of indentation for different messages and have them printed subject on the global verbosity setting in your program. A convenient way to set up verbosity for large projects without having to define all the print statements with <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">verbose</span> <span class="pre">==</span> <span class="pre">True</span></code>. Just pass the verbose argument to the Printer class instance at initialisation, devine all the print messages with Printer.print() instaed of builtin print() and if <code class="docutils literal notranslate"><span class="pre">verbose==True</span></code> the messages will be printed, else only the messages with <code class="docutils literal notranslate"><span class="pre">order=='error'</span></code> will be printed. Also includes the force_print argument, which will print the selected messages even if <code class="docutils literal notranslate"><span class="pre">verbose==False</span></code>. Applicable for non-error important messages that need to be printed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">verstack.tools</span> <span class="kn">import</span> <span class="n">Printer</span>
+</pre></div>
+</div>
+<section id="id58">
+<h3>Examples<a class="headerlink" href="#id58" title="Permalink to this heading">¶</a></h3>
+<p>Abstract example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>from verstack.tools import Printer
+def long_program_with_multiple_modules(verbose):
+    printer = Printer(verbose=verbose)
+
+    printer.print(&#39;Program header&#39;, order = 0)
+    printer.print(&#39;Module/major step/epoch name&#39;, order = 1)
+    printer.print(&#39;Function inside module name&#39;, order = 2)
+    printer.print(&#39;func first order result 1&#39;, order = 3)
+    printer.print(&#39;func first order result 2&#39;, order = 3)
+    printer.print(&#39;func second order result 1&#39;, order = 4)
+    printer.print(&#39;func second order result 2&#39;, order = 4)
+    printer.print(&#39;func third order result 1&#39;, order = 5)
+    printer.print(&#39;func third order result 2&#39;, order = 5)
+    printer.print(breakline = &#39;=&#39;)
+
+    printer.print(&#39;message with breakline below&#39;, order = 1, breakline=&#39;.&#39;)
+
+    try:
+        5/0
+    except:
+        printer.print(&#39;5/0 division not executed&#39;, order=&#39;error&#39;)
+
+long_program_with_multiple_modules(verbose=True)
+
+&gt;&gt;&gt; ---------------------------------------------------------------------------
+&gt;&gt;&gt; Program header
+&gt;&gt;&gt; ---------------------------------------------------------------------------
+&gt;&gt;&gt;
+&gt;&gt;&gt;  * Module/major step/epoch name
+&gt;&gt;&gt;
+&gt;&gt;&gt;    - Function inside module name
+&gt;&gt;&gt;      . func first order result 1
+&gt;&gt;&gt;      . func first order result 2
+&gt;&gt;&gt;      .. func second order result 1
+&gt;&gt;&gt;      .. func second order result 2
+&gt;&gt;&gt;      ... func third order result 1
+&gt;&gt;&gt;      ... func third order result 2
+&gt;&gt;&gt;  ===========================================================================
+&gt;&gt;&gt;
+&gt;&gt;&gt;  * message with breakline below
+&gt;&gt;&gt;  ...........................................................................
+&gt;&gt;&gt; Traceback (most recent call last):
+&gt;&gt;&gt;   File &quot;&lt;ipython-input-37-f1aa2de68f72&gt;&quot;, line 18, in long_program_with_multiple_modules
+&gt;&gt;&gt;     5/0
+&gt;&gt;&gt; ZeroDivisionError: division by zero
+&gt;&gt;&gt;
+&gt;&gt;&gt; ! 5/0 division not executed
+</pre></div>
+</div>
+<p>Applied example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>from verstack.tools import Printer
+
+# define a function/program/code
+
+def do_something(a, b, c, verbose):
+    printer = Printer(verbose=verbose)
+    printer.print(&#39;Executing do_something() function&#39;, order = 0)
+    printer.print(&#39;Running addition operations&#39;, order = 1)
+    printer.print(&#39;adding a+b and b+c&#39;, order = 2)
+    result_1 = a + b
+    result_2 = b + c
+    printer.print(f&#39;a + b result is {result_1}&#39;, order = 3)
+    printer.print(f&#39;b + c result is {result_2}&#39;, order = 3)
+
+    printer.print(&#39;Trying to make an error&#39;, order = 1)
+    try:
+        a / b
+    except ZeroDivisionError:
+        printer.print(&#39;Argument b can not be zero&#39;, order = &#39;error&#39;)
+
+do_something(1,0,5, verbose = False)
+
+&gt;&gt;&gt; Traceback (most recent call last):
+&gt;&gt;&gt; File &quot;&lt;ipython-input-17-bb8dafd4f34d&gt;&quot;, line 9, in do_something
+&gt;&gt;&gt;   a / b
+&gt;&gt;&gt; ZeroDivisionError: division by zero
+
+&gt;&gt;&gt; ! Argument b can not be zero
+# only error message gets printed
+
+do_something(1,0,5, verbose = True)
+
+&gt;&gt;&gt; ---------------------------------------------------------------------------
+&gt;&gt;&gt; Executing do_something() function
+&gt;&gt;&gt; ---------------------------------------------------------------------------
+&gt;&gt;&gt;
+&gt;&gt;&gt;  * Running addition operations
+&gt;&gt;&gt;
+&gt;&gt;&gt;    - adding a+b and b+c
+&gt;&gt;&gt;      . a + b result is 4
+&gt;&gt;&gt;      . b + c result is 8
+&gt;&gt;&gt;
+&gt;&gt;&gt;  * Trying to make an error
+&gt;&gt;&gt;   Traceback (most recent call last):
+&gt;&gt;&gt;     File &quot;&lt;ipython-input-38-050165db3ba2&gt;&quot;, line 13, in do_something
+&gt;&gt;&gt;       a / b
+&gt;&gt;&gt;   ZeroDivisionError: division by zero
+&gt;&gt;&gt;
+&gt;&gt;&gt; ! Argument b can not be zero
+</pre></div>
+</div>
+</section>
+</section>
 <section id="links">
-<h2>Links<a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h2>
+<h2>Links<a class="headerlink" href="#links" title="Permalink to this heading">¶</a></h2>
 <p><a class="reference external" href="https://github.com/DanilZherebtsov/verstack">Git</a></p>
 <p><a class="reference external" href="https://pypi.org/project/verstack/">pypi</a></p>
 <p><a class="reference external" href="https://www.linkedin.com/in/danil-zherebtsov/">author</a></p>
@@ -1166,7 +2409,7 @@ Positive encoding result represents inclination to the positive target class (1)
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="nav-item nav-item-0"><a href="#">verstack 0.1.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">verstack 1.0.0 Documentation</a></li> 
+        <li class="nav-item nav-item-this"><a href="">verstack 3.7.1 Documentation</a></li> 
       </ul>
     </div>
 <script type="text/javascript">
