@@ -822,7 +822,7 @@ By default LGBMTuner will:
   User may define other lightgbm parameters and their respective grids for optimization by changing the LGBM.grid dictionary after the class is initialized, please refer to the examples below.
 
 .. note:: 
-  LGBM categorical_feature is supported. Unique values within each categoric feature must be encoded by consecutive integers and casted to 'categoric' dtype: df['categoric_column'] = df['categoric_column'].astype('categoric') before sending the data to LGBMTuner.fit() method.
+  LGBM categorical_feature is supported. According to `LGBM docs <https://lightgbm.readthedocs.io/en/latest/Parameters.html#categorical_feature>`_ Unique values within each categoric feature must be encoded by consecutive integers and casted to 'categoric' dtype: df['categoric_column'] = df['categoric_column'].astype('categoric') before sending the data to LGBMTuner.fit() method.
 
 **Initialize LGBMTuner**
 
