@@ -798,7 +798,7 @@ Logic
 
 The only required user inputs are the X (features), y (labels) and evaluation metric name, LGBMTuner will handle the rest.
 
-By default LGBMTuner will:
+By default LGBMTuner will automatically:
 1. Configure various LGBM model hyperparameters for regression or classification based on input data
  - lgbm model type (regression/classification) is inferred from the labels and evaluation metric (passed by user)
  - optimization metric may be different from the evaluation metric (passed by user). LGBMTuner at hyperparameters search stage imploys the error reduction strategy, thus:
@@ -823,6 +823,9 @@ By default LGBMTuner will:
 
 .. note:: 
   LGBM categorical_feature is supported. According to `LGBM docs <https://lightgbm.readthedocs.io/en/latest/Parameters.html#categorical_feature>`_ Unique values within each categoric feature must be encoded by consecutive integers and casted to 'categoric' dtype: df['categoric_column'] = df['categoric_column'].astype('categoric') before sending the data to LGBMTuner.fit() method.
+
+.. note:: 
+  All other LGBM configurations are supported from version 1.1.0. Pass the desired parameters to a `custom_lgbm_params` argument at LGBMTuner init.
 
 **Initialize LGBMTuner**
 
@@ -873,6 +876,10 @@ Parameters (keyword arguments only)
 * ``device_type`` [default="cpu"]
 
   Device for the tree learning, you can use GPU to achieve the faster learning. Acceptable parameters are "cpu", "gpu", "cuda", "cuda_exp"
+
+* ``custom_lgbm_params`` [default={}]
+
+  Any supported LGBM parameters to be set for the model. Please refer to the `LGBM docs <https://lightgbm.readthedocs.io/en/latest/Parameters.html>`_ for the full list of parameters and their descriptions
 
 * ``eval_results_callback`` [default=None]
 
@@ -1111,7 +1118,14 @@ LGBMTuner with custom settings
   tuner.plot_intermediate_values(interactive = True)
   tuner.predict(test, threshold = 0.3)
 
-LGBMTuner with custom optimization parameters
+LGBMTuner with custom LGBM fixed settings
+
+.. code-block:: python
+  my_custom_params = {'is_unbalance': True, 'zero_as_missing': True}
+  
+  tuner = LGBMTuner(metric = 'auc', trials = 300, custom_lgbm_params = my_custom_params)
+
+LGBMTuner with custom optimization parameters for gridsearch
 
 .. code-block:: python
 
@@ -1143,7 +1157,6 @@ LGBMTuner with custom optimization parameters
   # - tuple (will be used to define the uniform grid range between the min(tuple), max(tuple))
   # - dict with keywords 'choice'/'low'/'high'
   tuner.grid['boosting_type'] = ['gbdt', 'rf'] 
-  tuner.grid['max_data_in_leaf'] = {'choice' : [40, 50, 70]}
   tuner.grid['learning_rate'] = (0.001, 0.1)
   tuner.grid['lambda_l1'] = {'low': 0.1, 'high': 5}
   tuner.fit(X, y)

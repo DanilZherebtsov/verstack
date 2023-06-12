@@ -28,7 +28,7 @@ supported_gridsearch_params = [
 
 class LGBMTuner:
 
-    __version__ = '1.0.0'
+    __version__ = '1.1.0'
 
     def __init__(self, **kwargs):
         '''
@@ -55,6 +55,8 @@ class LGBMTuner:
             random_state.
         device_type : str
             cpu/gpu/cuda/cuda_exp.
+        custom_lgbm_params : dict
+            custom lgbm parameters to be passed to the model, please refer to LGBM documentation for available parameters.
         eval_results_callback : func
             callback function to be applied on the eval_results dictionary that is being populated
             with evaluation metric score upon completion of each training trial.
@@ -104,6 +106,7 @@ class LGBMTuner:
         self.visualization = kwargs.get('visualization', True)
         self.seed = kwargs.get('seed', 42)
         self.device_type = kwargs.get('device_type', 'cpu')
+        self.custom_lgbm_params = kwargs.get('custom_lgbm_params', {})
         self.target_minimum = None
         self._fitted_model = None
         self._feature_importances = None
@@ -1185,6 +1188,8 @@ class LGBMTuner:
         self.target_classes = y.unique().tolist()
         self._get_target_minimum(y)
         self._init_params_on_input(len(X), y)
+        # update the predefined params with custom params passed by user
+        self._init_params.update(self.custom_lgbm_params)
         self._align_grid_and_search_space()
         self._set_optuna_verbosity(self.verbosity)
         

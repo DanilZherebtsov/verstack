@@ -9,7 +9,12 @@ from verstack import LGBMTuner
 def test_LGBMTuner():
     '''Test if LGBMTuner will fit and save optimized params'''
     df = generate_data(processed=True)
-    module = LGBMTuner(metric='rmse', trials=20, visualization=False, refit=True)
+    
+    # test passing custom_lgbm_params argument
+    custom_params = {'zero_as_missing': True}
+    module = LGBMTuner(metric='rmse', trials=20, visualization=False, refit=True, custom_lgbm_params = custom_params)
+    # test changing the grid
+    module.grid['max_data_in_leaf'] = {'choice' : [40, 50, 70]}
     X = df.drop('y', axis = 1)
     y = df['y']
     module.fit(X, y)
