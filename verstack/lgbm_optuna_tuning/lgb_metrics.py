@@ -347,11 +347,13 @@ def print_lower_greater_better(metric):
     else:
         return 'greater-better'
 
+"""
+Depreciation note: final nrounds optimization is depreciated starting from verstack 3.8.1 in favor of early_stopping during optuna trials.
+So all below code is legacy and will be removed in future versions.
 
-
-# LGBM custom metrics for nrounds optimization only. Used in optimize_n_estimators()
-# function. 'pred' object is lgbm.Dataset - pred.label attribute is used to extract the 
-# actual predicted labels
+LGBM custom metrics for nrounds optimization only. Used in optimize_n_estimators()
+function. 'pred' object is lgbm.Dataset - pred.label attribute is used to extract the 
+actual predicted labels
 
 def get_n_rounds_optimization_metric(eval_metric):
     '''Create evaluation function in lgbm.train supported format for n_rounds optimization'''
@@ -497,18 +499,4 @@ def lgb_lift(pred, real):
     is_higher_better = True
     score = lift(real.label, pred>0.5)
     return 'lgb_lift', score, is_higher_better
-
-# ------------------------------------------------------------------------------
-'''
-def get_study_direction(metric):
-    from lgb_metrics import regression_metrics, classification_metrics
-    if metric in regression_metrics:
-            direction = 'minimize'
-    else:
-        if metric != 'log_loss':
-            direction = 'maximize'
-        else:
-            direction = 'minimize'
-    return direction
-'''
-
+"""

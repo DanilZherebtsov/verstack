@@ -12,7 +12,7 @@ import warnings
 warnings.filterwarnings("ignore")
 import matplotlib.pyplot as plt
 from verstack.tools import timer, Printer
-from verstack.lgbm_optuna_tuning.lgb_metrics import get_pruning_metric, get_optimization_metric_func, define_objective, classification_metrics, regression_metrics, get_eval_score, print_lower_greater_better, supported_metrics, get_n_rounds_optimization_metric
+from verstack.lgbm_optuna_tuning.lgb_metrics import get_pruning_metric, get_optimization_metric_func, define_objective, classification_metrics, regression_metrics, get_eval_score, print_lower_greater_better, supported_metrics
 from verstack.lgbm_optuna_tuning.args_validators import *
 from verstack.lgbm_optuna_tuning.optuna_tools import Distribution, OPTUNA_DISTRIBUTIONS_MAP, SearchSpace
 # BACKLOG: add option to pass different init params on class __init__
@@ -28,7 +28,7 @@ supported_gridsearch_params = [
 
 class LGBMTuner:
 
-    __version__ = '1.1.0'
+    __version__ = '1.2.0'
 
     def __init__(self, **kwargs):
         '''
@@ -118,6 +118,7 @@ class LGBMTuner:
         self.eval_results_callback = kwargs.get('eval_results_callback', None)
         self.search_space = self._get_default_search_space()
         self.grid = self._get_all_available_and_defined_grids()
+        self.early_stopping_results = {} # stores early_stopping results per each trial
 
         # get user defined grid
 
@@ -297,7 +298,7 @@ class LGBMTuner:
                                         "zero_as_missing": False,
                                         "max_bin": 255,
                                         "min_data_in_bin": 3,
-                                        "num_iterations": 3000,
+                                        "num_iterations": 10000,
                                         "early_stopping_rounds": 100,
                                         "random_state": 42,
                                         "device_type": self.device_type}
@@ -307,7 +308,7 @@ class LGBMTuner:
                                     "feature_fraction": 0.9,
                                     "bagging_fraction": 0.9,
                                     "verbosity": -1,
-                                    "num_iterations": 3000,
+                                    "num_iterations": 10000,
                                     "early_stopping_rounds": 100,
                                     "random_state": 42,
                                     "device_type": self.device_type}
@@ -486,76 +487,6 @@ class LGBMTuner:
         else:
             return dtrain, dvalid
     # -----------------------------------------------------------------------------
-
-    def optimize_num_iterations(self, X, y, params, verbose_eval = 100):
-        '''
-        Optimize num_iterations for lgb model.
-        Here (after all the tuning) the actual eval_metric is used for early stopping.
-        get_n_rounds_optimization_metric(self.metric) returns the feval function 
-        from lgb_metrics in an acceptable format.
-
-        Parameters
-        ----------
-        X : np.array
-            train features.
-        y : np.array
-            train target.
-        params : dict
-            model parameters.
-
-        Returns
-        -------
-        int
-            best_iteration for further num_iterations param.
-        best_score : float
-            validation score from best_iteration
-
-        '''
-        validate_numpy_ndarray_arguments(X)
-        validate_numpy_ndarray_arguments(y)
-        validate_params_argument(params)
-        validate_verbose_eval_argument(verbose_eval)
-
-        self.printer.print('Tune num_iterations with early_stopping', order=2)
-        if self.verbosity>0:
-            verbose_eval_rounds = verbose_eval
-        else:
-            verbose_eval_rounds = None
-
-        # temporarily change the params['metric'] for the best performance on the eval_metric
-        n_rounds_optimization_params = params.copy()
-        n_rounds_optimization_params['metric'] = 'None'
-
-        dtrain, dvalid = self._get_dtrain_dvalid_objects(X, y, self.metric, seed = self.seed)
-
-        if n_rounds_optimization_params['objective'] == 'multiclass':
-            # disable custom feval function for multiclass 
-            # lgbm predicts multiple classes in a single array 
-            # without a way to assign predicted probability to a certain class
-            # use built in multi_logloss instead
-            del n_rounds_optimization_params['metric']
-            lgb_model = lgb.train(n_rounds_optimization_params, 
-                                  dtrain, 
-                                  10000, 
-                                  valid_sets=[dtrain, dvalid], 
-                                  valid_names=['train', 'valid'],
-                                  verbose_eval = verbose_eval_rounds, 
-                                  early_stopping_rounds=self._init_params['early_stopping_rounds'])
-        else:
-            lgb_model = lgb.train(n_rounds_optimization_params, 
-                                  dtrain, 
-                                  10000, 
-                                  valid_sets=[dtrain, dvalid], 
-                                  valid_names=['train', 'valid'],
-                                  verbose_eval = verbose_eval_rounds, 
-                                  early_stopping_rounds=self._init_params['early_stopping_rounds'],
-                                  feval = get_n_rounds_optimization_metric(self.metric))
-        
-        best_score = list(lgb_model.best_score['valid'].values())[0]
-        
-        return lgb_model.best_iteration, best_score
-
-    # ------------------------------------------------------------------------------------------
     def fit_optimized(self, X, y):
         '''
         Train model with tuned params on whole train data
@@ -587,8 +518,7 @@ class LGBMTuner:
         if self.metric in regression_metrics:    
             self.target_minimum = min(y)
 
-# ------------------------------------------------------------------------------------------
-
+    # ------------------------------------------------------------------------------------------
     def _get_validation_score(self, trial, dtrain, dvalid, valid_x, valid_y, optimization_metric_func, params, pruning_callback):
         '''
         Train model with trial params and validate on valid set against the defined metric.
@@ -629,6 +559,8 @@ class LGBMTuner:
 
         self.printer.print(f'Trial number: {trial.number} finished', order=3)
         self.printer.print(f'Optimization score ({optimization_direction:<4}): {optimization_metric_func.__name__}: {result}', order=4)
+        # save early stopping results per each trial for further use in best_params
+        self.early_stopping_results[trial.number] = gbm.best_iteration
         # save evaluation metric results per each trial
         self.eval_results[f'train_trial_{trial.number}'] = result
         # calculate & print eval_metric only if eval_metric != optimization_metric
@@ -1204,10 +1136,15 @@ class LGBMTuner:
 
         # populate the learned params into the suggested params
         temp_params = self._populate_best_params_to_init_params(study.best_params)
-
+        # extract early stopping results from best trial
+        
+        best_trial_number = study.best_trial.number
+        num_iterations_in_best_trial = self.early_stopping_results[best_trial_number]
+        temp_params['num_iterations'] = num_iterations_in_best_trial
+        
         # tune num_iterations    
-        iteration, best_score = self.optimize_num_iterations(X.values, y.values, temp_params)
-        temp_params['num_iterations'] = iteration
+        # iteration, best_score = self.optimize_num_iterations(X.values, y.values, temp_params)
+        # temp_params['num_iterations'] = iteration
         self._best_params = temp_params        
         if self.refit:
             self.fit_optimized(X.values, y.values)
@@ -1220,11 +1157,6 @@ class LGBMTuner:
             self.plot_intermediate_values()
             if self.refit:
                 self.plot_importances(dark=False, save=False)
-        
-        if self.best_params['objective'] == 'multiclass':
-            n_rounds_eval_metric = 'multi_logloss'
-        else:
-            n_rounds_eval_metric = self.metric
         # clean up
         self.eval_results_callback = None
         # --------------------------------
@@ -1232,5 +1164,3 @@ class LGBMTuner:
         print()
         self.printer.print(f"Optuna hyperparameters optimization finished", order=3)
         self.printer.print(f"Best trial number:{study.best_trial.number:>2}{break_symbol:>5}     {optimization_metric_func.__name__}:{study.best_trial.value:>29}", order=4, breakline='-')
-        self.printer.print(f'num_iterations optimization finished', order=3)
-        self.printer.print(f'best iteration:{iteration:>5}{break_symbol:>4}     {n_rounds_eval_metric}:{best_score:>29}', order=4, breakline='=')

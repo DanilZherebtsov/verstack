@@ -1,5 +1,5 @@
 ############################
-verstack 3.8.0 Documentation
+verstack 3.8.1 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -901,31 +901,6 @@ Methods
     - ``y`` [pd.Series]
       
       Train labels
-
-* ``optimize_n_estimators(X, y, params, verbose_eval = 100)``
-
-  Optimize n_estimators for lgb model.    
-
-    Parameters
-
-    - ``X`` [np.array]
-
-      Train features
-    
-    - ``y`` [np.array]
-      
-      Train labels
-
-    - ``params`` [dict]
-      
-      parameters to use for training the model with early stopping
-
-    - ``verbose_eval`` [int]
-      
-      evaluation output at each ``verbose_eval`` iteratio n
-
-    returns 
-      (best_iteration, best_score)
 
 * ``fit_optimized(X, y)``
 
