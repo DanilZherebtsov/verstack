@@ -1,5 +1,5 @@
 ############################
-verstack 3.8.4 Documentation
+verstack 3.8.5 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 

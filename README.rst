@@ -1,7 +1,7 @@
 
 .. image:: logo.png
 
-**verstack 3.8.4** is a set of Machine learning tools to make a Data Scientist's work efficient.
+**verstack 3.8.5** is a set of Machine learning tools to make a Data Scientist's work efficient.
 
 The package contains multiple tools for: training & tuning machine learning models, creating ensembles, working with datetime objects, data transformation & wrangling, imputing missing values, concurrency work and many more.
 

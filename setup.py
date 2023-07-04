@@ -13,6 +13,7 @@ dependencies = ['pandas', 'numpy']
 rtd_build_env = os.environ.get('READTHEDOCS', False)
 if not rtd_build_env:
     dependencies.append('xgboost')
+    dependencies.append('lightgbm>=3.3.0,<=3.3.5')
     dependencies.append('scikit-learn>=0.23.2,<=1.1.3')
     dependencies.append('lightgbm>=3.3.0,<=3.3.2')
     dependencies.append('optuna>=2.10.0,<=3.0.4')
@@ -36,7 +37,7 @@ setup(
   author = 'Danil Zherebtsov',
   author_email = 'danil.com@me.com',
   url = 'https://github.com/DanilZherebtsov/verstack',
-  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/refs/tags/3.8.3.tar.gz',
+  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/refs/tags/3.8.4.tar.gz',
   keywords = ['impute', 'missing', 'values', 'stratify', 'nan', 'continuous', 'multiprocessing', 'concurrent', 'timer'],
   install_requires=dependencies,
   classifiers=[
