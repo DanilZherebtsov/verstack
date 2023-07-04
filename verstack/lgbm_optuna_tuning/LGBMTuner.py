@@ -28,7 +28,7 @@ supported_gridsearch_params = [
 
 class LGBMTuner:
 
-    __version__ = '1.2.0'
+    __version__ = '1.3.0'
 
     def __init__(self, **kwargs):
         '''
@@ -1099,6 +1099,9 @@ class LGBMTuner:
             train features.
         y : pd.Series
             train labels.
+        optuna_study_params : dict, optional
+            Parameters for optuna study. The default is None. Custom optuna.study.create_study parameters
+            https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.create_study.html
 
         Returns
         -------

@@ -1,5 +1,5 @@
 ############################
-verstack 3.8.7 Documentation
+verstack 3.8.8 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -33,8 +33,7 @@ veratack package contains the following tools:
 
 .. note:: **ARM installation**
 
-  Getting verstack for ARM architecture (M1/M2 macs)
-  M1/M2 macs require miniforge python environment. Below steps outiline installation of the correct miniforge python (3.10.12) environment with subsequent verstack installation.
+  Getting verstack for ARM architecture (M1/M2 macs) requires miniforge python environment, because AMR versions of ``lightgbm`` and ``tensorflow`` are not yet supported by ``pip`` and can only be installed with ``conda``. Below steps outiline installation of the correct miniforge python (3.10.12) environment with subsequent verstack installation.
   
   # install miniforge python environment
   
@@ -931,6 +930,10 @@ Methods
     - ``y`` [pd.Series]
       
       Train labels
+
+    - ``optuna_study_params`` [dict, default=None]
+
+      Optuna study parameters. Please refer to the `Optuna docs <https://optuna.readthedocs.io/en/stable/reference/study.html#optuna.study.Study.optimize>`_ for the full list of parameters and their descriptions
 
 * ``fit_optimized(X, y)``
 
