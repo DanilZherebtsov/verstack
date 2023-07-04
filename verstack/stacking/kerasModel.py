@@ -4,7 +4,11 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.layers.experimental import preprocessing
-from keras.utils import np_utils
+# accomodate for older keras versions
+try:
+    from keras.utils.np_utils import to_categorical as to_cat
+except:
+    from keras.utils import to_categorical as to_cat
 from verstack import Factorizer
 tf.get_logger().setLevel('ERROR')
 
@@ -99,7 +103,7 @@ class kerasModel:
         '''Factorize categoric target for classification tasks, save encoder for inverse_transform after predict'''
         enc = Factorizer()
         y = enc.fit_transform(pd.DataFrame(np.array(y), columns = ['target']), 'target')
-        y = np_utils.to_categorical(y)
+        y = to_cat(y)
         self.target_encoder = enc
         return y
 
