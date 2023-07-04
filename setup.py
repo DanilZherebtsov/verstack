@@ -21,8 +21,8 @@ if not rtd_build_env:
     dependencies.append('python-dateutil>=2.8.1,<=2.8.2')
     dependencies.append('holidays==0.11.3.1')
     dependencies.append('mlxtend')
-    dependencies.append('tensorflow>=2.6.0,<=2.13.*')
-    dependencies.append('keras>=2.6.0,<=2.13.*')
+    dependencies.append('tensorflow>=2.6.0,<=2.14')
+    dependencies.append('keras>=2.6.0,<=2.14')
     dependencies.append('category_encoders>=2.4.0,<=2.5.1')
 
 setup(
@@ -36,7 +36,7 @@ setup(
   author = 'Danil Zherebtsov',
   author_email = 'danil.com@me.com',
   url = 'https://github.com/DanilZherebtsov/verstack',
-  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/refs/tags/3.8.2.tar.gz',
+  download_url = 'https://github.com/DanilZherebtsov/verstack/archive/refs/tags/3.8.3.tar.gz',
   keywords = ['impute', 'missing', 'values', 'stratify', 'nan', 'continuous', 'multiprocessing', 'concurrent', 'timer'],
   install_requires=dependencies,
   classifiers=[
