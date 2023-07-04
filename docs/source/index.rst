@@ -25,14 +25,32 @@ veratack package contains the following tools:
 * **timer** convenient timer decorator to quickly measure and display time of any function execution
 * **Printer** a convenient function to set up and execute print statements based on the 'global' verbosity setting within large projects
 
+.. note:: x86 installation
 
-.. note:: 
-
-  Getting verstack
+  Getting verstack x86
 
   $ ``pip install verstack``
-
   $ ``pip install --upgrade verstack``
+
+.. note:: ARM installation
+
+  Getting verstack for ARM architecture (M1/M2 macs)
+  M1/M2 macs require miniforge python environment. Below steps outiline installation of the correct miniforge python (3.10.12) environment with subsequent verstack installation.
+  
+  # install miniforge python environment
+  $ ``pyenv install miniforge3-4.14.0-1``
+  $ ``pyenv global miniforge3-4.14.0-1``
+  # install verstack
+  $ ``pip install verstack``
+  # uninstall lightgbm (which came with verstack via pip install lightgbm) which is not compatible with ARM
+  $ ``pip uninstall lightgbm``
+  $ ``conda uninstall lightgbm``
+  # install lightgbm (from conda index) which is compatible with ARM
+  $ ``conda install lightgbm``
+  # in case of tensorflow uncompatibility with ARM
+  $ ``pip uninstall tensorflow``
+  $ ``conda uninstall tensorflow``
+  $ ``conda install tensorflow``
 
 
 ******************
