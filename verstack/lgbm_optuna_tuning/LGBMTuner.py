@@ -1073,7 +1073,7 @@ class LGBMTuner:
         self.grid = {key: value for key, value in self.grid.items() if key not in unsupported_params}
     
     @timer
-    def fit(self, X, y):
+    def fit(self, X, y, optuna_params = None):
         '''
         Find optimized parameters for LightGBM model based on training data and 
         metric (defined by user at __init__).
@@ -1126,9 +1126,10 @@ class LGBMTuner:
         self._set_optuna_verbosity(self.verbosity)
         
         sampler = optuna.samplers.TPESampler(seed=self.seed)
-        study = optuna.create_study(pruner=optuna.pruners.MedianPruner(n_warmup_steps=5), 
-                                    sampler=sampler, 
-                                    direction = 'minimize')#get_study_direction(metric))
+        optuna_params = {'pruner':optuna.pruners.MedianPruner(n_warmup_steps=5),
+                         'sampler':sampler,
+                         'direction':'minimize'}
+        study = optuna.create_study(**optuna_params)#get_study_direction(metric))
 
         optimization_function = partial(self._objective, X = X.values, y = y.values)
 
