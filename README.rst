@@ -25,11 +25,11 @@ Dependencies
 
 - Python (>= 3.6)
 - numpy
-- pandas
+- pandas<=2.0.3
 - xgboost
 - scikit-learn>=0.23.2,<=1.1.3
-- lightgbm>=3.3.0,<=3.3.2
-- optuna>=2.10.0,<=3.0.4
+- lightgbm>=3.3.0,<=4.0.0
+- optuna>=2.10.0,<=3.2.0
 - plotly>=5.3.1,<=5.11.0
 - matplotlib
 - python-dateutil>=2.8.1,<=2.8.2
