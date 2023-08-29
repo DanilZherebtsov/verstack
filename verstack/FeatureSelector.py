@@ -7,7 +7,7 @@ from verstack.tools import timer
 
 class FeatureSelector:  
 
-    __version__ = '0.0.5'
+    __version__ = '0.0.6'
 
     def __init__(self, **kwargs):
                  # objective = 'regression', 
@@ -326,13 +326,14 @@ class FeatureSelector:
         '''Set up the default LGBM (regressor or classifier) or use the user defined model'''
         if self.final_scoring_model is None:
             from lightgbm import LGBMClassifier, LGBMRegressor
+            verbosity = -1
             if self.objective == 'regression':
-                model = LGBMRegressor()
+                model = LGBMRegressor(verbosity=verbosity)
             else:
                 if len(np.unique(y)) == 2:
-                    model = LGBMClassifier(objective = 'binary')
+                    model = LGBMClassifier(objective = 'binary', verbosity=verbosity)
                 else:
-                    model = LGBMClassifier(objective = 'multiclass')                
+                    model = LGBMClassifier(objective = 'multiclass', verbosity=verbosity)
         else:
             model = self.final_scoring_model
         return model
@@ -499,7 +500,10 @@ class FeatureSelector:
     def _transform_data_to_float_32(self, X_subset, y_subset):
         '''Transform to float32, drop rows with np.nan, np.inf'''
         X_subset = pd.DataFrame(X_subset).astype('float32')
-        X_subset = X_subset[~X_subset.isin([np.nan, np.inf, -np.inf]).any(1)]
+        # Replace infinite updated data with nan
+        X_subset.replace([np.inf, -np.inf], np.nan, inplace=True)
+        # Drop rows with NaN
+        X_subset.dropna(inplace=True)       
         y_subset = pd.Series(y_subset).loc[X_subset.index]
         return X_subset, y_subset
 
