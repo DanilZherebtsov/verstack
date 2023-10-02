@@ -6,6 +6,7 @@ lightgbm>=3.3.0,<=4.0.0
 optuna>=2.10.0,<=3.2.0
 plotly>=5.3.1,<=5.11.0
 matplotlib
+seaborn
 python-dateutil>=2.8.1,<=2.8.2
 holidays==0.11.3.1
 mlxtend
@@ -13,4 +14,4 @@ tensorflow>=2.6.0,<=2.14
 keras>=2.6.0,<=2.14
 category_encoders>=2.4.0,<=2.5.1
 # for testing purposes only
-fastparquet
+# fastparquet

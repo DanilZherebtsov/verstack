@@ -28,7 +28,7 @@ supported_gridsearch_params = [
 
 class LGBMTuner:
 
-    __version__ = '1.3.0'
+    __version__ = '1.3.1'
 
     def __init__(self, **kwargs):
         '''
@@ -713,6 +713,29 @@ class LGBMTuner:
         self._feature_importances = normalized_importances
     # ------------------------------------------------------------------------------------------
 
+    def __configure_matplotlib_style(self,
+                                     dark = True):
+        '''Configure matplotlib style for plots'''
+        try:
+            styles = plt.style.available
+            if dark:
+                styles_to_set = ['dark_background']
+                for style in styles:
+                    if 'deep' in style:
+                        styles_to_set.append(style)
+            else:
+                styles_to_set = []
+                for style in styles:
+                    if 'pastel' in style:
+                        styles_to_set.append(style)
+            for style in styles_to_set:
+                plt.style.use(style)
+        except Exception as e:
+            print(f'Error while configuring matplotlib style: {e}')
+            print('Default style will be used')
+            pass
+    # ------------------------------------------------------------------------------------------
+
     def _plot_static_fim(self,
                         feat_imp, 
                         figsize = (10,6), 
@@ -746,10 +769,10 @@ class LGBMTuner:
         ax.spines['right'].set_visible(False)
         ax.spines['left'].set_visible(False)
         ax.spines['bottom'].set_visible(False)
+        self.__configure_matplotlib_style(dark)
+
         if dark:
             name = 'FIM_DARK'
-            plt.style.use('seaborn-deep')
-            plt.style.use('dark_background')
             ax.barh(feat_imp.index, feat_imp, alpha=0.8, color='#F99245')
             fig.set_facecolor('#20253c')
             ax.set_facecolor('#20253c')
@@ -758,7 +781,6 @@ class LGBMTuner:
             ax.set_title('Feature importances (sum up to 1)', color='white')
         else:
             name = 'FIM_LIGHT'
-            plt.style.use('seaborn-pastel')
             ax.barh(feat_imp.index, feat_imp, alpha=0.8, color='#007bff')
             fig.set_facecolor('#dee0eb')
             ax.set_facecolor('#dee0eb')
