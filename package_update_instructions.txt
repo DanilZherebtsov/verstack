@@ -1,5 +1,13 @@
 Every time you want to update your package: 
 
+	!!! Before uploading to pypi - After package developed locally - can test local installation with the following pipeline:
+	!!! this is the same as pip install from pypi
+	- create/activate new empty virtual environment
+	- cd Documents/code/my_libraties/verstack.git
+	- pip install .
+	# this will install package locally from source files 
+	# test locally, if all good - push new release as follows.
+
 	0. If adding new Class, (to make it callable after import) to __init__.py add: from verstack.NewClassName import NewClassName
 
 	Also for new classes it is a good practice to add a class version. Check out NaNImputer for an example
