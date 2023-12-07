@@ -7,7 +7,7 @@ from verstack.tools import timer
 
 class FeatureSelector:  
 
-    __version__ = '0.0.6'
+    __version__ = '0.0.7'
 
     def __init__(self, **kwargs):
                  # objective = 'regression', 
@@ -328,12 +328,12 @@ class FeatureSelector:
             from lightgbm import LGBMClassifier, LGBMRegressor
             verbosity = -1
             if self.objective == 'regression':
-                model = LGBMRegressor(verbosity=verbosity)
+                model = LGBMRegressor(verbosity=verbosity, n_jobs = -1)
             else:
                 if len(np.unique(y)) == 2:
-                    model = LGBMClassifier(objective = 'binary', verbosity=verbosity)
+                    model = LGBMClassifier(objective = 'binary', verbosity=verbosity, n_jobs = -1)
                 else:
-                    model = LGBMClassifier(objective = 'multiclass', verbosity=verbosity)
+                    model = LGBMClassifier(objective = 'multiclass', verbosity=verbosity, n_jobs = -1)
         else:
             model = self.final_scoring_model
         return model
@@ -466,10 +466,10 @@ class FeatureSelector:
         '''Return RFClassifier or RFRegressor from sklearn'''
         if self.objective == 'regression':
             from sklearn.ensemble import RandomForestRegressor
-            return RandomForestRegressor(n_estimators=50, max_depth=2)
+            return RandomForestRegressor(n_estimators=50, max_depth=2, n_jobs=-1)
         else:
             from sklearn.ensemble import RandomForestClassifier
-            return RandomForestClassifier(n_estimators=50, max_depth=2)           
+            return RandomForestClassifier(n_estimators=50, max_depth=2, n_jobs=-1)           
         
     def _subset_data(self, X, y):
         '''Subset train dataset by n megabytes.
