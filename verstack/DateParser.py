@@ -107,7 +107,7 @@ states_provinces_dict = {
 # -----------------------------------------------------------------------------
 class DateParser():
     
-    __version__ = '0.0.7'
+    __version__ = '0.0.8'
 
     def __init__(self, country = None, state = None, prov = None, payday = None, verbose = True):
         '''
@@ -981,9 +981,8 @@ class DateParser():
         original_test_cols = df.columns.tolist()
         df_copy = df.copy()
 
-        df_copy = self._find_transform_month_string_to_integer(df_copy, train = False)
-
         if self._datetime_cols:
+            df_copy = self._find_transform_month_string_to_integer(df_copy, train = False)
             X = df_copy.copy()
             X = self._find_transform_unconventional_cols(X)
             # convert to datetime
@@ -999,5 +998,5 @@ class DateParser():
             return X
         else:
             self.printer.print('No datetime cols found', order=2)
-            df_copy = self._align_test_columns_after_transform(df_copy, original_test_cols)
+            #df_copy = self._align_test_columns_after_transform(df_copy, original_test_cols)
             return df_copy
