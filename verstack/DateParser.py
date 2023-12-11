@@ -656,6 +656,7 @@ class DateParser():
         for col in self._datetime_cols:
             if col not in proper_datetime_format_cols:
                 for method in methods:
+                    #import pdb; pdb.set_trace()
                     if np.any(X[col].dropna().apply(coma_in_val)):
                         self._datetime_cols = [x for x in self._datetime_cols if x != col]
                     # if apply new method:
@@ -931,8 +932,8 @@ class DateParser():
                 self.printer.print('No datetime cols found', order=2)
                 return df_copy
         except:
-            self._datetime_cols = None
-            self._created_datetime_cols = None
+            self._datetime_cols = []
+            self._created_datetime_cols = []
             self.printer.print(f'Parse dates error', order='error')
             return df_copy
 
