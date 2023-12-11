@@ -474,6 +474,14 @@ class DateParser():
             return 0
     # -----------------------------------------------------------------------------
     def _get_unit_contents(self, datetime_series, unit):
+
+        def extract_week(val):
+            # extract week number from datetime object or return NaN if datetime_oblect is NaN
+            if val != val:
+                return np.nan
+            else:
+                return val.isocalendar()[1]
+
         '''Extract year / month / day array from datetime_series'''
         if unit == 'year':
             unit_contents = datetime_series.dt.year
@@ -482,7 +490,7 @@ class DateParser():
         elif unit == 'month':
             unit_contents = datetime_series.dt.month
         elif unit == 'week':
-            unit_contents = datetime_series.dt.week
+            unit_contents = datetime_series.apply(extract_week)
         elif unit == 'day':
             unit_contents = datetime_series.dt.day
         elif unit == 'dayofyear':
@@ -649,19 +657,19 @@ class DateParser():
             return ',' in val
         methods = [coma_in_val] 
         # ----------------------------
-    
         # exclude real datetime cols from the following cross check
         proper_datetime_format_cols = X[self._datetime_cols].select_dtypes(include = ['datetime', 'datetime64', 'datetime64', 'datetime64[ns, UTC]']).columns.tolist()
     
         for col in self._datetime_cols:
             if col not in proper_datetime_format_cols:
                 for method in methods:
-                    #import pdb; pdb.set_trace()
-                    if np.any(X[col].dropna().apply(coma_in_val)):
+                    if np.any(X[col].dropna().astype('str').apply(method)):
                         self._datetime_cols = [x for x in self._datetime_cols if x != col]
                     # if apply new method:
                     #     self._datetime_cols.remove(col)
-        
+
+
+
     def _find_datetime_cols(self, X):
         """
         Find names of datetime cols in data.
@@ -866,7 +874,10 @@ class DateParser():
         date_components = date_components.str.split(delimiter, expand = True)
         max_values_in_date_components = {}
         for col in date_components:
-            date_components[col] = date_components[col].astype(int)
+            try:
+                date_components[col] = date_components[col].astype(int)
+            except ValueError: # in case there are NaNs
+                date_components[col] = date_components[col].astype(float)
             max_values_in_date_components[col] = date_components[col].max()
         if 12 < max_values_in_date_components[0] <= 31:
             dayfirst_arg = True
