@@ -107,7 +107,7 @@ states_provinces_dict = {
 # -----------------------------------------------------------------------------
 class DateParser():
     
-    __version__ = '0.0.8'
+    __version__ = '0.0.9'
 
     def __init__(self, country = None, state = None, prov = None, payday = None, verbose = True):
         '''
