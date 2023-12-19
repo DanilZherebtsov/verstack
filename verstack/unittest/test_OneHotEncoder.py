@@ -1,9 +1,9 @@
 import pytest
 import sys
-sys.path.append('../../')
+sys.path.append('../')
 import numpy as np
 from common import generate_data
-from verstack import OneHotEncoder
+from categoric_encoders.OneHotEncoder import OneHotEncoder
 
 
 def test_OneHotEncoder():

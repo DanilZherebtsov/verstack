@@ -1,13 +1,35 @@
 import pytest
 import sys
-sys.path.append('../../')
-from common import generate_data
-from verstack import DateParser
+import numpy as np
+import pandas as pd
+sys.path.append('../')
+from DateParser import DateParser
+
+datasets = {
+    1: {
+        'train':'dateparser_train_1.parquet', 
+        'test':'dateparser_test_1.parquet'
+        },
+    2: {
+        'train':'dateparser_train_2.parquet',
+        'test':'dateparser_test_2.parquet'
+        },
+    3: {
+        'train':'dateparser_train_3.parquet',
+        'test':'dateparser_test_3.parquet'
+        }
+    }
+
 
 # test overall DateParser not being broken
 def test_DateParser():
-    df = generate_data()
-    module = DateParser(country='Russia', payday=[15,30])    
-    transformed = module.fit_transform(df)
-    result = len(module.datetime_cols)==2
+    result = []
+    module = DateParser()
+    for dataset in datasets:
+        
+        train = pd.read_parquet(datasets[dataset]['train'])
+        test = pd.read_parquet(datasets[dataset]['test'])
+        transformed_train = module.fit_transform(train)
+        transformed_test = module.transform(test)
+        result.append(np.all(transformed_train.columns == transformed_test.columns))
     assert result

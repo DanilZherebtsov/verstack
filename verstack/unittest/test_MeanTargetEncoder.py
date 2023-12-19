@@ -1,8 +1,8 @@
 import pytest
 import sys
-sys.path.append('../../')
+sys.path.append('../')
 from common import generate_data
-from verstack import MeanTargetEncoder
+from categoric_encoders.MeanTargetEncoder import MeanTargetEncoder
 
 def test_MeanTargetEncoder():
     df = generate_data()

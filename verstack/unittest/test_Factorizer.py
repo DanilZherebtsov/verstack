@@ -1,9 +1,9 @@
 import pytest
 import sys
-sys.path.append('../../')
+sys.path.append('../')
 import numpy as np
 from common import generate_data
-from verstack import Factorizer
+from categoric_encoders.Factorizer import Factorizer
 
 
 def test_Factorizer():

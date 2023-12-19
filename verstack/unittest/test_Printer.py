@@ -1,8 +1,7 @@
 import pytest
 import sys
-sys.path.append('../../')
-from verstack.tools import Printer
-
+sys.path.append('../')
+from tools import Printer
 
 def test_Printer():
     '''Test if Printer will print a message'''

@@ -1,8 +1,8 @@
 import pytest
 import sys
-sys.path.append('../../')
+sys.path.append('../')
 import numpy as np
-from verstack import ThreshTuner
+from ThreshTuner import ThreshTuner
 
 # just check workability
 def test_ThreshTuner():

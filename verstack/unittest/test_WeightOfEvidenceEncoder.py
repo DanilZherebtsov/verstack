@@ -1,8 +1,8 @@
 import pytest
 import sys
-sys.path.append('../../')
+sys.path.append('../')
 from common import generate_data
-from verstack import WeightOfEvidenceEncoder
+from categoric_encoders.WeightOfEvidenceEncoder import WeightOfEvidenceEncoder
 
 
 def test_WeightOfEvidenceEncoder():

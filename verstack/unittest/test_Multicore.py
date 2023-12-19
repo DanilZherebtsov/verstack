@@ -1,10 +1,9 @@
 import pytest
 import sys
-sys.path.append('../../')
+sys.path.append('../')
 import numpy as np
 import time
-
-from verstack import Multicore
+from Multicore import Multicore
 
 iterable = np.random.randint(0, 100, 10000)
 

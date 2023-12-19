@@ -1,8 +1,8 @@
 import pytest
 import sys
-sys.path.append('../../')
+sys.path.append('../')
 from common import generate_data
-from verstack import NaNImputer
+from NaNImputer import NaNImputer
 
 # test overall DateParser not being broken
 def test_NaNImputer():

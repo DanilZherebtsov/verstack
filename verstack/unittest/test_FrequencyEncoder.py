@@ -1,10 +1,9 @@
 import pytest
 import sys
-sys.path.append('../../')
+sys.path.append('../')
 import numpy as np
 from common import generate_data
-
-from verstack import FrequencyEncoder
+from categoric_encoders.FrequencyEncoder import FrequencyEncoder
 
 def test_FrequencyEncoder():
     '''Test if FrequencyEncoder will make cat_col into numeric then back to categorical'''

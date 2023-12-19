@@ -4,7 +4,7 @@ sys.path.append('../')
 import numpy as np
 import pytest
 from common import generate_data
-from verstack import Stacker
+from stacking.Stacker import Stacker
 import shutil
 # test overall Stacker not being broken
 def test_Stacker_fit_transform():

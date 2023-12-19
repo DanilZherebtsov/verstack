@@ -1,8 +1,8 @@
 import pytest
 import sys
-sys.path.append('../../')
+sys.path.append('../')
 import pandas as pd
-from verstack.stratified_continuous_split import scsplit
+from stratified_continuous_split import scsplit
 
 def test_scsplit():
     df = pd.read_parquet('boston_train.parquet')        

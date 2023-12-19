@@ -1,8 +1,8 @@
 import pytest
 import sys
-sys.path.append('../../')
+sys.path.append('../')
 from common import generate_data
-from verstack import PandasOptimizer
+from PandasOptimizer import PandasOptimizer
 
 def test_PandasOptimizer():
     df = generate_data()
