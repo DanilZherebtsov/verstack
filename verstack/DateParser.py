@@ -7,6 +7,8 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 class DateParser:
 
+    __version__ == '0.1.0'
+
     def __init__(self, verbose=True):
         '''
         Initialize DateParser instance.
