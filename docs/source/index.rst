@@ -1,5 +1,5 @@
 ############################
-verstack 3.9.0 Documentation
+verstack 3.9.1 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -501,6 +501,10 @@ Parameters
 * ``subset_size_mb`` [default=20]
 
   Value to reduce data dimensionality (row-wise) for running feature selection experiments
+
+* ``random_state`` [default=None]
+
+  Seed (random_state) value for reproducibility
 
 * ``verbose`` [default=True]
 

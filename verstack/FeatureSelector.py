@@ -7,7 +7,7 @@ from verstack.tools import timer
 
 class FeatureSelector:  
 
-    __version__ = '0.0.7'
+    __version__ = '0.0.8'
 
     def __init__(self, **kwargs):
                  # objective = 'regression', 
@@ -54,7 +54,8 @@ class FeatureSelector:
             Verbose flag for short informative messages. The default is True.
             fit_transform has it's own 'verbosity' setting which controlls the 
             verbosity of sklearn.feature_selection.RFECV.
-
+        random_state : int, optional
+            Random state for reproducibility. The default is None.
         Returns
         -------
         None.
@@ -68,6 +69,7 @@ class FeatureSelector:
         self.custom_model = kwargs.get('custom_model', None)
         self.subset_size_mb = kwargs.get('subset_size_mb', 20)
         self.verbose = kwargs.get('verbose', True)
+        self.random_state = kwargs.get('random_state', None)
         self._model = self._initialise_model(self.custom_model, self.default_model_linear)
         self.selected_features = None
         self._score_diff_percent = None # placeholder for print results in the console 
@@ -79,6 +81,7 @@ class FeatureSelector:
             \n                   auto: {self.auto}\
             \n                   allowed_score_gap: {self.allowed_score_gap}\
             \n                   subset_size_mb: {self.subset_size_mb}\
+            \n                   random_state: {self.random_state}\
             \n                   verbose: {self.verbose})'
         
     # Validate init arguments
@@ -155,6 +158,19 @@ class FeatureSelector:
             self._verbose = True
         else:
             self._verbose = value
+    # -------------------------------------------------------------------------
+    # verbose
+    @property
+    def random_state(self):
+        return self._random_state
+    
+    @random_state.setter
+    def random_state(self, value):
+        if not self._is_int(value) and value is not None:
+            print(f'{value} is not a valid random_state argument, must be an int or None. Setting default random_state to None')
+            self._random_state = None
+        else:
+            self._random_state = value
     # -------------------------------------------------------------------------
     # auto
     @property
@@ -328,12 +344,15 @@ class FeatureSelector:
             from lightgbm import LGBMClassifier, LGBMRegressor
             verbosity = -1
             if self.objective == 'regression':
-                model = LGBMRegressor(verbosity=verbosity, n_jobs = -1)
+                model = LGBMRegressor(verbosity=verbosity, n_jobs = -1, 
+                                      random_state = self.random_state)
             else:
                 if len(np.unique(y)) == 2:
-                    model = LGBMClassifier(objective = 'binary', verbosity=verbosity, n_jobs = -1)
+                    model = LGBMClassifier(objective = 'binary', verbosity=verbosity, 
+                                           n_jobs = -1, random_state = self.random_state)
                 else:
-                    model = LGBMClassifier(objective = 'multiclass', verbosity=verbosity, n_jobs = -1)
+                    model = LGBMClassifier(objective = 'multiclass', verbosity=verbosity, 
+                                           n_jobs = -1, random_state = self.random_state)
         else:
             model = self.final_scoring_model
         return model
@@ -457,19 +476,21 @@ class FeatureSelector:
         '''Return Ridge() or LogisticRegression() from sklearn'''
         if self.objective == 'regression':
             from sklearn.linear_model import Ridge
-            return Ridge()
+            return Ridge(random_state = self.random_state)
         else:
             from sklearn.linear_model import LogisticRegression
-            return LogisticRegression(max_iter=1000)
+            return LogisticRegression(max_iter=1000, random_state = self.random_state)
         
     def _get_randomforest_model(self):
         '''Return RFClassifier or RFRegressor from sklearn'''
         if self.objective == 'regression':
             from sklearn.ensemble import RandomForestRegressor
-            return RandomForestRegressor(n_estimators=50, max_depth=2, n_jobs=-1)
+            return RandomForestRegressor(n_estimators=50, max_depth=2, n_jobs=-1, 
+                                         random_state = self.random_state)
         else:
             from sklearn.ensemble import RandomForestClassifier
-            return RandomForestClassifier(n_estimators=50, max_depth=2, n_jobs=-1)           
+            return RandomForestClassifier(n_estimators=50, max_depth=2, n_jobs=-1, 
+                                          random_state = self.random_state)
         
     def _subset_data(self, X, y):
         '''Subset train dataset by n megabytes.
