@@ -2,3 +2,4 @@
 
 docutils==0.17.1
 urllib3<3
+recommonmark
