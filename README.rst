@@ -45,7 +45,7 @@ Dependencies
 Development
 -----------
 
-I welcome new contributors of all experience levels. verstack community goals are to be helpful, welcoming, and effective.
+I welcome new contributors of all experience levels. ``verstack`` community goals are to be helpful, welcoming, and effective.
 `Development Guide <https://scikit-learn.org/stable/developers/index.html>`_
 based on scikit-learn best practices has detailed information about contributing code, documentation, tests, and more. 
 
