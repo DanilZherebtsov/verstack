@@ -28,7 +28,7 @@ supported_gridsearch_params = [
 
 class LGBMTuner:
 
-    __version__ = '1.3.1'
+    __version__ = '1.3.2'
 
     def __init__(self, **kwargs):
         '''
@@ -379,7 +379,13 @@ class LGBMTuner:
 
         self._init_params["learning_rate"] = init_lr
         self._init_params["num_iterations"] = ntrees
-        self._init_params["early_stopping_rounds"] = es
+
+        # disable early stopping if 'scale_pos_weight' or 'is_unbalance' is used, because 
+        # in such case with severe disbalance it always stops at first iteration and underfits
+        if 'scale_pos_weight' in self._init_params or 'is_unbalance' in self._init_params:
+            del self._init_params["early_stopping_rounds"]
+        else:
+            self._init_params["early_stopping_rounds"] = es
     # -----------------------------------------------------------------------------
 
     def _get_default_search_space(self):
@@ -700,9 +706,10 @@ class LGBMTuner:
             temp_params[key] = val
         # remove early_stopping & num_iterations from params (used during optuna optimization).
         # final early stopping will be trained during final_estimators_tuning
-        del temp_params['early_stopping_rounds']
-        del temp_params['num_iterations']
-        
+        if 'early_stopping_rounds' in temp_params:
+            del temp_params['early_stopping_rounds']
+        if 'num_iterations' in temp_params:
+            del temp_params['num_iterations']        
         return temp_params
     # ------------------------------------------------------------------------------------------
 
@@ -1168,10 +1175,10 @@ class LGBMTuner:
         temp_params = self._populate_best_params_to_init_params(study.best_params)
         # extract early stopping results from best trial
         
-        best_trial_number = study.best_trial.number
-        num_iterations_in_best_trial = self.early_stopping_results[best_trial_number]
-        temp_params['num_iterations'] = num_iterations_in_best_trial
-        
+        if not 'is_unbalance' in self._init_params or not 'scale_pos_weight' in self._init_params:
+            best_trial_number = study.best_trial.number
+            num_iterations_in_best_trial = self.early_stopping_results[best_trial_number]
+            temp_params['num_iterations'] = num_iterations_in_best_trial
         # tune num_iterations    
         # iteration, best_score = self.optimize_num_iterations(X.values, y.values, temp_params)
         # temp_params['num_iterations'] = iteration

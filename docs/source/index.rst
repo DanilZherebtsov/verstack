@@ -1,5 +1,5 @@
 ############################
-verstack 3.9.1 Documentation
+verstack 3.9.2 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -742,7 +742,10 @@ By default LGBMTuner will automatically:
   LGBM categorical_feature is supported. According to `LGBM docs <https://lightgbm.readthedocs.io/en/latest/Parameters.html#categorical_feature>`_ Unique values within each categoric feature must be encoded by consecutive integers and casted to 'categoric' dtype: df['categoric_column'] = df['categoric_column'].astype('categoric') before sending the data to LGBMTuner.fit() method.
 
 .. note:: 
-  All other LGBM configurations are supported from version 1.1.0. Pass the desired parameters to a `custom_lgbm_params` argument at LGBMTuner init.
+  All other LGBM configurations are supported from version 1.1.0. Pass the desired parameters as a dictionary to a `custom_lgbm_params` argument at LGBMTuner init.
+
+.. note:: 
+  If `scale_pos_weight` or `is_unbalance` parameters are passed to `custom_lgbm_params` - LGBMTuner will disable n_estimators parameters tuning with early stopping to avoid the frequently observed stopping after 1 iteration and severely underfitting.
 
 **Initialize LGBMTuner**
 
