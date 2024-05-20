@@ -3,7 +3,7 @@ verstack 3.9.2 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
-veratack package contains the following tools:
+verstack package contains the following tools:
 
 * **PandasOptimizer** oad a pandas.DataFrame with optimized datatypes (reduce RAM usage)
 * **Stacker** automated stacking ensemble configuration/train/features creation in train/test sets
