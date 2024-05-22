@@ -1036,6 +1036,7 @@ LGBMTuner with custom settings
 LGBMTuner with any other additional lightgbm params
 
 .. code-block:: python
+
   my_custom_params = {'is_unbalance': True, 'zero_as_missing': True}
   tuner = LGBMTuner(metric = 'auc', trials = 300, custom_lgbm_params = my_custom_params)
 
