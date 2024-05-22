@@ -739,7 +739,7 @@ By default LGBMTuner will automatically:
   User may define other lightgbm parameters and their respective grids for optimization by changing the LGBM.grid dictionary after the class is initialized, please refer to the examples below.
 
 .. note:: 
-  LGBM categorical_feature is supported. According to `LGBM docs <https://lightgbm.readthedocs.io/en/latest/Parameters.html#categorical_feature>`_ Unique values within each categoric feature must be encoded by consecutive integers and casted to 'categoric' dtype: df['categoric_column'] = df['categoric_column'].astype('categoric') before sending the data to LGBMTuner.fit() method.
+  LGBM categorical_feature is supported. According to `LGBM docs <https://lightgbm.readthedocs.io/en/latest/Parameters.html#categorical_feature>`_ Unique values within each categoric feature must be encoded by consecutive integers and casted to `'categoric'` dtype: `df['categoric_column'] = df['categoric_column'].astype('categoric')` before sending the data to `LGBMTuner.fit()` method.
 
 .. note:: 
   All other LGBM configurations are supported from version 1.1.0. Pass the desired parameters as a dictionary to a `custom_lgbm_params` argument at LGBMTuner init.
@@ -811,6 +811,7 @@ Parameters (keyword arguments only)
 
     .. code-block:: python
 
+     # Example
      def stop_callback(): 
          # stop training if variable value in file is changed
          with open('stop_training.txt', 'r') as f:
@@ -1032,11 +1033,10 @@ LGBMTuner with custom settings
   tuner.plot_intermediate_values(interactive = True)
   tuner.predict(test, threshold = 0.3)
 
-LGBMTuner with custom LGBM fixed settings
+LGBMTuner with any other additional lightgbm params
 
 .. code-block:: python
   my_custom_params = {'is_unbalance': True, 'zero_as_missing': True}
-  
   tuner = LGBMTuner(metric = 'auc', trials = 300, custom_lgbm_params = my_custom_params)
 
 LGBMTuner with custom optimization parameters for gridsearch
