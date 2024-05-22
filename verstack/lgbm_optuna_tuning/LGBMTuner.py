@@ -28,7 +28,7 @@ supported_gridsearch_params = [
 
 class LGBMTuner:
 
-    __version__ = '1.3.2'
+    __version__ = '1.4.0'
 
     def __init__(self, **kwargs):
         '''
@@ -59,7 +59,27 @@ class LGBMTuner:
             custom lgbm parameters to be passed to the model, please refer to LGBM documentation for available parameters.
         eval_results_callback : func
             callback function to be applied on the eval_results dictionary that is being populated
-            with evaluation metric score upon completion of each training trial.
+            with evaluation metric score upon completion of each training trial.            
+            Example: 
+                def log_results_callback(results): 
+                    # save results to disk
+                    with open('eval_results.json', 'w') as f:
+                        json.dump(results, f)
+                
+                lgbm_tuner = LGBMTuner(metric = 'accuracy', eval_results_callback = log_results_callback)
+
+        stop_training_callback : func
+            callback function to stop training based on a condition. 
+            Example: 
+                def stop_callback(): 
+                    # stop training if variable value in file is changed
+                    with open('stop_training.txt', 'r') as f:
+                        if eval(f.read()):
+                            return True
+                    return False
+
+                lgbm_tuner = LGBMTuner(metric = 'accuracy', stop_training_callback = stop_callback)
+
         grid: dict
             Parameters search space for optimization. 
             
@@ -116,6 +136,7 @@ class LGBMTuner:
         self._best_params = None
         self.eval_results = {} # evaluation metric results per each trial storage
         self.eval_results_callback = kwargs.get('eval_results_callback', None)
+        self.stop_training_callback = kwargs.get('stop_training_callback', None)
         self.search_space = self._get_default_search_space()
         self.grid = self._get_all_available_and_defined_grids()
         self.early_stopping_results = {} # stores early_stopping results per each trial
@@ -612,6 +633,13 @@ class LGBMTuner:
             optimization metric validation result.
 
         '''
+
+        if self.stop_training_callback is not None:
+            stop = self.stop_training_callback()
+            if stop:
+                print('STOPPING CALLBACK INITIALIZED')
+                trial.study.stop()
+
         optimization_metric_func = get_optimization_metric_func(self.metric)
         dtrain, dvalid, valid_x, valid_y = self._get_dtrain_dvalid_objects(X, y, self.metric, return_raw_valid = True)
         params = self._sample_from_search_space(trial)
@@ -1146,7 +1174,7 @@ class LGBMTuner:
         self.printer.print('Settings:', order=3)
         self.printer.print(f'Trying {self.trials} trials', order=4)
         self.printer.print(f'Evaluation metric: {self.metric} ', order=4)
-        self.printer.print(f'Study direction: minimize {optimization_metric_func.__name__}', order=4)#{get_study_direction(metric)} {optimization_metric_func.__name__})
+        self.printer.print(f'Study direction: minimize {optimization_metric_func.__name__}', order=4)
         print()
             
         self.target_classes = y.unique().tolist()
@@ -1165,7 +1193,7 @@ class LGBMTuner:
         # incorporate user defined params if passed
         if optuna_study_params is not None:
             optuna_params.update(optuna_study_params)
-        study = optuna.create_study(**optuna_params)#get_study_direction(metric))
+        study = optuna.create_study(**optuna_params)
 
         optimization_function = partial(self._objective, X = X.values, y = y.values)
 
@@ -1196,6 +1224,7 @@ class LGBMTuner:
                 self.plot_importances(dark=False, save=False)
         # clean up
         self.eval_results_callback = None
+        self.stop_training_callback = None
         # --------------------------------
         break_symbol = '|'
         print()

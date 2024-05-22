@@ -1,5 +1,5 @@
 ############################
-verstack 3.9.2 Documentation
+verstack 3.9.3 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -805,6 +805,21 @@ Parameters (keyword arguments only)
 
   Callback function to be applied on the eval_results dictionary that is being populated with evaluation metric score upon completion of each training trial
 
+* ``stop_training_callback`` [default=None]
+
+  Callback function to interrupt the training process. If applied, current training will be interrupted after current trial is finished. All the training artefacts will be saved and LGBMTuner can be used for prediction, analysis, etc.
+
+    .. code-block:: python
+
+     def stop_callback(): 
+         # stop training if variable value in file is changed
+         with open('stop_training.txt', 'r') as f:
+             if eval(f.read()):
+                 return True
+         return False
+
+     lgbm_tuner = LGBMTuner(metric = 'accuracy', stop_training_callback = stop_callback)
+  
 
 Methods
 ===========================
