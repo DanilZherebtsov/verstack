@@ -28,7 +28,7 @@ supported_gridsearch_params = [
 
 class LGBMTuner:
 
-    __version__ = '1.4.0'
+    __version__ = '1.4.1'
 
     def __init__(self, **kwargs):
         '''
@@ -589,13 +589,13 @@ class LGBMTuner:
         # save early stopping results per each trial for further use in best_params
         self.early_stopping_results[trial.number] = gbm.best_iteration
         # save evaluation metric results per each trial
-        self.eval_results[f'train_trial_{trial.number}'] = result
+        self.eval_results[f'train_trial_{trial.number}_out_of_{self.trials}'] = result
         # calculate & print eval_metric only if eval_metric != optimization_metric
         if self.metric != optimization_metric_func.__name__:
             eval_score = get_eval_score(valid_y, pred, self.metric, params['objective'])
             self.printer.print(f'Evaluation score ({print_lower_greater_better(self.metric):<4}): {self.metric}: {eval_score}', order=4)
             # save evaluation metric results per each trial
-            self.eval_results[f'train_trial_{trial.number}'] = eval_score
+            self.eval_results[f'train_trial_{trial.number}_out_of_{self.trials}'] = eval_score
         self.printer.print(breakline='.')
 
         if self.eval_results_callback:
