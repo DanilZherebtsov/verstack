@@ -1,3 +1,5 @@
+.. image:: https://img.shields.io/pepy/dt/verstack
+   :alt: Pepy Total Downlods
 
 .. image:: logo.png
 
