@@ -1,8 +1,9 @@
 .. image:: https://img.shields.io/pepy/dt/verstack
    :alt: Pepy Total Downlods
-.. image:: logo.png
-.. image:: https://img.shields.io/badge/version-3.9.4-success.svg
+.. image:: https://img.shields.io/badge/version-3.9.4-success.svg?color=blue
    :alt: Static Badge
+
+.. image:: logo.png
 
 **verstack** is a set of Machine learning tools to make a Data Scientist's work efficient.
 
