@@ -1,9 +1,10 @@
 .. image:: https://img.shields.io/pepy/dt/verstack
    :alt: Pepy Total Downlods
-
 .. image:: logo.png
+.. image:: https://img.shields.io/badge/version-3.9.4-success.svg
+   :alt: Static Badge
 
-**verstack 3.9.4** is a set of Machine learning tools to make a Data Scientist's work efficient.
+**verstack** is a set of Machine learning tools to make a Data Scientist's work efficient.
 
 The package contains multiple tools for: training & tuning machine learning models, creating ensembles, working with datetime objects, data transformation & wrangling, imputing missing values, concurrency work and many more.
 
