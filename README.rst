@@ -1,5 +1,6 @@
 .. image:: https://img.shields.io/pepy/dt/verstack
    :target: https://pypi.org/project/verstack/
+
 .. image:: https://img.shields.io/badge/version-3.9.4-success.svg?color=blue
    :target: https://img.shields.io/badge/version-3.9.4-success.svg?color=blue
 
