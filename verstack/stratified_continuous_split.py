@@ -172,7 +172,6 @@ def scsplit(*args, stratify, test_size = 0.3, train_size = 0.7, continuous = Tru
 
     if random_state:
         np.random.seed(random_state)
-
     if len(args) == 2:
         X = args[0]
         y = args[1]
@@ -220,11 +219,11 @@ def scsplit(*args, stratify, test_size = 0.3, train_size = 0.7, continuous = Tru
             raise Exception(f'{e}\nReset index of dataframe/Series before applying scsplit')
         return X_train, X_val, y_train, y_val
     else:
-        temp = pd.concat([X, pd.DataFrame(y_binned, columns = [stratify.name])], axis= 1)
+        temp = pd.concat([X, pd.DataFrame(y_binned, columns = [stratify.name], index=y.index)], axis= 1)
         tr, te = split(temp,
                        stratify = temp[stratify.name],
                        test_size = test_size if test_size else None,
                        train_size = train_size if train_size else None)
-        train = args[0].iloc[tr.index]
-        test = args[0].iloc[te.index]
+        train = args[0].loc[tr.index]
+        test = args[0].loc[te.index]
         return train, test
