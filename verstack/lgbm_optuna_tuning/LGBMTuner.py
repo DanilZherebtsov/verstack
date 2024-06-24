@@ -28,7 +28,7 @@ supported_gridsearch_params = [
 
 class LGBMTuner:
 
-    __version__ = '1.4.1'
+    __version__ = '1.4.2'
 
     def __init__(self, **kwargs):
         '''
@@ -535,8 +535,9 @@ class LGBMTuner:
         
         import lightgbm as lgb
         self.printer.print('Fitting optimized model with the follwing params:', order=2)
-        for key, value in self._best_params.items():
-            print(f'{key:<33}: {value}')
+        if self.verbosity > 0:
+            for key, value in self._best_params.items():
+                print(f'{key:<33}: {value}')
         self._fitted_model = lgb.train(self._best_params, lgb.Dataset(X,y))
 
     # ------------------------------------------------------------------------------------------
