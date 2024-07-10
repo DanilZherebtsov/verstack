@@ -45,7 +45,7 @@ class NaNImputer:
         self._transformers = []
         self._train_sample_size = train_sample_size
         self._to_drop = []
-        self._do_not_consider = []
+        self._imputed_with_string = []
         self._cols_constants = []
         self._fill_constants = {}
         '''
@@ -105,7 +105,7 @@ class NaNImputer:
     # do_not_consider
     @property
     def do_not_consider(self):
-        return self._do_not_consider
+        return self._imputed_with_string
     # -------------------------------------------------------------------------
 
     def _dont_need_impute(self, df):
@@ -171,7 +171,7 @@ class NaNImputer:
         for col in object_nan_cols:
             if df[col].nunique() > 200:
                 df[col].fillna('Missing_data', inplace = True)
-                self._do_not_consider.append(col)
+                self._imputed_with_string.append(col)
                 self.printer.print(f'Missing values in {col} replaced by "Missing_data" string', order=3)
         return df
 
@@ -190,7 +190,7 @@ class NaNImputer:
         num_cols_to_process = len(object_cols) + len([col for col in self._cols_to_impute if col not in object_cols])
         cnt = 0
         for col in object_cols:
-            if col not in self._do_not_consider:
+            if col not in self._imputed_with_string:
                 df = self._factorize_col(df, col)
                 cnt+=1
                 if cnt % 10 == 0:
@@ -317,7 +317,7 @@ class NaNImputer:
             binary corellations with the target col. Do not consider cols which NaN values\
                 were filled with 'Missing_data'
         '''                
-        exclude_from_df = self._do_not_consider
+        exclude_from_df = self._imputed_with_string
         # catch object or datetime cols to exclude from corellations calculation
         not_supported = df.drop(col, axis = 1).select_dtypes(include = ['O', 'datetime']).columns.tolist()
         corellations = df.drop(exclude_from_df + [col] + not_supported, axis = 1).apply(lambda x: x.corr(df[col]))

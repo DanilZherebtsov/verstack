@@ -36,7 +36,7 @@ params_regression = {"learning_rate": 0.05,
 
 class NaNImputer:
     
-    __version__ = '2.0.0'
+    __version__ = '2.0.1'
 
     def __init__(self, train_sample_size = 30000, verbose = True):
         self._verbose = verbose
@@ -45,7 +45,7 @@ class NaNImputer:
         self._transformers = []
         self._train_sample_size = train_sample_size
         self._to_drop = []
-        self._do_not_consider = []
+        self._imputed_with_string = [] # obj cols to be imputed with 'Missing_data'
         self._cols_constants = []
         self._fill_constants = {}
         '''
@@ -102,10 +102,10 @@ class NaNImputer:
     def to_drop(self):
         return self._to_drop
     # -------------------------------------------------------------------------
-    # do_not_consider
+    # imputed_with_string
     @property
-    def do_not_consider(self):
-        return self._do_not_consider
+    def imputed_with_string(self):
+        return self._imputed_with_string
     # -------------------------------------------------------------------------
 
     def _dont_need_impute(self, df):
@@ -163,16 +163,35 @@ class NaNImputer:
                                             order = 2)
         return df
 
-    def _fill_object_nan_cols_with_string(self, df):
+
+    def _fill_with_string(self, df, col):
+        df[col].fillna('Missing_data', inplace = True)
+        self.printer.print(f'Missing values in {col} replaced by "Missing_data" string', order=3)
+        return df
+
+
+    def _fill_object_nan_cols_with_string(self, df, is_train=True):
         """Fill missing values in text column with 'Missing_data' string value.
         Applicable to object type columns with over 500 unique values (considered as text).
+        
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Dataframe with missing values.
+        is_train : bool, optional
+            Flag for train/test set. If False, for columns in self._imputed_with_string fill them
+            with "Missing_data" even if their nunuque < 200. The default is True. 
+        
         """
         object_nan_cols = [col for col in df.select_dtypes(include = 'O') if np.any(df[col].isnull())]
         for col in object_nan_cols:
             if df[col].nunique() > 200:
-                df[col].fillna('Missing_data', inplace = True)
-                self._do_not_consider.append(col)
-                self.printer.print(f'Missing values in {col} replaced by "Missing_data" string', order=3)
+                df = self._fill_with_string(df, col)
+                if is_train:
+                    self._imputed_with_string.append(col)
+            else:
+                if col in self._imputed_with_string:
+                    df = self._fill_with_string(df, col)
         return df
 
     def _factorize_col(self, df, col):
@@ -190,7 +209,7 @@ class NaNImputer:
         num_cols_to_process = len(object_cols) + len([col for col in self._cols_to_impute if col not in object_cols])
         cnt = 0
         for col in object_cols:
-            if col not in self._do_not_consider:
+            if col not in self._imputed_with_string:
                 df = self._factorize_col(df, col)
                 cnt+=1
                 if cnt % 10 == 0:
@@ -317,7 +336,7 @@ class NaNImputer:
             binary corellations with the target col. Do not consider cols which NaN values\
                 were filled with 'Missing_data'
         '''                
-        exclude_from_df = self._do_not_consider
+        exclude_from_df = self._imputed_with_string
         # catch object or datetime cols to exclude from corellations calculation
         not_supported = df.drop(col, axis = 1).select_dtypes(include = ['O', 'datetime']).columns.tolist()
         corellations = df.drop(exclude_from_df + [col] + not_supported, axis = 1).apply(lambda x: x.corr(df[col]))
@@ -356,6 +375,8 @@ class NaNImputer:
         '''Header function to trigger nan imputation in df'''
         self.printer.print(f'Imputing single core {len(self._cols_to_impute.keys())} cols', order = 2)
         for col in self._cols_to_impute.keys():
+            if col in self._imputed_with_string:
+                continue
             pred = self._predict_nan_in_col(df, col)
             # insert preds into col nan_ix
             nan_ix = df[df[col].isnull()].index
@@ -424,7 +445,7 @@ class NaNImputer:
         # ------------------------------
         df = self._get_or_fill_constants(df, train)
         # ------------------------------
-        df = self._fill_object_nan_cols_with_string(df)
+        df = self._fill_object_nan_cols_with_string(df, train)
         # ------------------------------
         self._get_cols_to_impute(df)
         # ------------------------------
