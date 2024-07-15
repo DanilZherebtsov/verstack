@@ -1,5 +1,5 @@
 ############################
-verstack 3.9.7 Documentation
+verstack 3.9.8 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -1456,7 +1456,7 @@ Use ThreshTuner with all default parameters
 .. code-block:: python
 
   thresh = ThreshTuner()
-  thres.fit(labels, pred)
+  thresh.fit(labels, pred)
 
 Customized ThreshTuner application
 

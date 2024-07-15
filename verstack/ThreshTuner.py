@@ -1,11 +1,12 @@
 import operator
 import numpy as np
 import pandas as pd
+from sklearn.metrics import balanced_accuracy_score
 from collections import Counter
 
 class ThreshTuner():
     
-    __version__ = '0.0.4'
+    __version__ = '0.0.5'
     
     ''' Tune threshold for binary classificaiton models output. '''
     
@@ -196,8 +197,6 @@ class ThreshTuner():
 
         '''
 
-        from sklearn.metrics import balanced_accuracy_score
-
         labels = pd.Series(labels)
         pred = pd.Series(pred)
 
@@ -214,8 +213,7 @@ class ThreshTuner():
             self.min_threshold = self._get_thresh_barriers(labels, smallest = True)
         if not self.max_threshold:
             self.max_threshold = self._get_thresh_barriers(labels, smallest = False)
-
-        if loss_func:
+        if loss_func is not None:
             self.loss_func = loss_func
         else:
             self.loss_func = balanced_accuracy_score
