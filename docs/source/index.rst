@@ -1,5 +1,5 @@
 ############################
-verstack 3.9.8 Documentation
+verstack 4.0.2 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -168,7 +168,7 @@ Stacker
 
 .. note:: **Depreciation warning**
   
-    Stacker is deprecated from version 4.0.0. Please use verstack version 3.9.8. if you need this module. If you have been using stacker and want to reinstate it as a part of future verstack releases, post at `issue <https://github.com/DanilZherebtsov/verstack/issues>`.
+    Stacker is deprecated from version 4.0.0. Please use verstack version 4.0.2. if you need this module. If you have been using stacker and want to reinstate it as a part of future verstack releases, raise an `issue <https://github.com/DanilZherebtsov/verstack/issues>`.
 
 Fully automated highly configurable stacking ensemble creation class. Can create single or multiple layers of stacked features. Applicable for train/test set features creation. Any number of layers and models within layers can be added to Stacker instance (models in layers must contain fit / predict / predict_proba (`if classification`) methods for the Stacker to properly create features using these models). 
 
