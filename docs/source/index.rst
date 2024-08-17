@@ -6,7 +6,7 @@ Machine learning tools to make a Data Scientist's work efficient
 verstack package contains the following tools:
 
 * **PandasOptimizer** oad a pandas.DataFrame with optimized datatypes (reduce RAM usage)
-* **Stacker** automated stacking ensemble configuration/train/features creation in train/test sets
+* **Stacker** automated stacking ensemble configuration/train/features creation in train/test sets. **Depreciated from version 4.0.0**
 * **FeatureSelector** automated feature selection class based on recursive feature elimination
 * **DateParser** automated date columns finder and parser
 * **LGBMTuner** automated lightgbm models tuner with optuna
@@ -165,6 +165,10 @@ Using NaNImputer with all default parameters
 ******************
 Stacker
 ******************
+
+.. note:: **Depreciation warning**
+  
+    Stacker is deprecated from version 4.0.0. Please use verstack version 3.9.8. if you need this module. If you have been using stacker and want to reinstate it as a part of future verstack releases, post at `issue <https://github.com/DanilZherebtsov/verstack/issues>`.
 
 Fully automated highly configurable stacking ensemble creation class. Can create single or multiple layers of stacked features. Applicable for train/test set features creation. Any number of layers and models within layers can be added to Stacker instance (models in layers must contain fit / predict / predict_proba (`if classification`) methods for the Stacker to properly create features using these models). 
 

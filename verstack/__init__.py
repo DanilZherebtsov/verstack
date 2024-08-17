@@ -14,7 +14,7 @@ from verstack.FeatureSelector import FeatureSelector
 from verstack.PandasOptimizer import PandasOptimizer
 # LGBMTuner import
 from verstack.lgbm_optuna_tuning.LGBMTuner import LGBMTuner
-# Stacker import
-from verstack.stacking.Stacker import Stacker
+# Depreciated imports
+from verstack.stacking_depreciated.Stacker import Stacker
 #create a __version__ attribute in the verstack class
 from .version import __version__
