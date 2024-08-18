@@ -7,7 +7,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../'))
 import guzzle_sphinx_theme
-autodoc_mock_imports = ["xgboost", "cmake"]
+autodoc_mock_imports = ["cmake"]
 # -- Project information -----------------------------------------------------
 
 project = 'verstack'
