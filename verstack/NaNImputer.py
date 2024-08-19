@@ -33,7 +33,6 @@ params_regression = {"learning_rate": 0.05,
                      "random_state": 42,
                      "n_jobs": -1}
 
-
 class NaNImputer:
     
     __version__ = '2.0.1'

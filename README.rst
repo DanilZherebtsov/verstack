@@ -1,7 +1,7 @@
 .. image:: https://img.shields.io/pepy/dt/verstack
    :target: https://pypi.org/project/verstack/
 
-.. image:: https://img.shields.io/badge/version-4.0.2-success.svg?color=blue
+.. image:: https://img.shields.io/badge/version-4.0.3-success.svg?color=blue
    :target: https://pypi.org/project/verstack/
 
 .. image:: logo.png
@@ -31,7 +31,6 @@ Dependencies
 - Python (>= 3.6)
 - numpy
 - pandas<=2.0.3
-- xgboost
 - scikit-learn>=0.23.2,<=1.1.3
 - lightgbm>=3.3.0,<=4.0.0
 - optuna>=2.10.0,<=3.2.0
