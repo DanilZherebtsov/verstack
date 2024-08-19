@@ -10,14 +10,6 @@ class FeatureSelector:
     __version__ = '0.0.8'
 
     def __init__(self, **kwargs):
-                 # objective = 'regression', 
-                 # auto = False,
-                 # allowed_score_gap = 0.0,
-                 # final_scoring_model = None,
-                 # default_model_linear = False,
-                 # custom_model = None, 
-                 # subset_size_mb = 20,
-                 # verbose = True):
 
         '''
         Initialize FeatureSelectorRFE instance.

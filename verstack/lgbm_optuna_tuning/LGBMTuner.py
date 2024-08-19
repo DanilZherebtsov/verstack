@@ -11,7 +11,8 @@ import plotly.express as px
 import warnings
 warnings.filterwarnings("ignore")
 import matplotlib.pyplot as plt
-from verstack.tools import timer, Printer
+from verstack.tools import timer
+from verstack.tools import Printer
 from verstack.lgbm_optuna_tuning.lgb_metrics import get_pruning_metric, get_optimization_metric_func, define_objective, classification_metrics, regression_metrics, get_eval_score, print_lower_greater_better, supported_metrics
 from verstack.lgbm_optuna_tuning.args_validators import *
 from verstack.lgbm_optuna_tuning.optuna_tools import Distribution, OPTUNA_DISTRIBUTIONS_MAP, SearchSpace
@@ -119,7 +120,8 @@ class LGBMTuner:
 
         '''
         self.verbosity = kwargs.get('verbosity', 1)
-        self.printer = Printer(verbose=True if self.verbosity > 0 else False)
+        self.verbose = True if self.verbosity > 0 else False
+        self.printer = Printer(self.verbose)
         self.metric = kwargs.get('metric')
         self.trials = kwargs.get('trials', 100)
         self.refit = kwargs.get('refit', True)
