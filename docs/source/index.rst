@@ -1,5 +1,5 @@
 ############################
-verstack 4.1.2 Documentation
+verstack 4.1.3 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -1088,7 +1088,7 @@ Impute all missing values in a pandas dataframe by xgboost models in multiproces
 
 .. note:: 
   This is the second major version of `NaNImputer`. The original class (last version 1.4.0) 
-  had been very popular. The legacy version is `NaNImputerLegacy` has been depresciated after verstack version 4.1.2
+  had been very popular. The legacy version is `NaNImputerLegacy` has been depresciated after verstack version 4.1.3
   Differences between the NaNImputer and NaNImputerLegacy:
       - The new NaNImputer is based on LightGBM instead of XGBoost in the legacy version
       - The new NaNImputer is using a single core multithreading instead of multicore legacy version, it is significantly faster

@@ -9,7 +9,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 class DateParser:
 
-    __version__ = "0.1.2"
+    __version__ = "0.1.3"
 
     def __init__(self, verbose=True):
         """
@@ -68,9 +68,10 @@ class DateParser:
 
     def col_contains_dates(self, series):
         """Check if column contains date-like strings"""
-        return all(
-            series.str.contains(r"\d{1,4}.\d{1,2}.\d{1,4}", regex=True, na=True)
+        date_pattern = (
+            r"^(?!\d+\.\d+$)\d{1,4}[-/]\d{1,2}[-/]\d{1,4}( \d{2}:\d{2}:\d{2})?$"
         )
+        return all(series.astype(str).str.contains(date_pattern, regex=True, na=True))
 
     def find_datetime_cols(self, df):
         """Find all columns that contain date-like strings and convert to datetime objects"""
@@ -91,7 +92,9 @@ class DateParser:
 
     def is_year_four_digits(self, dt_str_series):
         """Check if year is four digits"""
-        return all(dt_str_series.str.contains(r"\d{4}", regex=True, na=True))
+        return all(
+            dt_str_series.astype(str).str.contains(r"\d{4}", regex=True, na=True)
+        )
 
     def infer_dayfirst_argument(self, dt_str_series):
         """Infer dayfirst argument for pd.to_datetime based on date-like strings
@@ -264,9 +267,7 @@ class DateParser:
                 self._created_datetime_cols[col] = []
             self._created_datetime_cols[col].append("week")
         if "hour" in self._created_datetime_cols[col]:
-            df[f"{col}_part_of_day"] = df[f"{col}_hour"].apply(
-                self.extract_time_of_day
-            )
+            df[f"{col}_part_of_day"] = df[f"{col}_hour"].apply(self.extract_time_of_day)
             self._created_datetime_cols[col].append("part_of_day")
         return df
 
@@ -295,9 +296,7 @@ class DateParser:
             for col in self._datetime_cols:
                 data = self.extract_date_features(data, col)
                 data.drop(col, axis=1, inplace=True)
-            self.printer.print(
-                "Extracted following datetime features:", order=2
-            )
+            self.printer.print("Extracted following datetime features:", order=2)
             pp = pprint.PrettyPrinter(indent=4)
             pp.pprint(self._created_datetime_cols)
         except Exception as e:
@@ -342,9 +341,7 @@ class DateParser:
                         df[col], feature, fit_transform=False
                     )
             if "week" in self._created_datetime_cols[col]:
-                df[f"{col}_week"] = self.extract_week(
-                    df[col], fit_transform=False
-                )
+                df[f"{col}_week"] = self.extract_week(df[col], fit_transform=False)
             if "hour" in self._created_datetime_cols[col]:
                 df[f"{col}_part_of_day"] = df[f"{col}_hour"].apply(
                     self.extract_time_of_day
