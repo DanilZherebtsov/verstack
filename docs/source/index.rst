@@ -11,7 +11,6 @@ verstack package contains the following tools:
 * **DateParser** automated date columns finder and parser
 * **LGBMTuner** automated lightgbm models tuner with optuna
 * **NaNImputer** impute all missing values in a pandas dataframe using advanced machine learning with 1 line of code
-* **NaNImputerLegacy** legacy version of a multicore NaNImputer based on XGB
 * **Multicore** execute any function in concurrency using all the available cpu cores
 * **ThreshTuner** tune threshold for binary classification predictions
 * **stratified_continuous_split** create train/test splits stratified on the continuous variable
@@ -1148,6 +1147,14 @@ Methods
     - ``data`` pd.DataFrame
 
       dataframe with missing values in a single/multiple columns
+    
+    - ``drop_hopless`` bool [default=True]
+
+      Flag for dropping columns which cannot be imputed. Drop columns with all NaNs or with over 50% NaNs. 
+      Intended to be used as True for train set imputation and False for test set imputation 
+      (with same instance of NaNImputer) so that test set imputation would not prodice dataset of different structure.
+      If False, object columns that cannot be imputed will be filled with with "Missing_data";
+      and numeric columns with all missing will be returned unimputed.
 
 Examples
 ================================================================

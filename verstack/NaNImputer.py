@@ -40,7 +40,7 @@ params_regression = {
 
 class NaNImputer:
 
-    __version__ = "2.0.2"
+    __version__ = "2.0.3"
 
     def __init__(self, train_sample_size=30000, verbose=True):
         self._verbose = verbose
@@ -146,9 +146,9 @@ class NaNImputer:
             self._cols_to_impute[col] = {}
             self._cols_to_impute[col]["type"] = types[ix]
 
-    def _drop_or_keep(self, df, col, train, message, order):
-        """Drop column if self.train == True else if col in self._to_drop and drop, else do not drop."""
-        if train:
+    def _drop_or_keep(self, df, col, drop_hopeless, message, order):
+        """Drop column if self.drop_hopeless == True else if col in self._to_drop and drop, else do not drop."""
+        if drop_hopeless:
             df.drop(col, axis=1, inplace=True)
             self.printer.print(message, order)
             self._to_drop.append(col)
@@ -159,7 +159,7 @@ class NaNImputer:
                 self.printer.print(message, order)
             return df
 
-    def _drop_hopeless_nan_cols(self, df, train):
+    def _drop_hopeless_nan_cols(self, df, drop_hopeless):
         """Drop cols with over 50% NaN or cols with constant nonNaN value"""
         self.printer.print("Drop hopeless NaN cols", order=2)
         for col in df:
@@ -169,7 +169,7 @@ class NaNImputer:
                     df = self._drop_or_keep(
                         df,
                         col,
-                        train,
+                        drop_hopeless,
                         message=f"droped column {col} with NaNs and a constant non-NaN value",
                         order=2,
                     )
@@ -178,7 +178,7 @@ class NaNImputer:
                     df = self._drop_or_keep(
                         df,
                         col,
-                        train,
+                        drop_hopeless,
                         message=f"droped column {col} with NaNs and a constant non-NaN value",
                         order=2,
                     )
@@ -191,7 +191,7 @@ class NaNImputer:
         )
         return df
 
-    def _fill_object_nan_cols_with_string(self, df, is_train=True):
+    def _fill_object_nan_cols_with_string(self, df, drop_hopeless=True):
         """Fill missing values in text column with 'Missing_data' string value.
         Applicable to object type columns with over 500 unique values (considered as text).
 
@@ -199,9 +199,12 @@ class NaNImputer:
         ----------
         df : pd.DataFrame
             Dataframe with missing values.
-        is_train : bool, optional
-            Flag for train/test set. If False, for columns in self._imputed_with_string fill them
-            with "Missing_data" even if their nunuque < 200. The default is True.
+        drop_hopeless : bool, optional
+            Flag for dropping columns which cannot be imputed. Intended to be used as True for
+            train set imputation and False for test set imputation (with same instance of NaNImputer)
+            so that test set imputation would not prodice dataset of different structure.
+            If False, object columns that cannot be imputed will be filled with with "Missing_data";
+            and numeric columns with all missing will be returned unimputed.
 
         """
         object_nan_cols = [
@@ -210,7 +213,7 @@ class NaNImputer:
         for col in object_nan_cols:
             if df[col].nunique() > 200:
                 df = self._fill_with_string(df, col)
-                if is_train:
+                if drop_hopeless:
                     self._imputed_with_string.append(col)
             else:
                 if col in self._imputed_with_string:
@@ -397,6 +400,11 @@ class NaNImputer:
 
     def _predict_nan_in_col(self, df, col):
         """Execute all functions to train the model and create prediction for a col in df"""
+        if np.all(df[col].isnull()) and col not in self._fill_constants:
+            print(
+                f'Column "{col}" contains all NaNs, but cannot be dropped because drop_hopeless == False, returned unimputed'
+            )
+            return df[col].values
         try:
             objective = self._define_objective(df[col].dropna())
             X_train_col, y_train_col, X_test_col = self._get_splits(
@@ -437,14 +445,16 @@ class NaNImputer:
             df = enc.inverse_transform(df)
         return df
 
-    def _clear_attributes_placeholders_for_test(self):
-        """Remove list of columns to impute and fitted transformers from instance attributes"""
+    def _clear_intermediate_attributes(self):
+        """Remove list of columns to impute and fitted transformers from instance attributes.
+        They are used only for the current imputation and should be cleared before the next one.
+        """
         self._cols_to_impute = {}
         self._transformers = []
 
-    def _get_constants(self, df, train):
+    def _get_constants(self, df, drop_hopeless):
         """Get cols mean/mode from train to fill test unimputable () cols with constants"""
-        if train:
+        if drop_hopeless:
             for col in df:
                 if df[col].dtype in ["O", "bool"]:
                     self._fill_constants[col] = df[col].mode().values[0]
@@ -455,13 +465,19 @@ class NaNImputer:
         """Fill test unimputable cols with constants"""
         # fill all NaNs or a column with single unique
         for col in df:
-            if np.any(df[col].isnull()):
-                if df[col].nunique() in [0, 1]:
-                    df[col].fillna(self._fill_constants[col], inplace=True)
+            if np.all(df[col].isnull()) and col not in self._fill_constants:
+                print(
+                    f'Column "{col}" contains all NaNs, but cannot be dropped because drop_hopeless == False, returned unimputed'
+                )
+                continue
+            else:
+                if np.any(df[col].isnull()):
+                    if df[col].nunique() in [0, 1]:
+                        df[col].fillna(self._fill_constants[col], inplace=True)
         return df
 
     @timer
-    def impute(self, data, train=True):
+    def impute(self, data, drop_hopeless=True):
         """
         Main function to execute NaN imputation in df.
 
@@ -469,11 +485,12 @@ class NaNImputer:
         ----------
         data : pd.DataFrame
             data for NaN imputation.
-        train : bool, optional
-            flag for train / test set imputation.
-            If False will not drop excessive column when imputing NaN;
-            used for test set NaN imputation in order to output the same shaped imputed_df.
-            The default is True.
+        drop_hopeless : bool, optional
+            Flag for dropping columns which cannot be imputed. Intended to be used as True for
+            train set imputation and False for test set imputation (with same instance of NaNImputer)
+            so that test set imputation would not prodice dataset of different structure.
+            If False, object columns that cannot be imputed will be filled with with "Missing_data";
+            and numeric columns with all missing will be returned unimputed.
 
         Returns
         -------
@@ -481,7 +498,7 @@ class NaNImputer:
             data with all NaN cols imputed.
 
         """
-        self._get_constants(data, train)
+        self._get_constants(data, drop_hopeless)
         if self._dont_need_impute(data):
             self.printer.print("no missing data", order=2)
             return data
@@ -489,15 +506,14 @@ class NaNImputer:
         self.printer.print(f"Initiating NaNImputer.impute", order=1)
         if self.verbose:
             self._print_data_dims(df)
-        if not train:
-            self._clear_attributes_placeholders_for_test()
+        self._clear_intermediate_attributes()
         # ------------------------------
-        df = self._drop_hopeless_nan_cols(df, train)
+        df = self._drop_hopeless_nan_cols(df, drop_hopeless)
         # ------------------------------
-        if not train:
+        if not drop_hopeless:
             df = self._fill_constants_in_test(df)
         # ------------------------------
-        df = self._fill_object_nan_cols_with_string(df, train)
+        df = self._fill_object_nan_cols_with_string(df, drop_hopeless)
         # ------------------------------
         self._get_cols_to_impute(df)
         # ------------------------------
