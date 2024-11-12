@@ -9,7 +9,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 class DateParser:
 
-    __version__ = "0.1.3"
+    __version__ = "0.1.4"
 
     def __init__(self, verbose=True):
         """
@@ -69,7 +69,7 @@ class DateParser:
     def col_contains_dates(self, series):
         """Check if column contains date-like strings"""
         date_pattern = (
-            r"^(?!\d+\.\d+$)\d{1,4}[-/]\d{1,2}[-/]\d{1,4}( \d{2}:\d{2}:\d{2})?$"
+            r"^(?!\d+\.\d+$)\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}( \d{2}:\d{2}:\d{2})?$"
         )
         return all(series.astype(str).str.contains(date_pattern, regex=True, na=True))
 
