@@ -9,7 +9,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 class DateParser:
 
-    __version__ = "0.1.4"
+    __version__ = "0.1.5"
 
     def __init__(self, verbose=True):
         """
@@ -272,7 +272,18 @@ class DateParser:
         return df
 
     def fit_transform(self, df):
-        """Find datetime columns and extract date features from them
+        """Find datetime columns and extract date features from them.
+
+        Supported formats:
+        DD/MM/YYYY
+        MM/DD/YYYY
+        YYYY/MM/DD
+        YYYY/DD/MM
+
+        Separator betweed date components can be [/, -, .]
+
+        Any of the above date fomat may also include timestamp HH:MM:SS
+        E.g. 'DD.MM.YYYY HH:MM:SS'. Milliseconds are not supported.
 
         Parameters
         ----------

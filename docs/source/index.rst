@@ -605,6 +605,16 @@ Datetime columns will be found automatically, transformed to datetime[64] format
  
  ... same set of features will be created (with column name prefix) for each of the datetime columns DateParser detects.
 
+Supported datetime formats: 
+- DD/MM/YYYY
+- MM/DD/YYYY
+- YYYY/MM/DD
+- YYYY/DD/MM
+
+Separator betweed date components can be [/, -, .]
+
+Any of the above date fomat may also include timestamp HH:MM:SS. E.g. '25.03.2024 12:35:48'. Miliseconds are not supported.
+
 **Initialize DateParser**
 
 .. code-block:: python
