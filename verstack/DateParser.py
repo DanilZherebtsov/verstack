@@ -9,7 +9,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 class DateParser:
 
-    __version__ = "0.1.6"
+    __version__ = "0.1.7"
 
     def __init__(self, verbose=True):
         """
@@ -79,7 +79,10 @@ class DateParser:
         for col in df.select_dtypes(include="object"):
             if self.col_contains_dates(df[col]):
                 converted_to_datetime = self.convert_to_datetime(df[col])
-                if converted_to_datetime.dtype == "datetime64[ns]":
+                if (
+                    converted_to_datetime.dtype == "datetime64[ns]"
+                    and converted_to_datetime.nunique() > 1
+                ):
                     df[col] = converted_to_datetime
                     datetime_cols.append(col)
         if len(datetime_cols) > 0:
