@@ -9,7 +9,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 class DateParser:
 
-    __version__ = "0.1.5"
+    __version__ = "0.1.6"
 
     def __init__(self, verbose=True):
         """
@@ -266,7 +266,7 @@ class DateParser:
             if self._created_datetime_cols.get(col) is None:
                 self._created_datetime_cols[col] = []
             self._created_datetime_cols[col].append("week")
-        if "hour" in self._created_datetime_cols[col]:
+        if "hour" in self._created_datetime_cols.get(col, []):
             df[f"{col}_part_of_day"] = df[f"{col}_hour"].apply(self.extract_time_of_day)
             self._created_datetime_cols[col].append("part_of_day")
         return df
