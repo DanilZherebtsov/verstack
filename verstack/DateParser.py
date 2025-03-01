@@ -9,7 +9,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 class DateParser:
 
-    __version__ = "0.1.8"
+    __version__ = "0.1.9"
 
     def __init__(self, verbose=True):
         """
@@ -75,6 +75,7 @@ class DateParser:
 
     def find_datetime_cols(self, df):
         """Find all columns that contain date-like strings and convert to datetime objects"""
+        df = df.copy()
         datetime_cols = []
         for col in df.select_dtypes(include="object"):
             if self.col_contains_dates(df[col].dropna()):
