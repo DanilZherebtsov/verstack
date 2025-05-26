@@ -7,7 +7,7 @@ from verstack.tools import timer
 
 class FeatureSelector:  
 
-    __version__ = '0.0.8'
+    __version__ = '0.0.9'
 
     def __init__(self, **kwargs):
 
@@ -493,7 +493,6 @@ class FeatureSelector:
         if data_size > self.subset_size_mb:
             batch = self.subset_size_mb / data_size
             experimental_data = temp.sample(frac=batch)
-            experimental_data.reset_index(drop=True, inplace=True)
             X = experimental_data.drop('target', axis=1)
             y = experimental_data.target
             self.printer.print(f'Data decreased for experiments. Working with {np.round(batch*100,2)}% of data', order = 3)
@@ -501,6 +500,8 @@ class FeatureSelector:
         else:
             self.printer.print('Experiments are carried out on complete dataset', order = 3)
         del temp, data_size
+        X.reset_index(drop=True, inplace=True)
+        y.reset_index(drop=True, inplace=True)
         return X, y  
 
     def _scale_data(self, X):
