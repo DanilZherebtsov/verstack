@@ -8,7 +8,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 class DateParser:
 
-    __version__ = "0.1.10"
+    __version__ = "0.1.11"
 
     def __init__(self, verbose=True):
         """
@@ -312,7 +312,7 @@ class DateParser:
                 data.drop(col, axis=1, inplace=True)
             self.printer.print("Extracted following datetime features:", order=2)
             print_output = pd.DataFrame(self._created_datetime_cols)
-            print(print_output.to_markdown())
+            self.printer.print(print_output.to_markdown(), order=0)
         except Exception as e:
             self.printer.print(
                 "Error at DateParser.fit_transform. Returning untransformed df",
@@ -363,5 +363,5 @@ class DateParser:
             df.drop(col, axis=1, inplace=True)
         self.printer.print("Extracted following datetime features:", order=2)
         print_output = pd.DataFrame(self._created_datetime_cols)
-        print(print_output.to_markdown())
+        self.printer.print(print_output.to_markdown(), order=0)
         return df
