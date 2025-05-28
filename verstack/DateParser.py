@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import pprint
 from verstack.tools import Printer
 import warnings
 
@@ -9,7 +8,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 class DateParser:
 
-    __version__ = "0.1.9"
+    __version__ = "0.1.10"
 
     def __init__(self, verbose=True):
         """
@@ -304,7 +303,7 @@ class DateParser:
         self.printer.print("Looking for datetime columns", order=1)
         try:
             data = df.copy()
-            self.find_datetime_cols(data)
+            data = self.find_datetime_cols(data)
             if self._datetime_cols is None:
                 self.printer.print("No datetime columns found", order=2)
                 return df
@@ -312,8 +311,8 @@ class DateParser:
                 data = self.extract_date_features(data, col)
                 data.drop(col, axis=1, inplace=True)
             self.printer.print("Extracted following datetime features:", order=2)
-            pp = pprint.PrettyPrinter(indent=4)
-            pp.pprint(self._created_datetime_cols)
+            print_output = pd.DataFrame(self._created_datetime_cols)
+            print(print_output.to_markdown())
         except Exception as e:
             self.printer.print(
                 "Error at DateParser.fit_transform. Returning untransformed df",
@@ -363,6 +362,6 @@ class DateParser:
                 )
             df.drop(col, axis=1, inplace=True)
         self.printer.print("Extracted following datetime features:", order=2)
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(self._created_datetime_cols)
+        print_output = pd.DataFrame(self._created_datetime_cols)
+        print(print_output.to_markdown())
         return df

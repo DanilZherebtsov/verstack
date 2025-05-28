@@ -1,4 +1,4 @@
-1. cd to verstack.git/verstack directory
+1. cd to verstack.git/verstack
 
 2. run tests 
     $ python -m pytest
