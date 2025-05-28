@@ -1,49 +1,3 @@
-def timer(func):
-    '''
-    Decorator to print func execution time
-
-    Parameters
-    ----------
-    func : function to decorate
-
-    Returns
-    -------
-    wrapped func: function execution time result
-
-    '''
-    import time
-    from functools import wraps
-    @wraps(func)
-    def wrapped(*args, **kwargs):
-        verbose = None
-        if 'verbose' in kwargs:
-            verbose = kwargs['verbose']
-        elif args:
-            try:
-                verbose = args[0].verbose
-            except AttributeError:
-                pass
-        if verbose is None:
-            verbose = True
-        start = time.time()
-        result = func(*args, **kwargs)
-        end = time.time()
-        elapsed = round(end-start,5)
-        if verbose:            
-            if elapsed < 60:
-                print(f"\nTime elapsed for {func.__name__} execution: {elapsed} seconds")
-            elif 60 < elapsed < 3600:
-                minutes = int(elapsed/60)
-                seconds = round(elapsed%60,3)
-                print(f"\nTime elapsed for {func.__name__} execution: {minutes} min {seconds} sec")
-            else:
-                hours = int(elapsed // 60 // 60)
-                minutes = int(elapsed //60 % 60)
-                seconds = int(elapsed % 60)
-                print(f"\nTime elapsed for function {func.__name__} execution: {hours} hour(s) {minutes} min {seconds} sec")
-        return result
-    return wrapped
-
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -51,6 +5,68 @@ Created on Wed Apr 27 17:51:24 2022
 
 @author: danil
 """
+
+
+def timer(func):
+    """
+    Decorator that times the execution of a function and prints the duration
+    in a user-friendly format.
+    
+    Format rules:
+    - Under 1 minute: prints time in seconds
+    - 1-60 minutes: prints time in minutes and seconds
+    - Over 60 minutes: prints time in hours, minutes, and seconds
+    """
+    import time
+    from functools import wraps    
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        # Determine verbosity
+        if 'verbose' in kwargs:
+            verbose = kwargs['verbose']
+        elif args:
+            try:
+                verbose = args[0].verbose
+            except AttributeError:
+                verbose = True
+        else:
+            verbose = True
+            
+        start_time = time.perf_counter()
+        # Execute the function
+        result = func(*args, **kwargs)
+        
+        # Calculate elapsed time
+        elapsed_seconds = time.perf_counter() - start_time
+        
+        # Format based on duration
+        if elapsed_seconds < 60:
+            time_str = f"{elapsed_seconds:.4f} seconds"
+        elif elapsed_seconds < 3600:
+            minutes = int(elapsed_seconds // 60)
+            seconds = int(elapsed_seconds % 60)
+            time_str = f"{minutes}m {seconds}s"  # More concise format
+        else:
+            hours = int(elapsed_seconds // 3600)
+            minutes = int((elapsed_seconds % 3600) // 60)
+            seconds = int(elapsed_seconds % 60)
+            time_str = f"{hours}h {minutes}m {seconds}s"  # More concise format
+            
+        # Determine if this is a class method
+        if verbose:
+            if args and hasattr(args[0], '__class__') and not isinstance(args[0], (int, float, str, bool, list, dict, tuple)):
+                # This is likely a class method
+                class_name = args[0].__class__.__name__
+                print(f"'{class_name}.{func.__name__}()' executed in {time_str}")
+            else:
+                # This is a regular function
+                print(f"'{func.__name__}()' executed in {time_str}")
+                
+        return result
+    
+    return wrapper
+
 
 class Printer:
     
