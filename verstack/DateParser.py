@@ -8,7 +8,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 class DateParser:
 
-    __version__ = "0.1.11"
+    __version__ = "0.2.0"
 
     def __init__(self, verbose=True):
         """
@@ -65,12 +65,26 @@ class DateParser:
         else:
             self._verbose = value
 
+
     def col_contains_dates(self, series):
-        """Check if column contains date-like strings"""
+        """Check if column contains date-like strings
+        
+        Detects common date formats including:
+        - YYYY-MM-DD, MM/DD/YYYY, DD.MM.YYYY
+        - With optional time components (HH:MM or HH:MM:SS)
+        """
         date_pattern = (
-            r"^(?!\d+\.\d+$)\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}( \d{2}:\d{2}:\d{2})?$"
+            r"^(?!\d+\.\d+$)\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}( \d{2}:\d{2}(:\d{2})?)?$"
         )
         return all(series.astype(str).str.contains(date_pattern, regex=True, na=True))
+
+
+    # def col_contains_dates(self, series):
+    #     """Check if column contains date-like strings"""
+    #     date_pattern = (
+    #         r"^(?!\d+\.\d+$)\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}( \d{2}:\d{2}:\d{2})?$"
+    #     )
+    #     return all(series.astype(str).str.contains(date_pattern, regex=True, na=True))
 
     def find_datetime_cols(self, df):
         """Find all columns that contain date-like strings and convert to datetime objects"""

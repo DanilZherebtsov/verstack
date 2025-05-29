@@ -19,6 +19,10 @@ datasets = {
         "train": "unittest/dateparser_train_3.parquet",
         "test": "unittest/dateparser_test_3.parquet",
     },
+    4: {
+        "train": "unittest/dateparser_train_4.parquet",
+        "test": "unittest/dateparser_test_4.parquet",
+    },
 }
 
 
