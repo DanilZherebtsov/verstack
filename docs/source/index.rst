@@ -606,21 +606,21 @@ Datetime columns will be found automatically, transformed to datetime[64] format
  ... same set of features will be created (with column name prefix) for each of the datetime columns DateParser detects.
 
 Supported datetime formats: 
-- DD/MM/YYYY
-- MM/DD/YYYY
-- YYYY/MM/DD
+ - DD/MM/YYYY
+ - MM/DD/YYYY
+ - YYYY/MM/DD
 
 Separator betweed date components can be [/, -, .]
 
 Any of the above date fomat may also include timestamp E.g. '25.03.2024 12:35:48'. Miliseconds are not supported.
-- HH:MM:SS
-- HH:MM
+ - HH:MM:SS
+ - HH:MM
 
 Timezone suport: any of the following timezone format examples are recognized as valid timestamps:
-- 2023-01-01 13:45 UTC
-- 2023-01-01 13:45 UTC+3
-- 2023-01-01 13:45 +0000
-- 2023-01-01 13:45 +00:00
+ - 2023-01-01 13:45 UTC
+ - 2023-01-01 13:45 UTC+3
+ - 2023-01-01 13:45 +0000
+ - 2023-01-01 13:45 +00:00
 
 **Initialize DateParser**
 
