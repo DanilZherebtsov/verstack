@@ -616,7 +616,7 @@ Any of the above date fomat may also include timestamp E.g. '25.03.2024 12:35:48
 - HH:MM:SS
 - HH:MM
 
-Timezone suport: any of the following timezone format examples are recognized as valida timestamps:
+Timezone suport: any of the following timezone format examples are recognized as valid timestamps:
 - 2023-01-01 13:45 UTC
 - 2023-01-01 13:45 UTC+3
 - 2023-01-01 13:45 +0000
@@ -649,6 +649,10 @@ Methods
     - ``df`` [pd.DataFrame]
 
       Data with raw features
+
+    - ``error_tolarance`` [default=0.01]
+
+      Tolerance for datetime parsing errors. If the percentage of rows with parsing errors is above this value, such column will not be parsed and no features will be created for it, the column will be returned as is.
 
   returns
     pd.DataFrame with new features
