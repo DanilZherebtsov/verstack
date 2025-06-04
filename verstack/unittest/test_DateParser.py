@@ -29,9 +29,8 @@ datasets = {
 # test overall DateParser not being broken
 def test_DateParser():
     result = []
-    module = DateParser()
     for dataset in datasets:
-
+        module = DateParser()
         train = pd.read_parquet(datasets[dataset]["train"])
         test = pd.read_parquet(datasets[dataset]["test"])
         transformed_train = module.fit_transform(train)

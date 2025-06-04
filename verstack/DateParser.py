@@ -8,7 +8,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 class DateParser:
 
-    __version__ = "0.2.0"
+    __version__ = "0.3.0"
 
     def __init__(self, verbose=True):
         """
@@ -66,35 +66,54 @@ class DateParser:
             self._verbose = value
 
 
-    def col_contains_dates(self, series):
-        """Check if column contains date-like strings
+    def col_contains_dates(self, series: pd.Series, error_tolerance: float = 0.1) -> bool:
+        """Check if column contains at least (1-error_tolerance)% date-like strings
         
         Detects common date formats including:
-        - YYYY-MM-DD, MM/DD/YYYY, DD.MM.YYYY
-        - With optional time components (HH:MM or HH:MM:SS)
+        YYYY-MM-DD, MM-DD-YYYY, DD-MM-YYYY (date separators can be "-", "/", or ".")
+        With optional time components (HH:MM or HH:MM:SS)
+        With optional timezone information (UTC, GMT, UTC+4, +04:00, +0400)
+        
+        Returns True if at least 90% of non-null values match a date pattern.
         """
         date_pattern = (
-            r"^(?!\d+\.\d+$)\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}( \d{2}:\d{2}(:\d{2})?)?$"
+            r"^(?!\d+\.\d+$)\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}"  # Date part
+            r"(?: \d{2}:\d{2}(?::\d{2})?)?"                   # Optional time part
+            r"(?: (?:[A-Z]{1,5}(?:[+-]\d{1,2})?|(?:[+-]\d{2}:?\d{2})))?$"  # Timezone formats
         )
-        return all(series.astype(str).str.contains(date_pattern, regex=True, na=True))
+        non_null_series = series.dropna()
+        if len(non_null_series) == 0:
+            return False
+        matches = non_null_series.astype(str).str.contains(date_pattern, regex=True).sum()
+        return matches / len(non_null_series) >= 1-error_tolerance
 
 
-    # def col_contains_dates(self, series):
-    #     """Check if column contains date-like strings"""
-    #     date_pattern = (
-    #         r"^(?!\d+\.\d+$)\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}( \d{2}:\d{2}:\d{2})?$"
-    #     )
-    #     return all(series.astype(str).str.contains(date_pattern, regex=True, na=True))
+    def is_any_datetime_dtype(self, series):
+        """Check if a series has any datetime dtype, including timezone-aware ones"""
+        # Try pandas built-in functions first
+        if pd.api.types.is_datetime64_any_dtype(series):
+            return True
+        
+        # For object-dtype Series containing Timestamp objects
+        if hasattr(series, 'dtype') and series.dtype == 'object':
+            # Check if first non-null value is a Timestamp
+            non_null_values = series.dropna()
+            if len(non_null_values) > 0:
+                first_value = non_null_values.iloc[0]
+                return isinstance(first_value, pd.Timestamp)
+        
+        return False
 
-    def find_datetime_cols(self, df):
+
+    def find_datetime_cols(self, df, error_tolerance=0.1):
         """Find all columns that contain date-like strings and convert to datetime objects"""
         df = df.copy()
         datetime_cols = []
         for col in df.select_dtypes(include="object"):
-            if self.col_contains_dates(df[col].dropna()):
+            if self.col_contains_dates(df[col].dropna(), error_tolerance=error_tolerance):
                 converted_to_datetime = self.convert_to_datetime(df[col])
                 if (
-                    converted_to_datetime.dtype == "datetime64[ns]"
+                    self.is_any_datetime_dtype(converted_to_datetime)
                     and converted_to_datetime.nunique() > 1
                 ):
                     df[col] = converted_to_datetime
@@ -106,6 +125,7 @@ class DateParser:
                 f"Datetime columns found: {self._datetime_cols}", order=2
             )
         return df
+
 
     def is_year_four_digits(self, dt_str_series):
         """Check if year is four digits"""
@@ -151,37 +171,23 @@ class DateParser:
             self.dayfirst[dt_str_series.name] = dayfirst
             return dt_series_parsed
 
+
     def extract_date_feature(self, series, feature, fit_transform=True):
-        """Extract date feature from datetime columns
-
-        If feature has more than one unique value, return the feature, else return None.
-        If fit_transform is False, return the feature regardless of number of unique values
-        (applicable for transform method) because regardless of number of unique values,
-        this feature had been extracted at fit_transform.
-
-        Parameters
-        ----------
-        series : pandas.Series
-            Series containing datetime objects
-        feature : str
-            Date feature to extract
-        fit_transform : bool, default=True
-            If True, return None if feature has only one unique value, else return the feature.
-            If False, return the feature regardless of number of unique values.
-
-        Returns
-        -------
-        pandas.Series
-            Series containing extracted date feature or None
-
-        """
-        extracted_feature = eval(f"series.dt.{feature}")
+        """Extract date feature from datetime columns, handling both datetime64 and object dtypes"""
+        try:
+            # Try using dt accessor (works for datetime64 dtype)
+            extracted_feature = eval(f"series.dt.{feature}")
+        except AttributeError:
+            # For object dtype with Timestamp objects
+            extracted_feature = series.apply(lambda x: getattr(x, feature) if pd.notna(x) else pd.NA)
+            
         if not fit_transform:
             return extracted_feature
         if extracted_feature.nunique() > 1:
             return extracted_feature
         else:
             return None
+
 
     def extract_week(self, series, fit_transform=True):
         """Extract week from datetime columns
@@ -238,8 +244,10 @@ class DateParser:
             return 2
         elif 18 <= hour <= 22:
             return 3
-        else:
+        elif 23 <= hour <= 5:
             return 4
+        else:
+            return np.nan
 
     def extract_date_features(self, df, col):
         """Extract date features from datetime columns
@@ -288,7 +296,7 @@ class DateParser:
             self._created_datetime_cols[col].append("part_of_day")
         return df
 
-    def fit_transform(self, df):
+    def fit_transform(self, df, error_tolerance=0.1):
         """Find datetime columns and extract date features from them.
 
         Supported formats:
@@ -306,6 +314,10 @@ class DateParser:
         ----------
         df : pandas.DataFrame
             DataFrame to look for datetime columns and extract date features from
+        error_tolarance : float, optional
+            Tolerance for error in date parsing. If more than len(vals) * error_tolarance
+            of values in a column are not parsed, the column is not considered as datetime.
+            The default is 0.1 (10%).
 
         Returns
         -------
@@ -317,7 +329,7 @@ class DateParser:
         self.printer.print("Looking for datetime columns", order=1)
         try:
             data = df.copy()
-            data = self.find_datetime_cols(data)
+            data = self.find_datetime_cols(data, error_tolerance=error_tolerance)
             if self._datetime_cols is None:
                 self.printer.print("No datetime columns found", order=2)
                 return df
@@ -325,7 +337,7 @@ class DateParser:
                 data = self.extract_date_features(data, col)
                 data.drop(col, axis=1, inplace=True)
             self.printer.print("Extracted following datetime features:", order=2)
-            print_output = pd.DataFrame(self._created_datetime_cols)
+            print_output = pd.DataFrame.from_dict(self._created_datetime_cols, orient='index').T
             self.printer.print(print_output.to_markdown(), order=0)
         except Exception as e:
             self.printer.print(
@@ -356,6 +368,8 @@ class DateParser:
                 "No datetime columns were found at fit_transform", order=1
             )
             return df
+        
+        df = df.copy()
         for col in self._datetime_cols:
             if self.dayfirst.get(col) is None:
                 df[col] = pd.to_datetime(df[col], errors="coerce")
@@ -376,6 +390,6 @@ class DateParser:
                 )
             df.drop(col, axis=1, inplace=True)
         self.printer.print("Extracted following datetime features:", order=2)
-        print_output = pd.DataFrame(self._created_datetime_cols)
+        print_output = pd.DataFrame.from_dict(self._created_datetime_cols, orient='index').T
         self.printer.print(print_output.to_markdown(), order=0)
         return df

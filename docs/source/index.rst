@@ -1,5 +1,5 @@
 ############################
-verstack 4.1.15 Documentation
+verstack 4.2.0 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -609,11 +609,18 @@ Supported datetime formats:
 - DD/MM/YYYY
 - MM/DD/YYYY
 - YYYY/MM/DD
-- YYYY/DD/MM
 
 Separator betweed date components can be [/, -, .]
 
-Any of the above date fomat may also include timestamp HH:MM:SS. E.g. '25.03.2024 12:35:48'. Miliseconds are not supported.
+Any of the above date fomat may also include timestamp E.g. '25.03.2024 12:35:48'. Miliseconds are not supported.
+- HH:MM:SS
+- HH:MM
+
+Timezone suport: any of the following timezone format examples are recognized as valida timestamps:
+- 2023-01-01 13:45 UTC
+- 2023-01-01 13:45 UTC+3
+- 2023-01-01 13:45 +0000
+- 2023-01-01 13:45 +00:00
 
 **Initialize DateParser**
 
@@ -1097,7 +1104,7 @@ Impute all missing values in a pandas dataframe by xgboost models in multiproces
 
 .. note:: 
   This is the second major version of `NaNImputer`. The original class (last version 1.4.0) 
-  had been very popular. The legacy version is `NaNImputerLegacy` has been depresciated after verstack version 4.1.15
+  had been very popular. The legacy version is `NaNImputerLegacy` has been depresciated after verstack version 4.2.0
   Differences between the NaNImputer and NaNImputerLegacy:
       - The new NaNImputer is based on LightGBM instead of XGBoost in the legacy version
       - The new NaNImputer is using a single core multithreading instead of multicore legacy version, it is significantly faster
