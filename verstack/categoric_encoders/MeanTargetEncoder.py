@@ -13,7 +13,7 @@ class MeanTargetEncoder():
     Test set (transform()) is encoded without normalization.
     '''
 
-    __version__ = '0.1.2'
+    __version__ = '0.1.3'
     
     def __init__(self, save_inverse_transform = False, na_sentinel = True):
         '''
@@ -101,7 +101,8 @@ class MeanTargetEncoder():
 
 
         if self._na_sentinel:
-            encoded_df[colname].fillna(self.__global_mean, inplace=True)
+            encoded_df[colname] = encoded_df[colname].astype('float64')
+            encoded_df[colname] = encoded_df[colname].fillna(self.__global_mean)
         encoded_df[colname] = encoded_df[colname].astype('float64')
         return encoded_df
 
@@ -126,10 +127,12 @@ class MeanTargetEncoder():
         incoming_nan_indexes = df[self._colname].isnull()[df[self._colname].isnull()].index
         encoded_df[self._colname] = encoded_df[self._colname].map(self._pattern)
         # fill the unseen categories with self.__global_mean
-        encoded_df[~encoded_df.index.isin(incoming_nan_indexes)][self._colname].fillna(self.__global_mean, inplace = True)
+        mask = ~encoded_df.index.isin(incoming_nan_indexes)
+        encoded_df.loc[mask, self._colname] = encoded_df.loc[mask, self._colname].fillna(self.__global_mean)
         # fill the incoming NaNs with self.__global_mean
         if self._na_sentinel:
-            encoded_df[self._colname].fillna(self.__global_mean, inplace = True)
+            encoded_df[self._colname] = encoded_df[self._colname].astype('float64')
+            encoded_df[self._colname] = encoded_df[self._colname].fillna(self.__global_mean)
         encoded_df[self._colname] = encoded_df[self._colname].astype('float64')
         return encoded_df
         
