@@ -27,8 +27,13 @@ def test_all_date_formats_and_transform():
         'datetime_tz_offset': ['2023-01-01 13:45 +0000', '2023-01-02 14:30 -0500', '2023-01-03 15:15 +0300', '2023-01-04 16:00 +0100', '2023-01-05 17:45 -0800'],
         'datetime_tz_colon': ['2023-01-01 13:45 +00:00', '2023-01-02 14:30 -05:00', '2023-01-03 15:15 +03:00', '2023-01-04 16:00 +01:00', '2023-01-05 17:45 -08:00'],
         
-        'with_errors': ['2023-01-01', '2023-01-02', 'not_a_date', '2023-01-04', 'also_not_a_date'],
+        # ISO 8601 formats with T separator and various timezone representations
+        'iso8601_z': ['2022-02-01T13:45:30Z', '2023-01-02T14:30:45Z', '2023-01-03T15:15:00Z', '2023-01-04T16:00:15Z', '2023-01-05T17:45:30Z'],
+        'iso8601_offset': ['2022-02-01T13:45:30+0000', '2023-01-02T14:30:45-0500', '2023-01-03T15:15:00+0300', '2023-01-04T16:00:15+0100', '2023-01-05T17:45:30-0800'],
+        'iso8601_offset_colon': ['2022-02-01T13:45:30+00:00', '2023-01-02T14:30:45-05:00', '2023-01-03T15:15:00+03:00', '2023-01-04T16:00:15+01:00', '2023-01-05T17:45:30-08:00'],
+        'iso8601_short_offset': ['2022-02-01T13:45:30+00', '2023-01-02T14:30:45-05', '2023-01-03T15:15:00+03', '2023-01-04T16:00:15+01', '2023-01-05T17:45:30-08'],
         
+        'with_errors': ['2023-01-01', '2023-01-02', 'not_a_date', '2023-01-04', 'also_not_a_date'],
         'not_date': ['apple', 'banana', 'cherry', 'strawberry', 'kiwi']
     }
     
@@ -49,7 +54,8 @@ def test_all_date_formats_and_transform():
     expected_datetime_cols = [
         'iso_format', 'slash_format', 'dot_format', 'dmy_format', 'mdy_format',
         'datetime_hm', 'datetime_hms', 'datetime_tz_named', 'datetime_tz_offset', 
-        'datetime_tz_colon', 'ymd_format'
+        'datetime_tz_colon', 'ymd_format', 'iso8601_z', 'iso8601_offset',
+        'iso8601_offset_colon', 'iso8601_short_offset'
     ]
     for col in expected_datetime_cols:
         assert col in parser.datetime_cols, f"Failed to detect {col} as datetime"
@@ -74,6 +80,19 @@ def test_all_date_formats_and_transform():
     assert 'part_of_day' in parser.created_datetime_cols['datetime_hm']
     assert 'second' in parser.created_datetime_cols['datetime_hms']
     assert 'minute' in parser.created_datetime_cols['datetime_tz_offset']
+
+    # Add verification for ISO 8601 formats
+    assert 'hour' in parser.created_datetime_cols['iso8601_z']
+    assert 'minute' in parser.created_datetime_cols['iso8601_z']
+    assert 'second' in parser.created_datetime_cols['iso8601_z']
+    
+    # Check specific feature values for ISO 8601
+    assert transformed_train['iso8601_z_year'].iloc[0] == 2022
+    assert transformed_train['iso8601_z_month'].iloc[0] == 2
+    assert transformed_train['iso8601_z_day'].iloc[0] == 1
+    assert transformed_train['iso8601_z_hour'].iloc[0] == 13
+    assert transformed_train['iso8601_z_minute'].iloc[0] == 45
+    assert transformed_train['iso8601_z_second'].iloc[0] == 30
     
     # Check transform consistency - the columns in transformed_train and transformed_test should match
     assert set(transformed_train.columns) == set(transformed_test.columns)

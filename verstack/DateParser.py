@@ -8,7 +8,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 class DateParser:
 
-    __version__ = "0.3.1"
+    __version__ = "0.4.0"
 
     def __init__(self, verbose=True):
         """
@@ -78,8 +78,8 @@ class DateParser:
         """
         date_pattern = (
             r"^(?!\d+\.\d+$)\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}"  # Date part
-            r"(?: \d{1,2}:\d{1,2}(?::\d{1,2})?)?"             # Optional time part with 1-2 digits
-            r"(?: (?:[A-Z]{1,5}(?:[+-]\d{1,2})?|(?:[+-]\d{2}:?\d{2})))?$"  # Timezone formats
+            r"(?:[ T]\d{1,2}:\d{1,2}(?::\d{1,2})?)?"          # Optional time part with T or space
+            r"(?:Z|(?:[ ]?(?:[A-Z]{1,5}(?:[+-]\d{1,2})?|[+-]\d{2}(?::?\d{2})?)))?$"  # All timezone formats
         )
         non_null_series = series.dropna()
         if len(non_null_series) == 0:
