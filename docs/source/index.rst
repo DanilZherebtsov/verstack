@@ -1,5 +1,5 @@
 ############################
-verstack 4.3.0 Documentation
+verstack 4.3.1 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -623,6 +623,12 @@ Timezone suport: any of the following timezone format examples are recognized as
  - 2023-01-01 13:45 +0000
  - 2023-01-01 13:45 +00:00
 
+ISO 8601 support:
+ - 2024-09-05T10:00:53Z
+ - 2024-09-05T10:00:53+02:00
+ - 2024-09-05T10:00:53-0500
+ - 2024-09-05T10:00:53+03
+
 **Initialize DateParser**
 
 .. code-block:: python
@@ -1109,7 +1115,7 @@ Impute all missing values in a pandas dataframe by xgboost models in multiproces
 
 .. note:: 
   This is the second major version of `NaNImputer`. The original class (last version 1.4.0) 
-  had been very popular. The legacy version is `NaNImputerLegacy` has been depresciated after verstack version 4.3.0
+  had been very popular. The legacy version is `NaNImputerLegacy` has been depresciated after verstack version 4.3.1
   Differences between the NaNImputer and NaNImputerLegacy:
       - The new NaNImputer is based on LightGBM instead of XGBoost in the legacy version
       - The new NaNImputer is using a single core multithreading instead of multicore legacy version, it is significantly faster
