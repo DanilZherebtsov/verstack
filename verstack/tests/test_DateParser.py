@@ -8,20 +8,20 @@ from DateParser import DateParser
 
 datasets = {
     1: {
-        "train": "unittest/dateparser_train_1.parquet",
-        "test": "unittest/dateparser_test_1.parquet",
+        "train": "tests/dateparser_train_1.parquet",
+        "test": "tests/dateparser_test_1.parquet",
     },
     2: {
-        "train": "unittest/dateparser_train_2.parquet",
-        "test": "unittest/dateparser_test_2.parquet",
+        "train": "tests/dateparser_train_2.parquet",
+        "test": "tests/dateparser_test_2.parquet",
     },
     3: {
-        "train": "unittest/dateparser_train_3.parquet",
-        "test": "unittest/dateparser_test_3.parquet",
+        "train": "tests/dateparser_train_3.parquet",
+        "test": "tests/dateparser_test_3.parquet",
     },
     4: {
-        "train": "unittest/dateparser_train_4.parquet",
-        "test": "unittest/dateparser_test_4.parquet",
+        "train": "tests/dateparser_train_4.parquet",
+        "test": "tests/dateparser_test_4.parquet",
     },
 }
 
