@@ -1,6 +1,4 @@
-import pytest
 import sys
-
 sys.path.append("../")
 import numpy as np
 from common import generate_data

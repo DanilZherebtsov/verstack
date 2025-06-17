@@ -1,6 +1,4 @@
-import pytest
 import sys
-
 sys.path.append("../")
 from common import generate_data
 from categoric_encoders.WeightOfEvidenceEncoder import WeightOfEvidenceEncoder

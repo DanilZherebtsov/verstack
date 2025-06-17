@@ -1,4 +1,3 @@
-import pytest
 import sys
 sys.path.append('../')
 from common import generate_data

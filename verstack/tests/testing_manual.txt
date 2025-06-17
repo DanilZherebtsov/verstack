@@ -1,29 +1,8 @@
-1. cd to verstack.git/verstack
+1. cd to verstack.git/verstack/tests
 
 2. run tests 
-    $ python -m pytest
+    $ pytest
 
 2.1 for one tested
-    # python -m pytest test_Stacker.py
+    #pytest test_Stacker.py
 
------------------------------------------------------
-unittest options
------------------------------------------------------
-Video: https://www.youtube.com/watch?v=6tNS--WetLI
-Docs: https://docs.python.org/3/library/unittest.html#unittest.TestCase.debug
-
-Method                          Checks that
------------------------------------------------------
-assertEqual(a, b)               a == b
-assertNotEqual(a, b)            a != b
-assertTrue(x)                   bool(x) is True
-assertFalse(x)                  bool(x) is False
-assertIs(a, b)                  a is b
-assertIsNot(a, b)               a is not b
-assertIsNone(x)                 x is None
-assertIsNotNone(x)              x is not None
-assertIn(a, b)                  a in b
-assertNotIn(a, b)               a not in b
-assertIsInstance(a, b)          isinstance(a, b)
-assertNotIsInstance(a, b)       not isinstance(a, b)
------------------------------------------------------

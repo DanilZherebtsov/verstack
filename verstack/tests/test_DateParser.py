@@ -1,4 +1,3 @@
-import pytest
 import sys
 import numpy as np
 import pandas as pd
@@ -8,20 +7,20 @@ from DateParser import DateParser
 
 datasets = {
     1: {
-        "train": "tests/dateparser_train_1.parquet",
-        "test": "tests/dateparser_test_1.parquet",
+        "train": "dateparser_train_1.parquet",
+        "test": "dateparser_test_1.parquet",
     },
     2: {
-        "train": "tests/dateparser_train_2.parquet",
-        "test": "tests/dateparser_test_2.parquet",
+        "train": "dateparser_train_2.parquet",
+        "test": "dateparser_test_2.parquet",
     },
     3: {
-        "train": "tests/dateparser_train_3.parquet",
-        "test": "tests/dateparser_test_3.parquet",
+        "train": "dateparser_train_3.parquet",
+        "test": "dateparser_test_3.parquet",
     },
     4: {
-        "train": "tests/dateparser_train_4.parquet",
-        "test": "tests/dateparser_test_4.parquet",
+        "train": "dateparser_train_4.parquet",
+        "test": "dateparser_test_4.parquet",
     },
 }
 
