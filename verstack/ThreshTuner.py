@@ -6,11 +6,17 @@ from collections import Counter
 
 class ThreshTuner():
     
-    __version__ = '0.0.5'
+    __version__ = '0.1.0'
     
     ''' Tune threshold for binary classificaiton models output. '''
     
-    def __init__(self, n_thresholds = 200, min_threshold = None, max_threshold = None, verbose = True):
+    def __init__(
+            self, 
+            n_thresholds = 1000, 
+            min_threshold = 0.0000000001, 
+            max_threshold = 0.9999999999,
+            verbose = True
+            ):
         '''
         Initialize class instance
 
@@ -19,12 +25,6 @@ class ThreshTuner():
         n_thresholds : int, optional
             n_thresholds will be uniformly distributed between
             max_threshold and min_threshold. The default is 200.
-        min_threshold : float/int, optional
-            Minimum border of thresholds range. If not set, will be inferred automatically.
-            The default is None.
-        max_threshold : float/int, optional
-            Minimum border of thresholds range. If not set, will be inferred automatically.
-            The default is None.
 
         Returns
         -------
@@ -32,9 +32,9 @@ class ThreshTuner():
 
         '''
         self.n_thresholds = n_thresholds
+        self.labels_fraction_of_1 = None
         self.min_threshold = min_threshold
         self.max_threshold = max_threshold
-        self.labels_fraction_of_1 = None
         self.loss_func = None
         self.result = None
         self.verbose = verbose
@@ -89,32 +89,6 @@ class ThreshTuner():
 
     # =========================================================
 
-    def _get_thresh_barriers(self, labels, smallest = True):
-        '''
-        Extend threshold barriers by 20% for a more comprehensive search.
-        
-        Parameters
-        ----------
-        labels : pd.Series
-            labels.
-        smallest : bool, optional
-            Indicator for min_threshold/max_threshold calculation. 
-            The default is True.
-
-        Returns
-        -------
-        thresh : float
-            extended threshold barrier value.
-
-        '''
-        if smallest:
-            thresh = labels.value_counts(normalize = True).min()*0.8
-        else:
-            thresh = labels.value_counts(normalize = True).max()*1.2
-            if thresh > 1:
-                thresh = int(thresh)
-        return thresh
-
     def _measure_metrics(self, labels, pred, thresholds):
         '''
         Calculate score for each threshold.
@@ -136,20 +110,29 @@ class ThreshTuner():
         None.
 
         '''
-        resulting_dict = {}
-        for i in thresholds:
-            if True in dict(Counter(pred>i)).keys():
-                result_temp = self.loss_func(labels, pred>i)
-                resulting_dict[i] = {}
-                resulting_dict[i][self.loss_func.__name__] = result_temp
-                resulting_dict[i]['fraction_of_1'] = dict(Counter(pred>i))[True]/len(pred)
-        result = pd.DataFrame(resulting_dict).T
-        # rearange dataframe placing index into 'threshold' column
-        result['threshold'] = result.index
-        result.reset_index(drop = True, inplace = True)
-        cols = [result.columns[-1]] + result.columns[:-1].tolist()
-        result = result[cols]        
-        self.result = result            
+        if labels.nunique() == 1:
+            # this means that there is one class in labels and nothing to tune. 
+            print('Labels contain 1 unique value. Threshold can not be tuned - setting 0.5.')
+            # apply default threshold of 0.5
+            score = self.loss_func(labels, pred>0.5)
+            self.result = pd.DataFrame({'threshold': [0.5], 
+                                        self.loss_func.__name__: [score],
+                                        'fraction_of_1': 0})
+        else:
+            resulting_dict = {}
+            for i in thresholds:
+                if True in dict(Counter(pred>i)).keys():
+                    result_temp = self.loss_func(labels, pred>i)
+                    resulting_dict[i] = {}
+                    resulting_dict[i][self.loss_func.__name__] = result_temp
+                    resulting_dict[i]['fraction_of_1'] = dict(Counter(pred>i))[True]/len(pred)
+            result = pd.DataFrame(resulting_dict).T
+            # rearange dataframe placing index into 'threshold' column
+            result['threshold'] = result.index
+            result.reset_index(drop = True, inplace = True)
+            cols = [result.columns[-1]] + result.columns[:-1].tolist()
+            result = result[cols]        
+            self.result = result            
 
     def best_score(self):
         ''' Print results with the best metric value.'''
@@ -209,17 +192,17 @@ class ThreshTuner():
             raise Exception(f'Labels shape {labels.shape} is inconsistent with predictions shape {pred.shape}')
         # =========================================================        
 
-        if not self.min_threshold:
-            self.min_threshold = self._get_thresh_barriers(labels, smallest = True)
-        if not self.max_threshold:
-            self.max_threshold = self._get_thresh_barriers(labels, smallest = False)
         if loss_func is not None:
             self.loss_func = loss_func
         else:
             self.loss_func = balanced_accuracy_score
 
-        self.labels_fraction_of_1 = labels.value_counts()[1]/len(labels)
+        try:
+            self.labels_fraction_of_1 = labels.value_counts()[1]/len(labels)
+        except KeyError:
+            self.labels_fraction_of_1 = 0.0
 
+        # set thresholds as a uniform distribution of n_thresholds
         thresholds = np.linspace(self.min_threshold, self.max_threshold, self.n_thresholds)
 
         self._measure_metrics(labels, pred, thresholds)

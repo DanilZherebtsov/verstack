@@ -1,5 +1,5 @@
 ############################
-verstack 4.3.1 Documentation
+verstack 4.3.3 Documentation
 ############################
 Machine learning tools to make a Data Scientist's work efficient
 
@@ -1115,7 +1115,7 @@ Impute all missing values in a pandas dataframe by xgboost models in multiproces
 
 .. note:: 
   This is the second major version of `NaNImputer`. The original class (last version 1.4.0) 
-  had been very popular. The legacy version is `NaNImputerLegacy` has been depresciated after verstack version 4.3.1
+  had been very popular. The legacy version is `NaNImputerLegacy` has been depresciated after verstack version 4.3.3
   Differences between the NaNImputer and NaNImputerLegacy:
       - The new NaNImputer is based on LightGBM instead of XGBoost in the legacy version
       - The new NaNImputer is using a single core multithreading instead of multicore legacy version, it is significantly faster
@@ -1286,11 +1286,11 @@ Logic
 
   Default behavior (only pass the labels and predictions): 
    - Calculate the labels balance (fraction_of_1 in labels)
-   - Define the min_threshold as fraction_of_1 * 0.8
-   - Define the max_threshold as fraction_of_1 * 1.2 but not greater than 1
-   - Define the n_thresholds = 200
-   - Create 200 threshold options uniformly distributed between min_threshold & max_threshold
-   - Deploy the balanced_accuracy_score as loss_func
+   - Min threshold is defaulted to 0.0000000001
+   - Max threshold is defaulted to 0.9999999999
+   - n_thresholds is defaulted to 1000
+   - Create 1000 threshold options uniformly distributed between min_threshold & max_threshold
+   - Use the balanced_accuracy_score as loss_func
    - Peform loss function calculation and save results in class instance placeholders
 
   Customization options
@@ -1316,17 +1316,17 @@ Logic
 
 Parameters
 ===========================
-* ``n_thresholds`` int [default=200]
+* ``n_thresholds`` int [default=1000]
 
-  Number of thresholds to test. If not set by user: 200 thresholds will be tested.
+  Number of thresholds to test. If not set by user: 1000 thresholds will be tested.
 
-* ``min_threshold`` float or int [default=None]
+* ``min_threshold`` float or int [default=0.0000000001]
 
-  Minimum threshold value. If not set by user: will be inferred from labels balance based on fraction_of_1
+  Minimum threshold value. 
 
-* ``max_threshold`` float or int [default=None]
+* ``max_threshold`` float or int [default=0.9999999999]
 
-  Maximum threshold value. If not set by user: will be inferred from labels balance based on fraction_of_1
+  Maximum threshold value. 
 
 * ``verbose`` bool [default=True]
 
