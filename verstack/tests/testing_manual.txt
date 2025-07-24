@@ -1,8 +1,8 @@
-1. cd to verstack.git/verstack/tests
+1. cd verstack.git
 
 2. run tests 
-    $ pytest
+    $ python -m pytest verstack/tests/
 
 2.1 for one tested
-    #pytest test_Stacker.py
+    #python -m pytest verstack/tests/test_LGBMTuner
 

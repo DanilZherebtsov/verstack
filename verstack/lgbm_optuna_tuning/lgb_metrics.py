@@ -8,7 +8,9 @@ Created on Fri Mar 11 20:34:45 2022
 
 import numpy as np
 from sklearn.metrics import mean_absolute_error as mae
+from sklearn.metrics import root_mean_squared_error as rmse
 from sklearn.metrics import mean_squared_error as mse
+from sklearn.metrics import root_mean_squared_log_error as rmsle
 from sklearn.metrics import mean_squared_log_error as msle
 from sklearn.metrics import r2_score as r2
 from sklearn.metrics import roc_auc_score as auc
@@ -86,17 +88,24 @@ def _percentage_error(real, pred):
 # mae imported from sklearn
 # ------------------------------------------------------------------------------
 
-def rmse(real, pred):
-    return mse(real, pred, squared = False)
+# rmse imported from sklearn
 # ------------------------------------------------------------------------------
 
-def rmsle(real, pred):
-    '''Changes negative predictions to 0 for correct calculation'''
-    try:
-        return msle(real, pred, squared = False)
-    except ValueError:
-        pred_non_negative, real_non_negative = remove_negatives(pred, real)
-        return msle(real_non_negative, pred_non_negative, squared = False)
+# rmsle imported from sklearn
+# ------------------------------------------------------------------------------
+
+# def rmse(real, pred):
+#     return mse(real, pred, squared = False)
+# ------------------------------------------------------------------------------
+
+# def rmsle(real, pred):
+#     '''Changes negative predictions to 0 for correct calculation'''
+#     try:
+#         return msle(real, pred, squared = False)
+#     except ValueError:
+#         pred_non_negative, real_non_negative = remove_negatives(pred, real)
+#         return msle(real_non_negative, pred_non_negative, squared = False)
+
 
 # ------------------------------------------------------------------------------
 

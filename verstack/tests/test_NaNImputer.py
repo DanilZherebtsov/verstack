@@ -1,5 +1,3 @@
-import sys
-sys.path.append('../')
 from common import generate_data
 from NaNImputer import NaNImputer
 

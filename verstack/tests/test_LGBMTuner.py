@@ -1,13 +1,9 @@
-import sys
-sys.path.append("../")
-from common import generate_data
 from lgbm_optuna_tuning.LGBMTuner import LGBMTuner
-
-# TODO: extend tests including gpu
-
+from common import generate_data
 
 def test_LGBMTuner():
     """Test if LGBMTuner will fit and save optimized params"""
+    
     df = generate_data(processed=True)
     # test passing custom_lgbm_params argument
     custom_params = {"zero_as_missing": True}
@@ -19,7 +15,7 @@ def test_LGBMTuner():
         custom_lgbm_params=custom_params,
     )
     # test changing the grid
-    module.grid["max_data_in_leaf"] = {"choice": [40, 50, 70]}
+    module.grid["min_data_in_leaf"] = {"choice": [40, 50, 70]}
     X = df.drop("y", axis=1)
     y = df["y"]
     module.fit(X, y)

@@ -1,8 +1,4 @@
 import pandas as pd
-import numpy as np
-import sys
-
-sys.path.append("../")
 from DateParser import DateParser
 
 def test_all_date_formats_and_transform():

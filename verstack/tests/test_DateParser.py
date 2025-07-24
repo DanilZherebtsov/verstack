@@ -1,29 +1,30 @@
-import sys
 import numpy as np
 import pandas as pd
+import os
 
-sys.path.append("../")
 from DateParser import DateParser
+
+# Get the directory where this test file is located
+test_dir = os.path.dirname(__file__)
 
 datasets = {
     1: {
-        "train": "dateparser_train_1.parquet",
-        "test": "dateparser_test_1.parquet",
+        "train": os.path.join(test_dir, "dateparser_train_1.parquet"),
+        "test": os.path.join(test_dir, "dateparser_test_1.parquet"),
     },
     2: {
-        "train": "dateparser_train_2.parquet",
-        "test": "dateparser_test_2.parquet",
+        "train": os.path.join(test_dir, "dateparser_train_2.parquet"),
+        "test": os.path.join(test_dir, "dateparser_test_2.parquet"),
     },
     3: {
-        "train": "dateparser_train_3.parquet",
-        "test": "dateparser_test_3.parquet",
+        "train": os.path.join(test_dir, "dateparser_train_3.parquet"),
+        "test": os.path.join(test_dir, "dateparser_test_3.parquet"),
     },
     4: {
-        "train": "dateparser_train_4.parquet",
-        "test": "dateparser_test_4.parquet",
+        "train": os.path.join(test_dir, "dateparser_train_4.parquet"),
+        "test": os.path.join(test_dir, "dateparser_test_4.parquet"),
     },
 }
-
 
 # test overall DateParser not being broken
 def test_DateParser():

@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from category_encoders import WOEEncoder
 from verstack.categoric_encoders.args_validators import is_bool_na_sentinel, assert_fit_transform_args, assert_transform_args, assert_binary_target
 from verstack.tools import Printer
 
@@ -81,7 +82,6 @@ class WeightOfEvidenceEncoder():
         assert_binary_target(df, targetname)
         encoded_df = df.copy()
         self._colname = colname
-        from category_encoders import WOEEncoder
         generic_encoder = WOEEncoder(**self._params)
         encoded_column = generic_encoder.fit_transform(df[colname], df[targetname])
         self.__generic_encoder = generic_encoder

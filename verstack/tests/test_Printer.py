@@ -1,5 +1,3 @@
-import sys
-sys.path.append('../')
 from tools import Printer
 
 def test_Printer():
