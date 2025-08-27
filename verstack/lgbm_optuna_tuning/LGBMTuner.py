@@ -29,7 +29,7 @@ supported_gridsearch_params = [
 
 class LGBMTuner:
 
-    __version__ = '1.4.2'
+    __version__ = '1.4.3'
 
     def __init__(self, **kwargs):
         '''
@@ -515,6 +515,7 @@ class LGBMTuner:
             return dtrain, dvalid, valid_x, valid_y
         else:
             return dtrain, dvalid
+    
     # -----------------------------------------------------------------------------
     def fit_optimized(self, X, y):
         '''
@@ -582,8 +583,10 @@ class LGBMTuner:
         '''
         gbm = lgb.train(params, dtrain, valid_sets=[dvalid], callbacks=[pruning_callback])
         pred = gbm.predict(valid_x)
-
-        result = optimization_metric_func(valid_y, pred)
+        if self.metric in classification_metrics: # make sure the log_loss will not throw an error if stratification did not do a good job
+            result = optimization_metric_func(valid_y, pred, labels = self.target_classes)
+        else: 
+            result = optimization_metric_func(valid_y, pred)
 
         optimization_direction = 'lower-better'
 
