@@ -59,7 +59,7 @@ supported_gridsearch_params = [
 
 class LGBMTuner:
 
-    __version__ = "1.4.4"
+    __version__ = "1.4.5"
 
     def __init__(self, **kwargs):
         """
@@ -687,11 +687,16 @@ class LGBMTuner:
             params, dtrain, valid_sets=[dvalid], callbacks=[pruning_callback]
         )
         pred = gbm.predict(valid_x)
-        if (
-            self.metric in classification_metrics
-        ):  # make sure the log_loss will not throw an error if stratification did not do a good job
+        if self.metric in classification_metrics:
+            # make sure the log_loss will not throw an error if stratification did not do a good job
             result = optimization_metric_func(valid_y, pred, labels=self.target_classes)
         else:
+            if self.metric == "rmsle" and self._vector_contains_negative(pred):
+                self.printer.print(
+                    "Predictions have negative values, replacing them with target minimum for rmsle calculation",
+                    order=5,
+                )
+                pred = np.where(pred < 0, self.target_minimum, pred)
             result = optimization_metric_func(valid_y, pred)
 
         optimization_direction = "lower-better"
@@ -1355,6 +1360,10 @@ class LGBMTuner:
             if key not in unsupported_params
         }
 
+    def _vector_contains_negative(self, vector: np.ndarray | pd.Series) -> bool:
+        """Check if vector contains negative values"""
+        return (vector < 0).any()
+
     @timer
     def fit(self, X, y, optuna_study_params=None):
         """
@@ -1394,7 +1403,7 @@ class LGBMTuner:
         validate_features_argument(X)
         validate_target_argument(y)
 
-        if self.metric == "rmsle" and (y < 0).any():
+        if self.metric == "rmsle" and self._vector_contains_negative(y):
             self.printer.print(
                 "'rmsle' cannot be used when target has negative values, switching to 'rmse'",
                 order=1,
